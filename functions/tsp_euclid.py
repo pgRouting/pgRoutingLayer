@@ -13,30 +13,29 @@ class Function(FunctionBase):
         return 'tsp(euclid)'
     
     @classmethod
-    def getControlNames(self):
+    def getControlNames(self, version):
         # 'id' and 'target' are used for finding nearest node
         return [
             'labelId', 'lineEditId',
             'labelSource', 'lineEditSource',
             'labelTarget', 'lineEditTarget',
-            'labelX1', 'lineEditX1',
-            'labelY1', 'lineEditY1',
-            'labelX2', 'lineEditX2',
-            'labelY2', 'lineEditY2',
             'labelIds', 'lineEditIds', 'buttonSelectIds',
             'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
             'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId'
         ]
     
     @classmethod
-    def isEdgeBase(self):
-        return False
-    
-    @classmethod
     def canExport(self):
         return False
-    
-    def prepare(self, con, args, geomType, canvasItemList):
+
+    @classmethod
+    def canExportMerged(self):
+        return False
+
+    def isSupportedVersion(self, version):
+        return version >= 2.0 and version < 3.0
+
+    def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
@@ -45,14 +44,101 @@ class Function(FunctionBase):
     def getQuery(self, args):
         return """
             SELECT seq, id1 AS internal, id2 AS node, cost FROM pgr_tsp('
-                SELECT DISTINCT id, x, y FROM
-                    (SELECT DISTINCT %(source)s AS id, %(x1)s::float8 AS x, %(y1)s::float8 AS y FROM %(edge_table)s
-                    UNION
-                    SELECT DISTINCT %(target)s AS id, %(x2)s::float8 AS x, %(y2)s::float8 AS y FROM %(edge_table)s)
-                    AS node WHERE node.id IN (%(ids)s)',
-                %(source_id)s, %(target_id)s)""" % args
+                SELECT id::int4,
+                    ST_X(the_geom) AS x,
+                    ST_Y(the_geom) AS y,
+                    the_geom
+                FROM  %(edge_table)s_vertices_pgr WHERE id IN (%(ids)s)',
+            %(source_id)s::int4, %(target_id)s::int4)
+            """ % args
     
+    def getExportQuery(self, args):
+        args['result_query'] = self.getQuery(args)
+
+        query = """
+            WITH
+            result AS ( %(result_query)s )
+            SELECT 
+              CASE
+                WHEN result._node = %(edge_table)s.%(source)s
+                  THEN %(edge_table)s.%(geometry)s
+                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
+              END AS path_geom,
+              result.*, %(edge_table)s.*
+            FROM %(edge_table)s JOIN result
+              ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq
+            """ % args
+        return query
+
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        resultPathsRubberBands = canvasItemList['path']
+        rubberBand = None
+        rubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
+        rubberBand.setColor(QColor(255, 0, 0, 128))
+        rubberBand.setWidth(4)
+        i = 0
+        for row in rows:
+            if i == 0:
+                prevrow = row
+                firstrow = row
+                i += 1  
+            cur2 = con.cursor()
+            args['result_seq'] = row[0]
+            args['result_source_id'] = prevrow[2]
+            args['result_target_id'] = row[2]
+            args['result_cost'] = row[3]
+            query2 = """
+                    SELECT ST_AsText( ST_MakeLine( 
+                        (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE %(id)s = %(result_source_id)d),
+                        (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE %(id)s = %(result_target_id)d)
+                        ))
+                """ % args
+            ##Utils.logMessage(query2)
+            cur2.execute(query2)
+            row2 = cur2.fetchone()
+            ##Utils.logMessage(str(row2[0]))
+            assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
+
+            geom = QgsGeometry().fromWkt(str(row2[0]))
+            if geom.wkbType() == QGis.WKBMultiLineString:
+                for line in geom.asMultiPolyline():
+                    for pt in line:
+                        rubberBand.addPoint(pt)
+            elif geom.wkbType() == QGis.WKBLineString:
+                for pt in geom.asPolyline():
+                    rubberBand.addPoint(pt)
+            prevrow = row
+            lastrow = row
+        
+        args['result_source_id'] = lastrow[2]
+        args['result_target_id'] = firstrow[2]
+        args['result_cost'] = row[3]
+        query2 = """
+                SELECT ST_AsText( ST_MakeLine( 
+                    (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE %(id)s = %(result_source_id)d),
+                    (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE %(id)s = %(result_target_id)d)
+                    ))
+            """ % args
+        ##Utils.logMessage(query2)
+        cur2.execute(query2)
+        row2 = cur2.fetchone()
+        ##Utils.logMessage(str(row2[0]))
+        assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
+
+        geom = QgsGeometry().fromWkt(str(row2[0]))
+        if geom.wkbType() == QGis.WKBMultiLineString:
+            for line in geom.asMultiPolyline():
+                for pt in line:
+                    rubberBand.addPoint(pt)
+        elif geom.wkbType() == QGis.WKBLineString:
+            for pt in geom.asPolyline():
+                rubberBand.addPoint(pt)
+
+
+
+
+
+        ############ ANOTATIONS
         resultNodesTextAnnotations = canvasItemList['annotations']
         Utils.setStartPoint(geomType, args)
         Utils.setEndPoint(geomType, args)

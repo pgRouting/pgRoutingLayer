@@ -49,8 +49,11 @@ class PgRoutingLayer:
         'kdijkstra_path',
         'bdDijkstra',
         'bdAstar',
-        'ksp'
+        'ksp',
+        'trsp_via_vertices',
+        'trsp_via_edges'
     ]
+
     TOGGLE_CONTROL_NAMES = [
         'labelId', 'lineEditId',
         'labelSource', 'lineEditSource',
@@ -64,17 +67,23 @@ class PgRoutingLayer:
         'labelRule', 'lineEditRule',
         'labelToCost', 'lineEditToCost',
         'labelIds', 'lineEditIds', 'buttonSelectIds',
+        'labelPcts', 'lineEditPcts',
         'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+        'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
         'labelSourcePos', 'lineEditSourcePos',
         'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
         'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
         'labelTargetPos', 'lineEditTargetPos',
         'labelDistance', 'lineEditDistance',
+        'labelAlpha', 'lineEditAlpha',
         'labelPaths', 'lineEditPaths',
-        'checkBoxDirected', 'checkBoxHasReverseCost',
+        'checkBoxDirected', 'checkBoxHasReverseCost', 'checkBoxHeapPaths',
         'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql',
     ]
     FIND_RADIUS = 10
+    FRACTION_DECIMAL_PLACES = 2
+    version = 2.0
+    functions = {}
     
     def __init__(self, iface):
         # Save reference to the QGIS interface
@@ -82,6 +91,7 @@ class PgRoutingLayer:
         
         self.idsVertexMarkers = []
         self.targetIdsVertexMarkers = []
+        self.sourceIdsVertexMarkers = []
         self.sourceIdVertexMarker = QgsVertexMarker(self.iface.mapCanvas())
         self.sourceIdVertexMarker.setColor(Qt.blue)
         self.sourceIdVertexMarker.setPenWidth(2)
@@ -90,6 +100,7 @@ class PgRoutingLayer:
         self.targetIdVertexMarker.setColor(Qt.green)
         self.targetIdVertexMarker.setPenWidth(2)
         self.targetIdVertexMarker.setVisible(False)
+        self.idsRubberBands = []
         self.sourceIdRubberBand = QgsRubberBand(self.iface.mapCanvas(), Utils.getRubberBandType(False))
         self.sourceIdRubberBand.setColor(Qt.cyan)
         self.sourceIdRubberBand.setWidth(4)
@@ -125,38 +136,51 @@ class PgRoutingLayer:
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock)
         
         self.idsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
-        #self.idsEmitPoint.setButton(buttonSelectIds)
         self.sourceIdEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
-        #self.sourceIdEmitPoint.setButton(buttonSelectSourceId)
         self.targetIdEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
-        #self.targetIdEmitPoint.setButton(buttonSelectTargetId)
+        self.sourceIdsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
         self.targetIdsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
+
+        #self.idsEmitPoint.setButton(buttonSelectIds)
+        #self.targetIdEmitPoint.setButton(buttonSelectTargetId)
+        #self.sourceIdEmitPoint.setButton(buttonSelectSourceId)
         #self.targetIdsEmitPoint.setButton(buttonSelectTargetId)
         
         #connect the action to each method
         QObject.connect(self.action, SIGNAL("triggered()"), self.show)
+        QObject.connect(self.dock.buttonReloadConnections, SIGNAL("clicked()"), self.reloadConnections)
+        QObject.connect(self.dock.comboConnections, SIGNAL("currentIndexChanged(const QString&)"), self.updateConnectionEnabled)
         QObject.connect(self.dock.comboBoxFunction, SIGNAL("currentIndexChanged(const QString&)"), self.updateFunctionEnabled)
+
         QObject.connect(self.dock.buttonSelectIds, SIGNAL("clicked(bool)"), self.selectIds)
         QObject.connect(self.idsEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setIds)
+
+        # One source id can be selected in some functions/version
         QObject.connect(self.dock.buttonSelectSourceId, SIGNAL("clicked(bool)"), self.selectSourceId)
         QObject.connect(self.sourceIdEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setSourceId)
+
         QObject.connect(self.dock.buttonSelectTargetId, SIGNAL("clicked(bool)"), self.selectTargetId)
         QObject.connect(self.targetIdEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setTargetId)
+
+        # More than one source id can be selected in some functions/version
+        QObject.connect(self.dock.buttonSelectSourceIds, SIGNAL("clicked(bool)"), self.selectSourceIds)
+        QObject.connect(self.sourceIdsEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setSourceIds)
+
         QObject.connect(self.dock.buttonSelectTargetIds, SIGNAL("clicked(bool)"), self.selectTargetIds)
         QObject.connect(self.targetIdsEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setTargetIds)
+
         QObject.connect(self.dock.checkBoxHasReverseCost, SIGNAL("stateChanged(int)"), self.updateReverseCostEnabled)
+
         QObject.connect(self.dock.buttonRun, SIGNAL("clicked()"), self.run)
         QObject.connect(self.dock.buttonExport, SIGNAL("clicked()"), self.export)
         QObject.connect(self.dock.buttonExportMerged, SIGNAL("clicked()"), self.exportMerged)
         QObject.connect(self.dock.buttonClear, SIGNAL("clicked()"), self.clear)
         
         #populate the combo with connections
-        actions = conn.getAvailableConnections()
-        self.actionsDb = {}
-        for a in actions:
-            self.actionsDb[ unicode(a.text()) ] = a
-        for i in self.actionsDb:
-            self.dock.comboConnections.addItem(i)
+        self.reloadMessage = False
+        self.reloadConnections()
+        Utils.logMessage("startup version " + str(self.version))
+
         
         self.prevType = None
         self.functions = {}
@@ -168,26 +192,108 @@ class PgRoutingLayer:
             self.dock.comboBoxFunction.addItem(funcname)
         
         self.dock.lineEditIds.setValidator(QRegExpValidator(QRegExp("[0-9,]+"), self.dock))
+        self.dock.lineEditPcts.setValidator(QRegExpValidator(QRegExp("[0-9,.]+"), self.dock))
+
         self.dock.lineEditSourceId.setValidator(QIntValidator())
-        self.dock.lineEditSourcePos.setValidator(QDoubleValidator(0.0, 1.0, 10, self.dock))
         self.dock.lineEditTargetId.setValidator(QIntValidator())
+
+        self.dock.lineEditSourcePos.setValidator(QDoubleValidator(0.0, 1.0, 10, self.dock))
         self.dock.lineEditTargetPos.setValidator(QDoubleValidator(0.0, 1.0, 10, self.dock))
+
         self.dock.lineEditTargetIds.setValidator(QRegExpValidator(QRegExp("[0-9,]+"), self.dock))
+        self.dock.lineEditSourceIds.setValidator(QRegExpValidator(QRegExp("[0-9,]+"), self.dock))
+
         self.dock.lineEditDistance.setValidator(QDoubleValidator())
+        self.dock.lineEditAlpha.setValidator(QDoubleValidator())
         self.dock.lineEditPaths.setValidator(QIntValidator())
-        
         self.loadSettings()
+        self.reloadMessage = True
         
     def show(self):
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock)
         
     def unload(self):
         self.saveSettings()
+        self.clear()
         # Remove the plugin menu item and icon
         self.iface.removePluginDatabaseMenu("&pgRouting Layer", self.action)
         self.iface.removeDockWidget(self.dock)
         
+    def reloadConnections(self):
+        oldReloadMessage = self.reloadMessage
+        self.reloadMessage = False
+        database = str(self.dock.comboConnections.currentText())
+
+        self.dock.comboConnections.clear()
+
+        actions = conn.getAvailableConnections()
+        self.actionsDb = {}
+        for a in actions:
+            self.actionsDb[ unicode(a.text()) ] = a
+
+        for dbname in self.actionsDb:
+            try:
+                db = self.actionsDb[dbname].connect()
+                con = db.con
+                version = Utils.getPgrVersion(con)
+                if (Utils.getPgrVersion(con) != 0):
+                    self.dock.comboConnections.addItem(dbname)
+
+            finally:
+                if db and db.con:
+                    db.con.close()
+
+        idx = self.dock.comboConnections.findText(database)
+        
+        if idx >= 0:
+            self.dock.comboConnections.setCurrentIndex(idx)
+        else:
+            self.dock.comboConnections.setCurrentIndex(0)
+
+        self.reloadMessage = oldReloadMessage
+        self.updateConnectionEnabled()
+
+
+    def updateConnectionEnabled(self):
+        dbname = str(self.dock.comboConnections.currentText())
+        if dbname =='':
+            return
+
+        db = self.actionsDb[dbname].connect()
+        con = db.con
+        self.version = Utils.getPgrVersion(con)
+        if self.reloadMessage:
+            QMessageBox.information(self.dock, self.dock.windowTitle(), 
+                'Selected database: ' + dbname + '\npgRouting version: ' + str(self.version))
+
+
+        currentFunction = self.dock.comboBoxFunction.currentText()
+        if currentFunction =='':
+            return
+
+        self.loadFunctionsForVersion()
+        self.updateFunctionEnabled(currentFunction)
+
+    def loadFunctionsForVersion(self):
+        currentText = str(self.dock.comboBoxFunction.currentText())
+        self.dock.comboBoxFunction.clear()
+
+        #for funcname, function in self.functions.items():
+        for funcname in sorted(self.functions):
+            function = self.functions[funcname]
+            if (function.isSupportedVersion(self.version)):
+                self.dock.comboBoxFunction.addItem(function.getName())
+
+        idx = self.dock.comboBoxFunction.findText(currentText)
+        if idx >= 0:
+            self.dock.comboBoxFunction.setCurrentIndex(idx)
+
+
+
     def updateFunctionEnabled(self, text):
+        if text == '':
+            return
+        self.clear()
         function = self.functions[str(text)]
         
         self.toggleSelectButton(None)
@@ -196,15 +302,13 @@ class PgRoutingLayer:
             control = getattr(self.dock, controlName)
             control.setVisible(False)
         
-        for controlName in function.getControlNames():
+        for controlName in function.getControlNames(self.version):
             control = getattr(self.dock, controlName)
             control.setVisible(True)
         
-        # adjust sql scroll area max height (TODO:initial display)
-        contents = self.dock.scrollAreaWidgetContents
-        margins = contents.layout().contentsMargins()
-        ##QMessageBox.information(self.dock, self.dock.windowTitle(), '%s - height:%d' % (text, contents.sizeHint().height()))
-        self.dock.scrollAreaColumns.setMaximumHeight(contents.sizeHint().height() + margins.top() + margins.bottom())
+        # for initial display
+        self.dock.gridLayoutSqlColumns.invalidate()
+        self.dock.gridLayoutArguments.invalidate()
         
         if (not self.dock.checkBoxHasReverseCost.isChecked()) or (not self.dock.checkBoxHasReverseCost.isEnabled()):
             self.dock.lineEditReverseCost.setEnabled(False)
@@ -214,37 +318,79 @@ class PgRoutingLayer:
             self.clear()
             
         self.prevType = function.isEdgeBase()
-        
-        self.dock.buttonExport.setEnabled(function.canExport())
+
+        canExport = function.canExport()
+        self.dock.buttonExport.setEnabled(canExport)
+        canExportMerged = function.canExportMerged()
+        self.dock.buttonExportMerged.setEnabled(canExportMerged)
    
     def selectIds(self, checked):
         if checked:
             self.toggleSelectButton(self.dock.buttonSelectIds)
             self.dock.lineEditIds.setText("")
+            self.dock.lineEditPcts.setText("")
             if len(self.idsVertexMarkers) > 0:
                 for marker in self.idsVertexMarkers:
                     marker.setVisible(False)
                 self.idsVertexMarkers = []
+            if len(self.idsRubberBands) > 0:
+                for rubberBand in self.idsRubberBands:
+                    rubberBand.reset(Utils.getRubberBandType(False))
+                self.idsRubberBands = []
             self.iface.mapCanvas().setMapTool(self.idsEmitPoint)
         else:
             self.iface.mapCanvas().unsetMapTool(self.idsEmitPoint)
         
     def setIds(self, pt):
+        function = self.functions[str(self.dock.comboBoxFunction.currentText())]
         args = self.getBaseArguments()
-        result, id, wkt = self.findNearestNode(args, pt)
-        if result:
-            ids = self.dock.lineEditIds.text()
-            if not ids:
-                self.dock.lineEditIds.setText(str(id))
-            else:
-                self.dock.lineEditIds.setText(ids + "," + str(id))
-            geom = QgsGeometry().fromWkt(wkt)
-            vertexMarker = QgsVertexMarker(self.iface.mapCanvas())
-            vertexMarker.setColor(Qt.green)
-            vertexMarker.setPenWidth(2)
-            vertexMarker.setCenter(geom.asPoint())
-            self.idsVertexMarkers.append(vertexMarker)
-            self.iface.mapCanvas().clear() # TODO:
+        mapCanvas = self.iface.mapCanvas()
+        if not function.isEdgeBase():
+            result, id, wkt = self.findNearestNode(args, pt)
+            if result:
+                ids = self.dock.lineEditIds.text()
+                if not ids:
+                    self.dock.lineEditIds.setText(str(id))
+                else:
+                    self.dock.lineEditIds.setText(ids + "," + str(id))
+                geom = QgsGeometry().fromWkt(wkt)
+                vertexMarker = QgsVertexMarker(mapCanvas)
+                vertexMarker.setColor(Qt.green)
+                vertexMarker.setPenWidth(2)
+                vertexMarker.setCenter(geom.asPoint())
+                self.idsVertexMarkers.append(vertexMarker)
+        else:
+            result, id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
+            if result:
+                ids = self.dock.lineEditIds.text()
+                if not ids:
+                    self.dock.lineEditIds.setText(str(id))
+                else:
+                    self.dock.lineEditIds.setText(ids + "," + str(id))
+                geom = QgsGeometry().fromWkt(wkt)
+                idRubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
+                idRubberBand.setColor(Qt.yellow)
+                idRubberBand.setWidth(4)
+                if geom.wkbType() == QGis.WKBMultiLineString:
+                    for line in geom.asMultiPolyline():
+                        for pt in line:
+                            idRubberBand.addPoint(pt)
+                elif geom.wkbType() == QGis.WKBLineString:
+                    for pt in geom.asPolyline():
+                        idRubberBand.addPoint(pt)
+                self.idsRubberBands.append(idRubberBand)
+                pcts = self.dock.lineEditPcts.text()
+                if not pcts:
+                    self.dock.lineEditPcts.setText(str(pos))
+                else:
+                    self.dock.lineEditPcts.setText(pcts + "," + str(pos))
+                pointGeom = QgsGeometry().fromWkt(pointWkt)
+                vertexMarker = QgsVertexMarker(mapCanvas)
+                vertexMarker.setColor(Qt.green)
+                vertexMarker.setPenWidth(2)
+                vertexMarker.setCenter(pointGeom.asPoint())
+                self.idsVertexMarkers.append(vertexMarker)
+        Utils.refreshMapCanvas(mapCanvas)
         
     def selectSourceId(self, checked):
         if checked:
@@ -268,7 +414,7 @@ class PgRoutingLayer:
                 self.sourceIdVertexMarker.setVisible(True)
                 self.dock.buttonSelectSourceId.click()
         else:
-            result, id, wkt = self.findNearestLink(args, pt)
+            result, id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
             if result:
                 self.dock.lineEditSourceId.setText(str(id))
                 geom = QgsGeometry().fromWkt(wkt)
@@ -279,9 +425,45 @@ class PgRoutingLayer:
                 elif geom.wkbType() == QGis.WKBLineString:
                     for pt in geom.asPolyline():
                         self.sourceIdRubberBand.addPoint(pt)
+                self.dock.lineEditSourcePos.setText(str(pos))
+                pointGeom = QgsGeometry().fromWkt(pointWkt)
+                self.sourceIdVertexMarker.setCenter(pointGeom.asPoint())
+                self.sourceIdVertexMarker.setVisible(True)
                 self.dock.buttonSelectSourceId.click()
-        self.iface.mapCanvas().clear() # TODO:
+        Utils.refreshMapCanvas(self.iface.mapCanvas())
         
+        
+    def selectSourceIds(self, checked):
+        if checked:
+            self.toggleSelectButton(self.dock.buttonSelectSourceIds)
+            self.dock.lineEditSourceIds.setText("")
+            if len(self.sourceIdsVertexMarkers) > 0:
+                for marker in self.sourceIdsVertexMarkers:
+                    marker.setVisible(False)
+                self.sourceIdsVertexMarkers = []
+            self.iface.mapCanvas().setMapTool(self.sourceIdsEmitPoint)
+        else:
+            self.iface.mapCanvas().unsetMapTool(self.sourceIdsEmitPoint)
+        
+    def setSourceIds(self, pt):
+        args = self.getBaseArguments()
+        result, id, wkt = self.findNearestNode(args, pt)
+        if result:
+            ids = self.dock.lineEditSourceIds.text()
+            if not ids:
+                self.dock.lineEditSourceIds.setText(str(id))
+            else:
+                self.dock.lineEditSourceIds.setText(ids + "," + str(id))
+            geom = QgsGeometry().fromWkt(wkt)
+            mapCanvas = self.iface.mapCanvas()
+            vertexMarker = QgsVertexMarker(mapCanvas)
+            vertexMarker.setColor(Qt.blue)
+            vertexMarker.setPenWidth(2)
+            vertexMarker.setCenter(geom.asPoint())
+            self.sourceIdsVertexMarkers.append(vertexMarker)
+            Utils.refreshMapCanvas(mapCanvas)
+
+
     def selectTargetId(self, checked):
         if checked:
             self.toggleSelectButton(self.dock.buttonSelectTargetId)
@@ -304,7 +486,7 @@ class PgRoutingLayer:
                 self.targetIdVertexMarker.setVisible(True)
                 self.dock.buttonSelectTargetId.click()
         else:
-            result, id, wkt = self.findNearestLink(args, pt)
+            result, id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
             if result:
                 self.dock.lineEditTargetId.setText(str(id))
                 geom = QgsGeometry().fromWkt(wkt)
@@ -315,8 +497,12 @@ class PgRoutingLayer:
                 elif geom.wkbType() == QGis.WKBLineString:
                     for pt in geom.asPolyline():
                         self.targetIdRubberBand.addPoint(pt)
+                self.dock.lineEditTargetPos.setText(str(pos))
+                pointGeom = QgsGeometry().fromWkt(pointWkt)
+                self.targetIdVertexMarker.setCenter(pointGeom.asPoint())
+                self.targetIdVertexMarker.setVisible(True)
                 self.dock.buttonSelectTargetId.click()
-        self.iface.mapCanvas().clear() # TODO:
+        Utils.refreshMapCanvas(self.iface.mapCanvas())
         
     def selectTargetIds(self, checked):
         if checked:
@@ -340,12 +526,13 @@ class PgRoutingLayer:
             else:
                 self.dock.lineEditTargetIds.setText(ids + "," + str(id))
             geom = QgsGeometry().fromWkt(wkt)
-            vertexMarker = QgsVertexMarker(self.iface.mapCanvas())
+            mapCanvas = self.iface.mapCanvas()
+            vertexMarker = QgsVertexMarker(mapCanvas)
             vertexMarker.setColor(Qt.green)
             vertexMarker.setPenWidth(2)
             vertexMarker.setCenter(geom.asPoint())
             self.targetIdsVertexMarkers.append(vertexMarker)
-            self.iface.mapCanvas().clear() # TODO:
+            Utils.refreshMapCanvas(mapCanvas)
         
     def updateReverseCostEnabled(self, state):
         if state == Qt.Checked:
@@ -354,10 +541,11 @@ class PgRoutingLayer:
             self.dock.lineEditReverseCost.setEnabled(False)
         
     def run(self):
+        """ Draws a Preview on the canvas"""
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-        args = self.getArguments(function.getControlNames())
+        args = self.getArguments(function.getControlNames(self.version))
         
         empties = []
         for key in args.keys():
@@ -371,24 +559,33 @@ class PgRoutingLayer:
             return
         
         try:
-            dados = str(self.dock.comboConnections.currentText())
-            db = self.actionsDb[dados].connect()
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
             
             con = db.con
             
-            srid, geomType = self.getSridAndGeomType(con, args)
-            function.prepare(con, args, geomType, self.canvasItemList)
+            version = Utils.getPgrVersion(con)
+            args['version'] = version
             
+            srid, geomType = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])
+            if (function.getName() == 'tsp(euclid)'):
+                args['node_query'] = Utils.getNodeQuery(args, geomType)
+            
+            function.prepare(self.canvasItemList)
+            
+            args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
             query = function.getQuery(args)
-            ##QMessageBox.information(self.dock, self.dock.windowTitle(), query)
-            
+            #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + query)
+           
             cur = con.cursor()
             cur.execute(query)
             rows = cur.fetchall()
+            if  len(rows) == 0:
+                QMessageBox.information(self.dock, self.dock.windowTitle(), 'No paths found in ' + self.getLayerName(args))
             
             args['srid'] = srid
-            args['canvas_srid'] = Utils.getCanvasSrid(Utils.getDestinationCrs(self.iface.mapCanvas().mapRenderer()))
-            Utils.setTransformQuotes(args)
+            args['canvas_srid'] = Utils.getCanvasSrid(Utils.getDestinationCrs(self.iface.mapCanvas()))
+            Utils.setTransformQuotes(args, srid, args['canvas_srid'])
             function.draw(rows, con, args, geomType, self.canvasItemList, self.iface.mapCanvas())
             
         except psycopg2.DatabaseError, e:
@@ -416,7 +613,7 @@ class PgRoutingLayer:
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-        args = self.getArguments(function.getControlNames())
+        args = self.getArguments(function.getControlNames(self.version))
         
         empties = []
         for key in args.keys():
@@ -429,40 +626,39 @@ class PgRoutingLayer:
                 'Following argument is not specified.\n' + ','.join(empties))
             return
         
-        args['path_query'] = function.getQuery(args)
-        
-        query = """
-            SELECT %(edge_table)s.*,
-                result.seq AS result_seq,
-                result.node AS result_node,
-                result.cost AS result_cost
-                FROM %(edge_table)s
-                JOIN
-                (%(path_query)s) AS result
-                ON %(edge_table)s.%(id)s = result.edge ORDER BY result.seq """ % args
-        
-        query = query.replace('\n', ' ')
-        query = re.sub(r'\s+', ' ', query)
-        query = query.replace('( ', '(')
-        query = query.replace(' )', ')')
-        query = query.strip()
-        ##QMessageBox.information(self.dock, self.dock.windowTitle(), query)
-        
         try:
-            dados = str(self.dock.comboConnections.currentText())
-            db = self.actionsDb[dados].connect()
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
+            
+            con = db.con
+            
+            version = Utils.getPgrVersion(con)
+
+            args['version'] = version
+            if (self.version!=version) :
+                QMessageBox.warning(self.dock, self.dock.windowTitle(),
+                  'versions are different')
+
+
+            srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
+            args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
+
+            #get the EXPORT query
+            msgQuery = function.getExportQuery(args)
+            Utils.logMessage('Export:\n' + msgQuery)
+            
+            query = self.cleanQuery(msgQuery)
             
             uri = db.getURI()
-            uri.setDataSource("", "(" + query + ")", args['geometry'], "", "result_seq")
+            uri.setDataSource("", "(" + query + ")", "path_geom", "", "seq")
             
-            # add vector layer to map
-            layerName = function.getName() + " - from " + args['source_id'] + " to "
-            if 'target_id' in args:
-                layerName += args['target_id']
-            else:
-                layerName += "many"
-            
+            layerName = self.getLayerName(args)
+
             vl = self.iface.addVectorLayer(uri.uri(), layerName, db.getProviderName())
+            if not vl:
+                QMessageBox.information(self.dock, self.dock.windowTitle(), 'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
+                #QMessageBox.information(self.dock, self.dock.windowTitle(), 'pgRouting Query:' + function.getQuery(args))
+                #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + msgQuery)
             
         except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
@@ -481,12 +677,39 @@ class PgRoutingLayer:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
                         'server closed the connection unexpectedly')
 
+    def cleanQuery(self, msgQuery):
+        query = msgQuery.replace('\n', ' ')
+        query = re.sub(r'\s+', ' ', query)
+        query = query.replace('( ', '(')
+        query = query.replace(' )', ')')
+        query = query.strip()
+        return query
+
+    def getBBOX(self, srid):
+        """ Returns the (Ready to use in query BBOX , print BBOX) """
+        bbox = {}
+        bbox['srid'] = srid
+        bbox['xMin'] = self.iface.mapCanvas().extent().xMinimum()
+        bbox['yMin'] = self.iface.mapCanvas().extent().yMinimum()
+        bbox['xMax'] = self.iface.mapCanvas().extent().xMaximum()
+        bbox['yMax'] = self.iface.mapCanvas().extent().yMaximum()
+        text = "BBOX(" + str(round(bbox['xMin'],2))
+        text += " " + str(round(bbox['yMin'],2))
+        text += "," + str(round(bbox['xMax'],2))
+        text += " " + str(round(bbox['yMax'],2)) + ")"
+        return """
+            ST_MakeEnvelope(
+              %(xMin)s, %(yMin)s,
+              %(xMax)s, %(yMax)s, %(srid)s
+              )
+        """ % bbox, text
+    
                         
     def exportMerged(self):
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-        args = self.getArguments(function.getControlNames())
+        args = self.getArguments(function.getControlNames(self.version))
         
         empties = []
         for key in args.keys():
@@ -499,41 +722,41 @@ class PgRoutingLayer:
                 'Following argument is not specified.\n' + ','.join(empties))
             return
         
-        args['path_query'] = function.getQuery(args)
-        
-        query = """SELECT 1 AS id, ST_LINEMERGE(geom) as geom, ST_LENGTH(ST_LINEMERGE(geom)) as route_length FROM (
-            SELECT ST_UNION(geom) AS geom FROM (
-            SELECT %(edge_table)s.*,
-                result.seq AS result_seq,
-                result.node AS result_node,
-                result.cost AS result_cost
-                FROM %(edge_table)s
-                JOIN
-                (%(path_query)s) AS result
-                ON %(edge_table)s.%(id)s = result.edge ORDER BY result.seq ) as foo ) as bar""" % args
-        
-        query = query.replace('\n', ' ')
-        query = re.sub(r'\s+', ' ', query)
-        query = query.replace('( ', '(')
-        query = query.replace(' )', ')')
-        query = query.strip()
-        ##QMessageBox.information(self.dock, self.dock.windowTitle(), query)
-        
         try:
-            dados = str(self.dock.comboConnections.currentText())
-            db = self.actionsDb[dados].connect()
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
+            
+            con = db.con
+            
+            version = Utils.getPgrVersion(con)
+            args['version'] = version
+            
+            srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
+            args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
+            msgQuery = function.getExportMergeQuery(args)
+            Utils.logMessage('Export merged:\n' + msgQuery)
+
+            query = self.cleanQuery(msgQuery)
             
             uri = db.getURI()
-            uri.setDataSource("", "(" + query + ")", args['geometry'], "", "id")
+            uri.setDataSource("", "(" + query + ")", "path_geom", "", "seq")
             
             # add vector layer to map
-            layerName = function.getName() + " - from " + args['source_id'] + " to "
-            if 'target_id' in args:
-                layerName += args['target_id']
-            else:
-                layerName += "many"
+            layerName = self.getLayerName(args, 'M')
             
             vl = self.iface.addVectorLayer(uri.uri(), layerName, db.getProviderName())
+            if not vl:
+
+                bigIntFunctions = [
+                    'dijkstra',
+                    'drivingDistance',
+                    'ksp',
+                    'alphaShape'
+                ]
+                if function.getName() in bigIntFunctions:
+                    QMessageBox.information(self.dock, self.dock.windowTitle(), 'Invalid Layer:\n - No paths found')
+                else:
+                    QMessageBox.information(self.dock, self.dock.windowTitle(), 'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
             
         except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
@@ -552,19 +775,74 @@ class PgRoutingLayer:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
                         'server closed the connection unexpectedly')
         
+    def getLayerName(self, args, letter=''):
+        function = self.functions[str(self.dock.comboBoxFunction.currentText())]
+
+        layerName = "(" + letter 
+
+        if 'directed' in args and args['directed'] == 'true':
+            layerName +=  "D) "
+        else:
+            layerName +=  "U) "
+
+        layerName += function.getName() + ": "
+
+
+        if 'source_id' in args:
+            layerName +=  args['source_id']
+        elif 'ids' in args:
+            layerName += "{" + args['ids'] + "}"
+        else:
+            layerName +=  "[" + args['source_ids'] + "]"
+
+        if 'ids' in args:
+            layerName += " "
+        elif 'distance' in args:
+            layerName += " dd = " + args['distance']
+        else:
+            layerName += " to "
+            if 'target_id' in args:
+                layerName += args['target_id']
+            else:
+                layerName += "[" + args['target_ids'] + "]"
+
+        if 'paths' in args:
+            layerName +=  " -  K = " + args['paths']
+            if 'heap_paths' in args and args['heap_paths'] == 'true':
+                layerName += '+'
+        layerName += " " +  args['printBBOX']
+
+        return layerName
+            
+
+
+
     def clear(self):
-        self.dock.lineEditIds.setText("")
+        #self.dock.lineEditIds.setText("")
         for marker in self.idsVertexMarkers:
             marker.setVisible(False)
         self.idsVertexMarkers = []
-        self.dock.lineEditTargetIds.setText("")
+
+        #self.dock.lineEditSourceIds.setText("")
+        for marker in self.sourceIdsVertexMarkers:
+            marker.setVisible(False)
+        self.sourceIdsVertexMarkers = []
+
+        #self.dock.lineEditTargetIds.setText("")
         for marker in self.targetIdsVertexMarkers:
             marker.setVisible(False)
         self.targetIdsVertexMarkers = []
-        self.dock.lineEditSourceId.setText("")
+
+        #self.dock.lineEditPcts.setText("")
+        #self.dock.lineEditSourceId.setText("")
         self.sourceIdVertexMarker.setVisible(False)
-        self.dock.lineEditTargetId.setText("")
+        #self.dock.lineEditSourcePos.setText("0.5")
+        #self.dock.lineEditTargetId.setText("")
         self.targetIdVertexMarker.setVisible(False)
+        #self.dock.lineEditTargetPos.setText("0.5")
+        for rubberBand in self.idsRubberBands:
+            rubberBand.reset(Utils.getRubberBandType(False))
+        self.idsRubberBands = []
         self.sourceIdRubberBand.reset(Utils.getRubberBandType(False))
         self.targetIdRubberBand.reset(Utils.getRubberBandType(False))
         for marker in self.canvasItemList['markers']:
@@ -596,6 +874,7 @@ class PgRoutingLayer:
         args['geometry'] = self.dock.lineEditGeometry.text()
         if 'lineEditId' in controls:
             args['id'] = self.dock.lineEditId.text()
+
         if 'lineEditSource' in controls:
             args['source'] = self.dock.lineEditSource.text()
         
@@ -628,12 +907,18 @@ class PgRoutingLayer:
         
         if 'lineEditIds' in controls:
             args['ids'] = self.dock.lineEditIds.text()
-        
+
+        if 'lineEditPcts' in controls:
+            args['pcts'] = self.dock.lineEditPcts.text()
+
         if 'lineEditSourceId' in controls:
             args['source_id'] = self.dock.lineEditSourceId.text()
         
         if 'lineEditSourcePos' in controls:
             args['source_pos'] = self.dock.lineEditSourcePos.text()
+        
+        if 'lineEditSourceIds' in controls:
+            args['source_ids'] = self.dock.lineEditSourceIds.text()
         
         if 'lineEditTargetId' in controls:
             args['target_id'] = self.dock.lineEditTargetId.text()
@@ -647,11 +932,17 @@ class PgRoutingLayer:
         if 'lineEditDistance' in controls:
             args['distance'] = self.dock.lineEditDistance.text()
         
+        if 'lineEditAlpha' in controls:
+            args['alpha'] = self.dock.lineEditAlpha.text()
+        
         if 'lineEditPaths' in controls:
             args['paths'] = self.dock.lineEditPaths.text()
         
         if 'checkBoxDirected' in controls:
             args['directed'] = str(self.dock.checkBoxDirected.isChecked()).lower()
+        
+        if 'checkBoxHeapPaths' in controls:
+            args['heap_paths'] = str(self.dock.checkBoxHeapPaths.isChecked()).lower()
         
         if 'checkBoxHasReverseCost' in controls:
             args['has_reverse_cost'] = str(self.dock.checkBoxHasReverseCost.isChecked()).lower()
@@ -661,7 +952,7 @@ class PgRoutingLayer:
                 args['reverse_cost'] = ', ' + args['reverse_cost'] + '::float8 AS reverse_cost'
         
         if 'plainTextEditTurnRestrictSql' in controls:
-            args['turn_restrict_sql'] = self.dock.plainTextEditTurnRestrictSql.toPlainText();
+            args['turn_restrict_sql'] = self.dock.plainTextEditTurnRestrictSql.toPlainText()
         
         return args
         
@@ -686,29 +977,20 @@ class PgRoutingLayer:
         
         return args
         
-    def getSridAndGeomType(self, con, args):
-        cur = con.cursor()
-        cur.execute("""
-            SELECT ST_SRID(%(geometry)s), ST_GeometryType(%(geometry)s)
-                FROM %(edge_table)s
-                WHERE %(id)s = (SELECT MIN(%(id)s) FROM %(edge_table)s)""" % args)
-        row = cur.fetchone()
-        srid = row[0]
-        geomType = row[1]
-        return srid, geomType
         
     # emulate "matching.sql" - "find_nearest_node_within_distance"
     def findNearestNode(self, args, pt):
         distance = self.iface.mapCanvas().getCoordinateTransform().mapUnitsPerPixel() * self.FIND_RADIUS
         rect = QgsRectangle(pt.x() - distance, pt.y() - distance, pt.x() + distance, pt.y() + distance)
-        canvasCrs = Utils.getDestinationCrs(self.iface.mapCanvas().mapRenderer())
+        canvasCrs = Utils.getDestinationCrs(self.iface.mapCanvas())
         db = None
         try:
-            dados = str(self.dock.comboConnections.currentText())
-            db = self.actionsDb[dados].connect()
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
             
             con = db.con
-            srid, geomType = self.getSridAndGeomType(con, args)
+            #srid, geomType = self.getSridAndGeomType(con, args)
+            srid, geomType = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])
             if self.iface.mapCanvas().hasCrsTransformEnabled():
                 layerCrs = QgsCoordinateReferenceSystem()
                 Utils.createFromSrid(layerCrs, srid)
@@ -727,7 +1009,8 @@ class PgRoutingLayer:
             
             Utils.setStartPoint(geomType, args)
             Utils.setEndPoint(geomType, args)
-            Utils.setTransformQuotes(args)
+            #Utils.setTransformQuotes(args)
+            Utils.setTransformQuotes(args, srid, args['canvas_srid'])
             
             # Getting nearest source
             query1 = """
@@ -741,7 +1024,7 @@ class PgRoutingLayer:
                 WHERE ST_SetSRID('BOX3D(%(minx)f %(miny)f, %(maxx)f %(maxy)f)'::BOX3D, %(srid)d)
                     && %(geometry)s ORDER BY dist ASC LIMIT 1""" % args
             
-            ##QMessageBox.information(self.dock, self.dock.windowTitle(), query1)
+            ##Utils.logMessage(query1)
             cur1 = con.cursor()
             cur1.execute(query1)
             row1 = cur1.fetchone()
@@ -765,7 +1048,7 @@ class PgRoutingLayer:
                 WHERE ST_SetSRID('BOX3D(%(minx)f %(miny)f, %(maxx)f %(maxy)f)'::BOX3D, %(srid)d)
                     && %(geometry)s ORDER BY dist ASC LIMIT 1""" % args
             
-            ##QMessageBox.information(self.dock, self.dock.windowTitle(), query2)
+            ##Utils.logMessage(query2)
             cur2 = con.cursor()
             cur2.execute(query2)
             row2 = cur2.fetchone()
@@ -799,7 +1082,7 @@ class PgRoutingLayer:
                     d = d2
                     wkt = wkt2
             
-            ##QMessageBox.information(self.dock, self.dock.windowTitle(), str(d))
+            ##Utils.logMessage(str(d))
             if (d == None) or (d > distance):
                 node = None
                 wkt = None
@@ -820,14 +1103,15 @@ class PgRoutingLayer:
     def findNearestLink(self, args, pt):
         distance = self.iface.mapCanvas().getCoordinateTransform().mapUnitsPerPixel() * self.FIND_RADIUS
         rect = QgsRectangle(pt.x() - distance, pt.y() - distance, pt.x() + distance, pt.y() + distance)
-        canvasCrs = Utils.getDestinationCrs(self.iface.mapCanvas().mapRenderer())
+        canvasCrs = Utils.getDestinationCrs(self.iface.mapCanvas())
         try:
-            dados = str(self.dock.comboConnections.currentText())
-            db = self.actionsDb[dados].connect()
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
             
             con = db.con
             cur = con.cursor()
-            srid, geomType = self.getSridAndGeomType(con, args)
+            #srid, geomType = self.getSridAndGeomType(con, args)
+            srid, geomType = Utils.getSridAndGeomType(con, 'edge_table', '%(geometry)s' % args)
             if self.iface.mapCanvas().hasCrsTransformEnabled():
                 layerCrs = QgsCoordinateReferenceSystem()
                 Utils.createFromSrid(layerCrs, srid)
@@ -843,22 +1127,27 @@ class PgRoutingLayer:
             args['miny'] = rect.yMinimum()
             args['maxx'] = rect.xMaximum()
             args['maxy'] = rect.yMaximum()
+            args['decimal_places'] = self.FRACTION_DECIMAL_PLACES
             
-            Utils.setTransformQuotes(args)
+            #Utils.setTransformQuotes(args)
+            Utils.setTransformQuotes(args, srid, args['canvas_srid'])
             
             # Searching for a link within the distance
             query = """
+            WITH point AS (
+                SELECT ST_GeomFromText('POINT(%(x)f %(y)f)', %(srid)d) AS geom
+            )
             SELECT %(id)s,
-                ST_Distance(
-                    %(geometry)s,
-                    ST_GeomFromText('POINT(%(x)f %(y)f)', %(srid)d)
-                ) AS dist,
-                ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s)
-                FROM %(edge_table)s
+                ST_Distance(%(geometry)s, point.geom) AS dist,
+                ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) AS wkt,
+                ROUND(ST_Line_Locate_Point(%(geometry)s, point.geom)::numeric, %(decimal_places)d) AS pos,
+                ST_AsText(%(transform_s)sST_Line_Interpolate_point(%(geometry)s,
+                    ROUND(ST_Line_Locate_Point(%(geometry)s, point.geom)::numeric, %(decimal_places)d))%(transform_e)s) AS pointWkt
+                FROM %(edge_table)s, point
                 WHERE ST_SetSRID('BOX3D(%(minx)f %(miny)f, %(maxx)f %(maxy)f)'::BOX3D, %(srid)d)
                     && %(geometry)s ORDER BY dist ASC LIMIT 1""" % args
             
-            ##QMessageBox.information(self.dock, self.dock.windowTitle(), query)
+            ##Utils.logMessage(query)
             cur = con.cursor()
             cur.execute(query)
             row = cur.fetchone()
@@ -866,8 +1155,10 @@ class PgRoutingLayer:
                 return False, None, None
             link = row[0]
             wkt = row[2]
+            pos = row[3]
+            pointWkt = row[4]
             
-            return True, link, wkt
+            return True, link, wkt, pos, pointWkt
             
         except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
@@ -902,14 +1193,22 @@ class PgRoutingLayer:
         self.dock.lineEditToCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/to_cost', 'to_cost'))
         
         self.dock.lineEditIds.setText(Utils.getStringValue(settings, '/pgRoutingLayer/ids', ''))
+        self.dock.lineEditPcts.setText(Utils.getStringValue(settings, '/pgRoutingLayer/pcts', ''))
+
         self.dock.lineEditSourceId.setText(Utils.getStringValue(settings, '/pgRoutingLayer/source_id', ''))
-        self.dock.lineEditSourcePos.setText(Utils.getStringValue(settings, '/pgRoutingLayer/source_pos', '0.5'))
+        self.dock.lineEditSourceIds.setText(Utils.getStringValue(settings, '/pgRoutingLayer/source_ids', ''))
+
         self.dock.lineEditTargetId.setText(Utils.getStringValue(settings, '/pgRoutingLayer/target_id', ''))
-        self.dock.lineEditTargetPos.setText(Utils.getStringValue(settings, '/pgRoutingLayer/target_pos', '0.5'))
         self.dock.lineEditTargetIds.setText(Utils.getStringValue(settings, '/pgRoutingLayer/target_ids', ''))
+
+        self.dock.lineEditSourcePos.setText(Utils.getStringValue(settings, '/pgRoutingLayer/source_pos', '0.5'))
+        self.dock.lineEditTargetPos.setText(Utils.getStringValue(settings, '/pgRoutingLayer/target_pos', '0.5'))
+
         self.dock.lineEditDistance.setText(Utils.getStringValue(settings, '/pgRoutingLayer/distance', ''))
+        self.dock.lineEditAlpha.setText(Utils.getStringValue(settings, '/pgRoutingLayer/alpha', '0.0'))
         self.dock.lineEditPaths.setText(Utils.getStringValue(settings, '/pgRoutingLayer/paths', '2'))
         self.dock.checkBoxDirected.setChecked(Utils.getBoolValue(settings, '/pgRoutingLayer/directed', False))
+        self.dock.checkBoxHeapPaths.setChecked(Utils.getBoolValue(settings, '/pgRoutingLayer/heap_paths', False))
         self.dock.checkBoxHasReverseCost.setChecked(Utils.getBoolValue(settings, '/pgRoutingLayer/has_reverse_cost', False))
         self.dock.plainTextEditTurnRestrictSql.setPlainText(Utils.getStringValue(settings, '/pgRoutingLayer/turn_restrict_sql', 'null'))
         
@@ -920,26 +1219,37 @@ class PgRoutingLayer:
         
         settings.setValue('/pgRoutingLayer/sql/edge_table', self.dock.lineEditTable.text())
         settings.setValue('/pgRoutingLayer/sql/geometry', self.dock.lineEditGeometry.text())
+
         settings.setValue('/pgRoutingLayer/sql/id', self.dock.lineEditId.text())
         settings.setValue('/pgRoutingLayer/sql/source', self.dock.lineEditSource.text())
         settings.setValue('/pgRoutingLayer/sql/target', self.dock.lineEditTarget.text())
         settings.setValue('/pgRoutingLayer/sql/cost', self.dock.lineEditCost.text())
         settings.setValue('/pgRoutingLayer/sql/reverse_cost', self.dock.lineEditReverseCost.text())
+
         settings.setValue('/pgRoutingLayer/sql/x1', self.dock.lineEditX1.text())
         settings.setValue('/pgRoutingLayer/sql/y1', self.dock.lineEditY1.text())
         settings.setValue('/pgRoutingLayer/sql/x2', self.dock.lineEditX2.text())
         settings.setValue('/pgRoutingLayer/sql/y2', self.dock.lineEditY2.text())
+
         settings.setValue('/pgRoutingLayer/sql/rule', self.dock.lineEditRule.text())
         settings.setValue('/pgRoutingLayer/sql/to_cost', self.dock.lineEditToCost.text())
         
         settings.setValue('/pgRoutingLayer/ids', self.dock.lineEditIds.text())
-        settings.setValue('/pgRoutingLayer/source_id', self.dock.lineEditSourceId.text())
+        settings.setValue('/pgRoutingLayer/pcts', self.dock.lineEditPcts.text())
         settings.setValue('/pgRoutingLayer/source_pos', self.dock.lineEditSourcePos.text())
-        settings.setValue('/pgRoutingLayer/target_id', self.dock.lineEditTargetId.text())
         settings.setValue('/pgRoutingLayer/target_pos', self.dock.lineEditTargetPos.text())
+
+        settings.setValue('/pgRoutingLayer/source_id', self.dock.lineEditSourceId.text())
+        settings.setValue('/pgRoutingLayer/target_id', self.dock.lineEditTargetId.text())
+
+        settings.setValue('/pgRoutingLayer/source_ids', self.dock.lineEditSourceIds.text())
         settings.setValue('/pgRoutingLayer/target_ids', self.dock.lineEditTargetIds.text())
+
         settings.setValue('/pgRoutingLayer/distance', self.dock.lineEditDistance.text())
+        settings.setValue('/pgRoutingLayer/alpha', self.dock.lineEditAlpha.text())
         settings.setValue('/pgRoutingLayer/paths', self.dock.lineEditPaths.text())
         settings.setValue('/pgRoutingLayer/directed', self.dock.checkBoxDirected.isChecked())
+        settings.setValue('/pgRoutingLayer/heap_paths', self.dock.checkBoxHeapPaths.isChecked())
         settings.setValue('/pgRoutingLayer/has_reverse_cost', self.dock.checkBoxHasReverseCost.isChecked())
         settings.setValue('/pgRoutingLayer/turn_restrict_sql', self.dock.plainTextEditTurnRestrictSql.toPlainText())
+
