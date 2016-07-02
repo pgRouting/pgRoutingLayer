@@ -13,70 +13,127 @@ class Function(FunctionBase):
         return 'drivingDistance'
     
     @classmethod
-    def getControlNames(self):
+    def getControlNames(self, version):
+        if version < 2.1:
+            return [
+                'labelId', 'lineEditId',
+                'labelSource', 'lineEditSource',
+                'labelTarget', 'lineEditTarget',
+                'labelCost', 'lineEditCost',
+                'labelReverseCost', 'lineEditReverseCost',
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelDistance', 'lineEditDistance',
+                'checkBoxDirected', 'checkBoxHasReverseCost'
+            ]
+    
+        #Its 2.1 or higher
         return [
             'labelId', 'lineEditId',
             'labelSource', 'lineEditSource',
             'labelTarget', 'lineEditTarget',
             'labelCost', 'lineEditCost',
             'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+            'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
             'labelDistance', 'lineEditDistance',
             'checkBoxDirected', 'checkBoxHasReverseCost'
         ]
     
-    @classmethod
-    def isEdgeBase(self):
-        return False
-    
-    @classmethod
-    def canExport(self):
-        return False
-    
-    def prepare(self, con, args, geomType, canvasItemList):
+    def prepare(self, canvasItemList):
         resultNodesVertexMarkers = canvasItemList['markers']
         for marker in resultNodesVertexMarkers:
             marker.setVisible(False)
         canvasItemList['markers'] = []
     
     def getQuery(self, args):
-        return """
-            SELECT seq, id1 AS node, id2 AS edge, cost FROM pgr_drivingDistance('
-                SELECT %(id)s AS id,
+        if (args['version'] < 2.1):
+            return """
+                SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost
+                FROM pgr_drivingDistance('
+                  SELECT %(id)s::int4 AS id,
                     %(source)s::int4 AS source,
                     %(target)s::int4 AS target,
                     %(cost)s::float8 AS cost%(reverse_cost)s
-                    FROM %(edge_table)s',
-                %(source_id)s, %(distance)s, %(directed)s, %(has_reverse_cost)s)""" % args
-    
+                  FROM %(edge_table)s
+                  WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                  %(source_id)s, %(distance)s,
+                  %(directed)s, %(has_reverse_cost)s)""" % args
+
+        #2.1 or greater
+        #TODO add equicost flag to gui
+        return """
+                SELECT seq, '(' || from_v || ', %(distance)s)' AS path_name,
+                    from_v AS _from_v,
+                    node AS _node, edge AS _edge,
+                    cost AS _cost, agg_cost as _agg_cost
+                FROM pgr_drivingDistance('
+                  SELECT %(id)s AS id,
+                    %(source)s AS source,
+                    %(target)s AS target,
+                    %(cost)s AS cost%(reverse_cost)s
+                  FROM %(edge_table)s
+                  WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                  ARRAY[%(source_ids)s]::BIGINT[], %(distance)s,
+                  %(directed)s, false)
+                """ % args
+
+    def getExportQuery(self, args):
+        # points are returned
+        args['result_query'] = self.getQuery(args)
+
+        args['with_geom_query'] = """
+            SELECT result.*,
+               ST_X(the_geom) AS x, ST_Y(the_geom) AS y,
+               the_geom AS path_geom
+            FROM %(edge_table)s_vertices_pgr JOIN result
+            ON %(edge_table)s_vertices_pgr.id = result._node
+            """ % args
+
+        msgQuery = """WITH
+            result AS ( %(result_query)s ),
+            with_geom AS ( %(with_geom_query)s )
+            SELECT with_geom.*
+            FROM with_geom 
+            ORDER BY seq
+            """ % args
+        return msgQuery
+
+    def getExportMergeQuery(self, args):
+        # the set of edges of the spanning tree are returned
+        return self.getJoinResultWithEdgeTable(args)
+
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultNodesVertexMarkers = canvasItemList['markers']
-        Utils.setStartPoint(geomType, args)
-        Utils.setEndPoint(geomType, args)
+        table =  """%(edge_table)s_vertices_pgr""" % args
+        srid, geomType = Utils.getSridAndGeomType(con, table, 'the_geom')
+        Utils.setTransformQuotes(args,srid, args['canvas_srid'])
+
         for row in rows:
             cur2 = con.cursor()
-            args['result_node_id'] = row[1]
-            args['result_edge_id'] = row[2]
-            args['result_cost'] = row[3]
+            if args['version'] < 2.1:
+                args['result_node_id'] = row[1]
+                args['result_edge_id'] = row[2]
+                args['result_cost'] = row[3]
+            else:
+                args['result_node_id'] = row[3]
+                args['result_edge_id'] = row[4]
+                args['result_cost'] = row[5]
+
             query2 = """
-                SELECT ST_AsText(%(transform_s)s%(startpoint)s%(transform_e)s) FROM %(edge_table)s
-                    WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
-                UNION
-                SELECT ST_AsText(%(transform_s)s%(endpoint)s%(transform_e)s) FROM %(edge_table)s
-                    WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
-            """ % args
+                    SELECT ST_AsText(%(transform_s)s the_geom %(transform_e)s)
+                    FROM %(edge_table)s_vertices_pgr
+                    WHERE  id = %(result_node_id)d
+                    """ % args
             cur2.execute(query2)
             row2 = cur2.fetchone()
-            assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
-            
-            geom = QgsGeometry().fromWkt(str(row2[0]))
-            pt = geom.asPoint()
-            vertexMarker = QgsVertexMarker(mapCanvas)
-            vertexMarker.setColor(Qt.red)
-            vertexMarker.setPenWidth(2)
-            vertexMarker.setIconSize(5)
-            vertexMarker.setCenter(QgsPoint(pt))
-            resultNodesVertexMarkers.append(vertexMarker)
-    
+            if (row2):
+                geom = QgsGeometry().fromWkt(str(row2[0]))
+                pt = geom.asPoint()
+                vertexMarker = QgsVertexMarker(mapCanvas)
+                vertexMarker.setColor(Qt.red)
+                vertexMarker.setPenWidth(2)
+                vertexMarker.setIconSize(5)
+                vertexMarker.setCenter(QgsPoint(pt))
+                resultNodesVertexMarkers.append(vertexMarker)
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)

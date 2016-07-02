@@ -3,6 +3,7 @@ from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
 import psycopg2
+from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
@@ -12,7 +13,7 @@ class Function(FunctionBase):
         return 'shootingStar'
     
     @classmethod
-    def getControlNames(self):
+    def getControlNames(self, version):
         return [
             'labelId', 'lineEditId',
             'labelSource', 'lineEditSource',
@@ -34,30 +35,49 @@ class Function(FunctionBase):
     def isEdgeBase(self):
         return True
     
-    @classmethod
-    def canExport(self):
-        return True
-    
-    def prepare(self, con, args, geomType, canvasItemList):
+    def isSupportedVersion(self, version):
+        return false;
+
+    def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']
         resultPathRubberBand.reset(False)
     
     def getQuery(self, args):
         return """
             SELECT seq, id1 AS node, id2 AS edge, cost FROM pgr_shootingStar('
-                SELECT %(id)s AS id,
-                    %(source)s::int4 AS source,
-                    %(target)s::int4 AS target,
-                    %(cost)s::float8 AS cost%(reverse_cost)s,
-                    %(x1)s::float8 AS x1,
-                    %(y1)s::float8 AS y1,
-                    %(x2)s::float8 AS x2,
-                    %(y2)s::float8 AS y2,
-                    %(rule)s::text AS rule,
-                    %(to_cost)s::float8
-                    FROM %(edge_table)s',
-                %(source_id)s, %(target_id)s, %(directed)s, %(has_reverse_cost)s)""" % args
+              SELECT %(id)s AS id,
+                %(source)s::int4 AS source,
+                %(target)s::int4 AS target,
+                %(cost)s::float8 AS cost%(reverse_cost)s,
+                %(x1)s::float8 AS x1,
+                %(y1)s::float8 AS y1,
+                %(x2)s::float8 AS x2,
+                %(y2)s::float8 AS y2,
+                %(rule)s::text AS rule,
+                %(to_cost)s::float8
+              FROM %(edge_table)s
+              WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+              %(source_id)s, %(target_id)s, %(directed)s, %(has_reverse_cost)s)
+            """ % args
     
+    def getExportQuery(self, args):
+        args['result_query'] = self.getQuery(args)
+
+        query = """
+            WITH
+            result AS ( %(result_query)s )
+            SELECT 
+              CASE
+                WHEN result._node = %(edge_table)s.%(source)s
+                  THEN %(edge_table)s.%(geometry)s
+                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
+              END AS path_geom,
+              result.*, %(edge_table)s.*
+            FROM %(edge_table)s JOIN result
+              ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq
+            """ % args
+        return query
+
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathRubberBand = canvasItemList['path']
         for row in rows:
@@ -72,10 +92,10 @@ class Function(FunctionBase):
                 SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
                     WHERE %(target)s = %(result_vertex_id)d AND %(id)s = %(result_edge_id)d;
             """ % args
-            ##QMessageBox.information(self.ui, self.ui.windowTitle(), query2)
+            ##Utils.logMessage(query2)
             cur2.execute(query2)
             row2 = cur2.fetchone()
-            ##QMessageBox.information(self.ui, self.ui.windowTitle(), str(row2[0]))
+            ##Utils.logMessage(str(row2[0]))
             # TODO: shooting_star always returns invalid vertex_id!
             assert row2, "Invalid result geometry. (vertex_id:%(result_vertex_id)d, edge_id:%(result_edge_id)d)" % args
             
