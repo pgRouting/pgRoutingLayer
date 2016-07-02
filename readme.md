@@ -2,7 +2,7 @@
 
 A plugin for QGIS by Anita Graser and Ko Nagase
 
-* project home and bug tracker: https://github.com/anitagraser/pgRoutingLayer
+* project home and bug tracker: https://github.com/pgRouting/pgRoutingLayer
 * plugin repository: http://plugins.qgis.org/plugins
 
 
