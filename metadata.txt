@@ -1,6 +1,7 @@
 [general]
 name=pgRoutingLayer
 description=Dockable widget that adds pgRouting layers
+about=Dockable widget that adds pgRouting layers
 version=2.1
 qgisMinimumVersion=1.8
 qgisMaximumVersion=2.99
