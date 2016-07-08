@@ -175,13 +175,7 @@ class PgRoutingLayer:
         QObject.connect(self.dock.buttonExport, SIGNAL("clicked()"), self.export)
         QObject.connect(self.dock.buttonExportMerged, SIGNAL("clicked()"), self.exportMerged)
         QObject.connect(self.dock.buttonClear, SIGNAL("clicked()"), self.clear)
-        
-        #populate the combo with connections
-        self.reloadMessage = False
-        self.reloadConnections()
-        Utils.logMessage("startup version " + str(self.version))
 
-        
         self.prevType = None
         self.functions = {}
         for funcfname in self.SUPPORTED_FUNCTIONS:
@@ -207,6 +201,11 @@ class PgRoutingLayer:
         self.dock.lineEditAlpha.setValidator(QDoubleValidator())
         self.dock.lineEditPaths.setValidator(QIntValidator())
         self.loadSettings()
+        
+        #populate the combo with connections
+        self.reloadMessage = False
+        self.reloadConnections()
+        Utils.logMessage("startup version " + str(self.version))
         self.reloadMessage = True
         
     def show(self):
