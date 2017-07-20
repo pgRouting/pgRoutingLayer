@@ -14,18 +14,10 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        self.version = version
-        if self.version < 2.99:
-            # version 2.0 has only one to one
-            return self.commonControls + self.commonBoxes + astarContols[
-                    'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-                    'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-                    ]
-        else:
-            return self.commonControls + self.commonBoxes + astarContols[
-                    'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-                    'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                    ]
+        return self.commonControls + self.commonBoxes + self.astarControls + [
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                ]
 
     def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']
