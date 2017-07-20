@@ -28,6 +28,7 @@ class Function(FunctionBase):
             'labelReverseCost', 'lineEditReverseCost',
             'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
             'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+            'checkBoxUseBBOX',
             'checkBoxDirected', 'checkBoxHasReverseCost'
         ]
     
@@ -46,6 +47,7 @@ class Function(FunctionBase):
         canvasItemList['annotations'] = []
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS source, id2 AS target, cost FROM pgr_kdijkstraCost('
                 SELECT %(id)s::int4 AS id,
@@ -53,26 +55,25 @@ class Function(FunctionBase):
                     %(target)s::int4 AS target,
                     %(cost)s::float8 AS cost%(reverse_cost)s
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                 %(source_id)s, array[%(target_ids)s], %(directed)s, %(has_reverse_cost)s)""" % args
     
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
+        args['vertex_table'] = """ 
+            %(edge_table)s_vertices_pgr
+            """ % args
 
-        query = """
+        return """
             WITH
             result AS ( %(result_query)s )
-            SELECT 
-              CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
-              END AS path_geom,
-              result.*, %(edge_table)s.*
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq
+            SELECT result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
+
+            FROM result
+            JOIN  %(vertex_table)s AS a ON (start_vid = a.id)
+            JOIN  %(vertex_table)s AS b ON (end_vid = b.id)
             """ % args
-        return query
+
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']

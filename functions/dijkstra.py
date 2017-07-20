@@ -27,6 +27,7 @@ class Function(FunctionBase):
                 'labelReverseCost', 'lineEditReverseCost',
                 'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
                 'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                'checkBoxUseBBOX',
                 'checkBoxDirected', 'checkBoxHasReverseCost'
             ]
         else:
@@ -39,6 +40,7 @@ class Function(FunctionBase):
                 'labelReverseCost', 'lineEditReverseCost',
                 'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
                 'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                'checkBoxUseBBOX',
                 'checkBoxDirected', 'checkBoxHasReverseCost'
             ]
     
@@ -54,6 +56,7 @@ class Function(FunctionBase):
 
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.1:
             return """
                 SELECT seq, 
@@ -64,7 +67,7 @@ class Function(FunctionBase):
                     %(cost)s::float8 AS cost
                     %(reverse_cost)s
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                   %(source_id)s, %(target_id)s, %(directed)s, %(has_reverse_cost)s)
                 """ % args
         else:
@@ -78,7 +81,7 @@ class Function(FunctionBase):
                     %(cost)s AS cost
                     %(reverse_cost)s
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                   array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
                 """ % args
 

@@ -26,6 +26,7 @@ class Function(FunctionBase):
             'labelY2', 'lineEditY2',
             'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
             'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+            'checkBoxUseBBOX',
             'checkBoxDirected', 'checkBoxHasReverseCost'
         ]
 
@@ -34,6 +35,7 @@ class Function(FunctionBase):
         resultPathRubberBand.reset(Utils.getRubberBandType(False))
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_astar('
                 SELECT %(id)s::int4 AS id,
@@ -45,7 +47,7 @@ class Function(FunctionBase):
                     %(x2)s::float8 AS x2,
                     %(y2)s::float8 AS y2
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                 %(source_id)s::int4, %(target_id)s::int4, %(directed)s, %(has_reverse_cost)s)""" % args
     
     def getExportQuery(self, args):

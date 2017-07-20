@@ -10,7 +10,7 @@ class Function(FunctionBase):
 
     @classmethod
     def getName(self):
-        return 'dijkstraCost'
+        return 'pgr_dijkstraCost'
 
     @classmethod
     def isSupportedVersion(self, version):

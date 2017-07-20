@@ -35,7 +35,7 @@ class FunctionBase(object):
         if bbox == ' ':
             return ' '
         else:
-            return 'WHERE {1}.{2} {3}'.format(table, geometry, bbox)
+            return 'WHERE {0}.{1} {2}'.format(table, geometry, bbox)
 
     def prepare(self, canvasItemList):
         pass
