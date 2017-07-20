@@ -30,6 +30,13 @@ class FunctionBase(object):
     def isSupportedVersion(self, version):
         return version >= 2.0 and version < 3.0
 
+    @classmethod
+    def whereClause(self, table, geometry, bbox):
+        if bbox == ' ':
+            return ' '
+        else:
+            return 'WHERE {1}.{2} {3}'.format(table, geometry, bbox)
+
     def prepare(self, canvasItemList):
         pass
     

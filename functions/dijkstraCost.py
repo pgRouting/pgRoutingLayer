@@ -38,6 +38,7 @@ class Function(FunctionBase):
                 'labelReverseCost', 'lineEditReverseCost',
                 'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
                 'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                'checkBoxUseBBOX',
                 'checkBoxDirected', 'checkBoxHasReverseCost'
             ]
     
@@ -49,6 +50,7 @@ class Function(FunctionBase):
 
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT row_number() over() AS seq,
                    start_vid , end_vid, agg_cost AS cost,
@@ -60,7 +62,8 @@ class Function(FunctionBase):
                 %(cost)s AS cost
                 %(reverse_cost)s
                 FROM %(edge_table)s
-                WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                %(where_clause)s
+                ',
               array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
             """ % args
 
