@@ -14,21 +14,18 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelX1', 'lineEditX1',
-            'labelY1', 'lineEditY1',
-            'labelX2', 'lineEditX2',
-            'labelY2', 'lineEditY2',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-            'checkBoxUseBBOX',
-            'checkBoxDirected', 'checkBoxHasReverseCost'
-        ]
+        self.version = version
+        if self.version < 2.99:
+            # version 2.0 has only one to one
+            return self.commonControls + self.commonBoxes + astarContols[
+                    'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                    'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                    ]
+        else:
+            return self.commonControls + self.commonBoxes + astarContols[
+                    'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                    'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                    ]
 
     def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']

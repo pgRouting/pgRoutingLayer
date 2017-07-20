@@ -15,6 +15,12 @@ class FunctionBase(object):
             'checkBoxUseBBOX',
             'checkBoxDirected',
             'checkBoxHasReverseCost']
+    astarControls = [
+            'labelX1', 'lineEditX1',
+            'labelY1', 'lineEditY1',
+            'labelX2', 'lineEditX2',
+            'labelY2', 'lineEditY2']
+
 
     @classmethod
     def getName(self):
