@@ -14,6 +14,22 @@ class Function(FunctionBase):
     def getName(self):
         return 'dijkstra'
     
+
+    @classmethod
+    def getControlNames(self, version):
+        self.version = version
+        if self.version < 2.1:
+            # version 2.0 has only one to one
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                    'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                    ]
+        else:
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                    'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                    ]
+
     
     def prepare(self, canvasItemList):
         if self.version < 2.1:
