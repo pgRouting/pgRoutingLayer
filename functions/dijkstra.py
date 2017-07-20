@@ -14,35 +14,6 @@ class Function(FunctionBase):
     def getName(self):
         return 'dijkstra'
     
-    @classmethod
-    def getControlNames(self, version):
-        self.version = version
-        if self.version < 2.1:
-            # version 2.0 has only one to one
-            return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
-                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-                'checkBoxUseBBOX',
-                'checkBoxDirected', 'checkBoxHasReverseCost'
-            ]
-        else:
-            # Using many to many starting from version 2.1
-            return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
-                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                'checkBoxUseBBOX',
-                'checkBoxDirected', 'checkBoxHasReverseCost'
-            ]
     
     def prepare(self, canvasItemList):
         if self.version < 2.1:

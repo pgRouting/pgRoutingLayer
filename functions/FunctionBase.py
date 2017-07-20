@@ -5,6 +5,16 @@ class FunctionBase(object):
     exportButton = True
     exportMergeButton = True
     exportEdgeBase = False
+    commonControls = [
+        'labelId',      'lineEditId',
+        'labelSource',  'lineEditSource',
+        'labelTarget',  'lineEditTarget',
+        'labelCost',    'lineEditCost',
+        'labelReverseCost', 'lineEditReverseCost']
+    commonBoxes = [
+            'checkBoxUseBBOX',
+            'checkBoxDirected',
+            'checkBoxHasReverseCost']
 
     @classmethod
     def getName(self):
@@ -12,7 +22,20 @@ class FunctionBase(object):
     
     @classmethod
     def getControlNames(self, version):
-        return [ '' ]
+        self.version = version
+        if self.version < 2.1:
+            # version 2.0 has only one to one
+            return self.commonControls + self.commonBoxes + [
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+            ]
+        else:
+            return self.commonControls + self.commonBoxes + [
+                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+            ]
+
+
     
     @classmethod
     def isEdgeBase(self):

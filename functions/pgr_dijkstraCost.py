@@ -27,20 +27,6 @@ class Function(FunctionBase):
         return False
 
 
-    @classmethod
-    def getControlNames(self, version):
-        # Using many to many starting from version 2.1
-        return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
-                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                'checkBoxUseBBOX',
-                'checkBoxDirected', 'checkBoxHasReverseCost'
-            ]
     
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
