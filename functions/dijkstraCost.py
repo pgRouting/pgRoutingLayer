@@ -17,8 +17,9 @@ class Function(FunctionBase):
         # valid starting pgr v2.1
         return version >= 2.1
 
+
     @classmethod
-    def canExport(self):
+    def canExportQuery(self):
         return False
 
     @classmethod
@@ -49,7 +50,8 @@ class Function(FunctionBase):
     
     def getQuery(self, args):
         return """
-            SELECT seq, start_vid , end_vid, agg_cost AS cost
+            SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
+                   start_vid , end_vid, agg_cost AS cost
               FROM pgr_dijkstra('
               SELECT %(id)s AS id,
                 %(source)s AS source,
@@ -60,6 +62,24 @@ class Function(FunctionBase):
                 WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
               array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
             """ % args
+
+
+    def getExportQuery(self, args):
+        args['result_query'] = self.getQuery(args)
+        args['vertex_table'] = """ 
+            %(edge_table)s_vertices_pgr
+            """ % args
+
+        return """
+            WITH
+            result AS ( %(result_query)s )
+            SELECT row_number() over() AS seq, result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
+
+            FROM result
+            JOIN  %(vertex_table)s AS a ON (start_vid = a.id)
+            JOIN  %(vertex_table)s AS b ON (end_vid = b.id)
+            """ % args
+
 
 
 
