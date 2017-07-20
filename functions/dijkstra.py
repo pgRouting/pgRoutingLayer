@@ -18,6 +18,7 @@ class Function(FunctionBase):
     def getControlNames(self, version):
         self.version = version
         if self.version < 2.1:
+            # version 2.0 has only one to one
             return [
                 'labelId', 'lineEditId',
                 'labelSource', 'lineEditSource',
@@ -29,7 +30,7 @@ class Function(FunctionBase):
                 'checkBoxDirected', 'checkBoxHasReverseCost'
             ]
         else:
-            # 'id' and 'target' are used for finding nearest node
+            # Using many to many starting from version 2.1
             return [
                 'labelId', 'lineEditId',
                 'labelSource', 'lineEditSource',

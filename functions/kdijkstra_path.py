@@ -11,6 +11,12 @@ class Function(FunctionBase):
     @classmethod
     def getName(self):
         return 'kdijkstra(path)'
+
+    @classmethod
+    def isSupportedVersion(self, version):
+        # Deprecated on version 2.2
+        return version >= 2.0 and version < 2.2
+
     
     @classmethod
     def getControlNames(self, version):

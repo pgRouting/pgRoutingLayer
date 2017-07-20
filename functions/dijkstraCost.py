@@ -7,72 +7,61 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
-    @classmethod
-    def getName(self):
-        return 'kdijkstra(cost)'
-    
-    @classmethod
-    def isSupportedVersion(self, version):
-        # Deprecated on version 2.2
-        return version >= 2.0 and version < 2.2
 
     @classmethod
-    def getControlNames(self, version):
-        # 'id' and 'target' are used for finding nearest node
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-            'checkBoxDirected', 'checkBoxHasReverseCost'
-        ]
-    
+    def getName(self):
+        return 'dijkstraCost'
+
+    @classmethod
+    def isSupportedVersion(self, version):
+        # valid starting pgr v2.1
+        return version >= 2.1
+
     @classmethod
     def canExport(self):
         return False
-    
+
     @classmethod
     def canExportMerged(self):
         return False
+
+
+    @classmethod
+    def getControlNames(self, version):
+        # Using many to many starting from version 2.1
+        return [
+                'labelId', 'lineEditId',
+                'labelSource', 'lineEditSource',
+                'labelTarget', 'lineEditTarget',
+                'labelCost', 'lineEditCost',
+                'labelReverseCost', 'lineEditReverseCost',
+                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                'checkBoxDirected', 'checkBoxHasReverseCost'
+            ]
     
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
         canvasItemList['annotations'] = []
+
     
     def getQuery(self, args):
         return """
-            SELECT seq, id1 AS source, id2 AS target, cost FROM pgr_kdijkstraCost('
-                SELECT %(id)s::int4 AS id,
-                    %(source)s::int4 AS source,
-                    %(target)s::int4 AS target,
-                    %(cost)s::float8 AS cost%(reverse_cost)s
-                    FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
-                %(source_id)s, array[%(target_ids)s], %(directed)s, %(has_reverse_cost)s)""" % args
-    
-    def getExportQuery(self, args):
-        args['result_query'] = self.getQuery(args)
-
-        query = """
-            WITH
-            result AS ( %(result_query)s )
-            SELECT 
-              CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
-              END AS path_geom,
-              result.*, %(edge_table)s.*
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq
+            SELECT seq, start_vid , end_vid, agg_cost AS cost
+              FROM pgr_dijkstra('
+              SELECT %(id)s AS id,
+                %(source)s AS source,
+                %(target)s AS target,
+                %(cost)s AS cost
+                %(reverse_cost)s
+                FROM %(edge_table)s
+                WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+              array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
             """ % args
-        return query
+
+
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
@@ -118,8 +107,6 @@ class Function(FunctionBase):
         if rubberBand:
             resultPathsRubberBands.append(rubberBand)
             rubberBand = None
-
-
         resultNodesTextAnnotations = canvasItemList['annotations']
         Utils.setStartPoint(geomType, args)
         Utils.setEndPoint(geomType, args)
@@ -139,7 +126,7 @@ class Function(FunctionBase):
             cur2.execute(query2)
             row2 = cur2.fetchone()
             assert row2, "Invalid result geometry. (target_id:%(result_target_id)d)" % args
-            
+
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_target_id)d:%(result_cost)f" % args)
@@ -148,9 +135,11 @@ class Function(FunctionBase):
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
             textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))
             textAnnotation.setDocument(textDocument)
-            
+
             textAnnotation.update()
             resultNodesTextAnnotations.append(textAnnotation)
-    
+
+
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
