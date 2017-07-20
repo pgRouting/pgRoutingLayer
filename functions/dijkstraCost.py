@@ -50,9 +50,10 @@ class Function(FunctionBase):
     
     def getQuery(self, args):
         return """
-            SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
-                   start_vid , end_vid, agg_cost AS cost
-              FROM pgr_dijkstra('
+            SELECT row_number() over() AS seq,
+                   start_vid , end_vid, agg_cost AS cost,
+                    '(' || start_vid || ',' || end_vid || ')' AS path_name
+            FROM pgr_dijkstraCost('
               SELECT %(id)s AS id,
                 %(source)s AS source,
                 %(target)s AS target,
@@ -73,7 +74,7 @@ class Function(FunctionBase):
         return """
             WITH
             result AS ( %(result_query)s )
-            SELECT row_number() over() AS seq, result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
+            SELECT result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
 
             FROM result
             JOIN  %(vertex_table)s AS a ON (start_vid = a.id)
