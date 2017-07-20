@@ -33,7 +33,7 @@ class Function(FunctionBase):
 
     
     def getQuery(self, args):
-         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, 
               id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_bdDijkstra('
