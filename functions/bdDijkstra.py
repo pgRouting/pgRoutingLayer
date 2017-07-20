@@ -23,6 +23,7 @@ class Function(FunctionBase):
             'labelReverseCost', 'lineEditReverseCost',
             'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
             'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+            'checkBoxUseBBOX',
             'checkBoxDirected', 'checkBoxHasReverseCost'
         ]
     
@@ -32,6 +33,7 @@ class Function(FunctionBase):
 
     
     def getQuery(self, args):
+         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, 
               id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_bdDijkstra('
@@ -41,7 +43,7 @@ class Function(FunctionBase):
                 %(cost)s::float8 AS cost
                 %(reverse_cost)s
                 FROM %(edge_table)s
-                WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                %(where_clause)s',
                   %(source_id)s, %(target_id)s, %(directed)s, %(has_reverse_cost)s)
                 """ % args
 
