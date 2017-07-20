@@ -15,17 +15,10 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-            'checkBoxUseBBOX',
-            'checkBoxDirected', 'checkBoxHasReverseCost'
-        ]
+        return self.commonControls + self.commonBoxes + [
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                ]
     
     def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']

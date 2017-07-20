@@ -34,7 +34,7 @@ class Function(FunctionBase):
     
     @classmethod
     def canExport(self):
-        return False
+        return True
     
     @classmethod
     def canExportMerged(self):
@@ -70,8 +70,8 @@ class Function(FunctionBase):
             SELECT result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
 
             FROM result
-            JOIN  %(vertex_table)s AS a ON (start_vid = a.id)
-            JOIN  %(vertex_table)s AS b ON (end_vid = b.id)
+            JOIN  %(vertex_table)s AS a ON (source = a.id)
+            JOIN  %(vertex_table)s AS b ON (target = b.id)
             """ % args
 
 

@@ -15,29 +15,17 @@ class Function(FunctionBase):
     @classmethod
     def getControlNames(self, version):
         if version < 2.1:
-            return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
-                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-                'labelDistance', 'lineEditDistance',
-                'checkBoxDirected', 'checkBoxHasReverseCost'
-            ]
-    
-        #Its 2.1 or higher
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-            'labelDistance', 'lineEditDistance',
-            'checkBoxDirected', 'checkBoxHasReverseCost'
-        ]
-    
+            # version 2.0 has only one to one
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                    'labelDistance', 'lineEditDistance',
+                    ]
+        else:
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                    'labelDistance', 'lineEditDistance',
+                    ]
+
     def prepare(self, canvasItemList):
         resultNodesVertexMarkers = canvasItemList['markers']
         for marker in resultNodesVertexMarkers:
@@ -45,6 +33,7 @@ class Function(FunctionBase):
         canvasItemList['markers'] = []
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if (args['version'] < 2.1):
             return """
                 SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost
@@ -54,7 +43,7 @@ class Function(FunctionBase):
                     %(target)s::int4 AS target,
                     %(cost)s::float8 AS cost%(reverse_cost)s
                   FROM %(edge_table)s
-                  WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                  %(where_clause)s',
                   %(source_id)s, %(distance)s,
                   %(directed)s, %(has_reverse_cost)s)""" % args
 
@@ -71,7 +60,7 @@ class Function(FunctionBase):
                     %(target)s AS target,
                     %(cost)s AS cost%(reverse_cost)s
                   FROM %(edge_table)s
-                  WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                  %(where_clause)s',
                   ARRAY[%(source_ids)s]::BIGINT[], %(distance)s,
                   %(directed)s, false)
                 """ % args
