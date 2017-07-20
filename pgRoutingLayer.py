@@ -580,10 +580,7 @@ class PgRoutingLayer:
             
             function.prepare(self.canvasItemList)
             
-            #args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox']) 
-            Utils.logMessage('BBOX:\n' + args['BBOX'])
-            Utils.logMessage('printBBOX:\n' + args['printBBOX'])
             query = function.getQuery(args)
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + query)
            
@@ -653,8 +650,6 @@ class PgRoutingLayer:
 
             srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox']) 
-            Utils.logMessage('BBOX:\n' + args['BBOX'])
-            Utils.logMessage('printBBOX:\n' + args['printBBOX'])
 
             #get the EXPORT query
             msgQuery = function.getExportQuery(args)
@@ -749,10 +744,7 @@ class PgRoutingLayer:
             args['version'] = version
             
             srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
-            #args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox']) 
-            Utils.logMessage('BBOX:\n' + args['BBOX'])
-            Utils.logMessage('printBBOX:\n' + args['printBBOX'])
 
             # get the exportMerge query
             msgQuery = function.getExportMergeQuery(args)
