@@ -19,18 +19,12 @@ class Function(FunctionBase):
 
     @classmethod
     def getControlNames(self, version):
-        # 'id' and 'target' are used for finding nearest node
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-            'checkBoxUseBBOX',
-            'checkBoxDirected', 'checkBoxHasReverseCost'
-        ]
+        # version 2.0 has only one to many
+        return self.commonControls + self.commonBoxes + [
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                ]
+
     
     @classmethod
     def canExport(self):

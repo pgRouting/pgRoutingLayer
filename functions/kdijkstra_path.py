@@ -20,18 +20,12 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        # 'id' and 'target' are used for finding nearest node
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-            'checkBoxDirected', 'checkBoxHasReverseCost'
-        ]
-    
+        # version 2.0 has only one to many
+        return self.commonControls + self.commonBoxes + [
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                ]
+
     
     def prepare(self, canvasItemList):
         resultPathsRubberBands = canvasItemList['paths']
@@ -40,6 +34,7 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, 
                 id1 AS _path, id2 AS _node, id3 AS _edge, cost AS _cost FROM pgr_kdijkstraPath('
@@ -48,7 +43,7 @@ class Function(FunctionBase):
                     %(target)s::int4 AS target,
                     %(cost)s::float8 AS cost%(reverse_cost)s
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                 %(source_id)s, array[%(target_ids)s], %(directed)s, %(has_reverse_cost)s)""" % args
 
     def getExportQuery(self, args):
