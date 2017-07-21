@@ -14,14 +14,8 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
+        return self.commonControls + self.commonBoxes + [
             'labelIds', 'lineEditIds', 'buttonSelectIds',
-            'checkBoxDirected', 'checkBoxHasReverseCost',
             'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql'
         ]
     
@@ -36,13 +30,14 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _path, id2 AS _node, id3 AS _edge, cost AS _cost FROM pgr_trspViaVertices('
               SELECT %(id)s::int4 AS id,
                 %(source)s::int4 AS source, %(target)s::int4 AS target,
                 %(cost)s::float8 AS cost%(reverse_cost)s
               FROM %(edge_table)s
-              WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+              %(where_clause)s',
               ARRAY[%(ids)s]::integer[],
               %(directed)s, %(has_reverse_cost)s,
               %(turn_restrict_sql)s)

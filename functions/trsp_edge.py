@@ -14,19 +14,13 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelSourcePos', 'lineEditSourcePos',
-            'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-            'labelTargetPos', 'lineEditTargetPos',
-            'checkBoxDirected', 'checkBoxHasReverseCost',
-            'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql'
-        ]
+        return self.commonControls + self.commonBoxes + [
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelSourcePos', 'lineEditSourcePos',
+                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                'labelTargetPos', 'lineEditTargetPos',
+                'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql' ]                       
+
     
     @classmethod
     def isEdgeBase(self):
@@ -37,12 +31,14 @@ class Function(FunctionBase):
         resultPathRubberBand.reset(Utils.getRubberBandType(False))
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_trsp('
               SELECT %(id)s::int4 AS id,
                 %(source)s::int4 AS source, %(target)s::int4 AS target,
                 %(cost)s::float8 AS cost%(reverse_cost)s
-              FROM %(edge_table)s WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+              FROM %(edge_table)s
+              %(where_clause)s',
               %(source_id)s, %(source_pos)s, %(target_id)s, %(target_pos)s, %(directed)s, %(has_reverse_cost)s, %(turn_restrict_sql)s)""" % args
     
     def getExportQuery(self, args):
