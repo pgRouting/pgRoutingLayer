@@ -97,51 +97,7 @@ class Function(FunctionBase):
         if self.version < 2.4:
              return self.getExportOneSourceOneTargetMergeQuery(args)
         else:
-            args['result_query'] = self.getQuery(args)
-
-            args['with_geom_query'] = """
-                SELECT 
-                  seq, result.path_name,
-                  CASE
-                    WHEN result._node = %(edge_table)s.%(source)s
-                      THEN %(edge_table)s.%(geometry)s
-                    ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
-                  END AS path_geom
-                FROM %(edge_table)s JOIN result
-                  ON %(edge_table)s.%(id)s = result._edge 
-                """ % args
-
-            args['one_geom_query'] = """
-                SELECT path_name, ST_LineMerge(ST_Union(path_geom)) AS path_geom
-                FROM with_geom
-                GROUP BY path_name
-                ORDER BY path_name
-                """ % args
-
-            args['aggregates_query'] = """
-                SELECT
-                    path_name, _start_vid, _end_vid,
-                    SUM(_cost) AS agg_cost,
-                    array_agg(_node ORDER BY _path_seq) AS _nodes,
-                    array_agg(_edge ORDER BY _path_seq) AS _edges
-                    FROM result
-                GROUP BY path_name, _start_vid, _end_vid
-                ORDER BY _start_vid, _end_vid"""
-
-            query = """WITH
-                result AS ( %(result_query)s ),
-                with_geom AS ( %(with_geom_query)s ),
-                one_geom AS ( %(one_geom_query)s ),
-                aggregates AS ( %(aggregates_query)s )
-                SELECT row_number() over() as seq,
-                    path_name, _start_vid, _end_vid, agg_cost, _nodes, _edges,
-                    path_geom AS path_geom FROM aggregates JOIN one_geom
-                    USING (path_name)
-                """ % args
-
-            return query
-
-
+             return self.getExportManySourceManyTargetMergeQuery(args)
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
