@@ -1,17 +1,14 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
-import psycopg2
 from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
+    version = 2.0
+
     @classmethod
     def getName(self):
         return 'astar'
-    
+
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -36,149 +33,79 @@ class Function(FunctionBase):
                 path.reset(Utils.getRubberBandType(False))
             canvasItemList['paths'] = []
 
-    
+
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.3:
             return """
-            SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_astar('
-                SELECT %(id)s::int4 AS id,
-                    %(source)s::int4 AS source,
-                    %(target)s::int4 AS target,
-                    %(cost)s::float8 AS cost%(reverse_cost)s,
-                    %(x1)s::float8 AS x1,
-                    %(y1)s::float8 AS y1,
-                    %(x2)s::float8 AS x2,
-                    %(y2)s::float8 AS y2
+                SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost
+                FROM pgr_astar('
+                    SELECT %(id)s::int4 AS id,
+                        %(source)s::int4 AS source,
+                        %(target)s::int4 AS target,
+                        %(cost)s::float8 AS cost
+                        %(reverse_cost)s,
+                        %(x1)s::float8 AS x1,
+                        %(y1)s::float8 AS y1,
+                        %(x2)s::float8 AS x2,
+                        %(y2)s::float8 AS y2
                     FROM %(edge_table)s
                     %(where_clause)s',
-                %(source_id)s::int4, %(target_id)s::int4, %(directed)s, %(has_reverse_cost)s)""" % args
+                    %(source_id)s::int4, %(target_id)s::int4, %(directed)s, %(has_reverse_cost)s)
+            """ % args
         elif self.version == 2.3:
             return """
-            SELECT seq, node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
+                SELECT seq, node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
                 FROM pgr_astar('
-                SELECT %(id)s AS id,
-                    %(source)s AS source,
-                    %(target)s AS target,
-                    %(cost)s AS cost%(reverse_cost)s,
-                    %(x1)s AS x1,
-                    %(y1)s AS y1,
-                    %(x2)s AS x2,
-                    %(y2)s AS y2
+                    SELECT %(id)s AS id,
+                        %(source)s AS source,
+                        %(target)s AS target,
+                        %(cost)s AS cost
+                        %(reverse_cost)s,
+                        %(x1)s AS x1,
+                        %(y1)s AS y1,
+                        %(x2)s AS x2,
+                        %(y2)s AS y2
                     FROM %(edge_table)s
                     %(where_clause)s',
-                %(source_id)s::int4, %(target_id)s::int4, %(directed)s, %(has_reverse_cost)s)""" % args
+                    %(source_id)s::int4, %(target_id)s::int4, %(directed)s, %(has_reverse_cost)s)
+                """ % args
         else:
             return """
-            SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
-                  path_seq AS _path_seq, start_vid AS _start_vid, end_vid AS _end_vid,
-                  node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
-            FROM pgr_astar('
-                SELECT %(id)s AS id,
-                    %(source)s AS source,
-                    %(target)s AS target,
-                    %(cost)s AS cost%(reverse_cost)s,
-                    %(x1)s AS x1,
-                    %(y1)s AS y1,
-                    %(x2)s AS x2,
-                    %(y2)s AS y2
+                SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
+                    path_seq AS _path_seq, start_vid AS _start_vid, end_vid AS _end_vid,
+                    node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
+                FROM pgr_astar('
+                    SELECT %(id)s AS id,
+                        %(source)s AS source,
+                        %(target)s AS target,
+                        %(cost)s AS cost
+                        %(reverse_cost)s,
+                        %(x1)s AS x1,
+                        %(y1)s AS y1,
+                        %(x2)s AS x2,
+                        %(y2)s AS y2
                     FROM %(edge_table)s
                     %(where_clause)s',
-                array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
-            """ % args
-
-
-
+                    array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
+                """ % args
 
     def getExportQuery(self, args):
         return self.getJoinResultWithEdgeTable(args)
 
     def getExportMergeQuery(self, args):
         if self.version < 2.4:
-             return self.getExportOneSourceOneTargetMergeQuery(args)
+            return self.getExportOneSourceOneTargetMergeQuery(args)
         else:
-             return self.getExportManySourceManyTargetMergeQuery(args)
+            return self.getExportManySourceManyTargetMergeQuery(args)
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
-        if self.version < 2.1:
-            resultPathRubberBand = canvasItemList['path']
-            for row in rows:
-                cur2 = con.cursor()
-                args['result_node_id'] = row[1]
-                args['result_edge_id'] = row[2]
-                args['result_cost'] = row[3]
-                if args['result_edge_id'] != -1:
-                    query2 = """
-                        SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
-                        UNION
-                        SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
-                    """ % args
-                    ##Utils.logMessage(query2)
-                    cur2.execute(query2)
-                    row2 = cur2.fetchone()
-                    ##Utils.logMessage(str(row2[0]))
-                    assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
-                    
-                    geom = QgsGeometry().fromWkt(str(row2[0]))
-                    if geom.wkbType() == QGis.WKBMultiLineString:
-                        for line in geom.asMultiPolyline():
-                            for pt in line:
-                                resultPathRubberBand.addPoint(pt)
-                    elif geom.wkbType() == QGis.WKBLineString:
-                        for pt in geom.asPolyline():
-                            resultPathRubberBand.addPoint(pt)
+        if self.version < 2.4:
+            self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)
         else:
+            self.drawManyPaths(rows, con, args, geomType, canvasItemList, mapCanvas)
 
-            resultPathsRubberBands = canvasItemList['paths']
-            rubberBand = None
-            cur_path_id = str(-1) + "," + str(-1)
-            for row in rows:
-                cur2 = con.cursor()
-                args['result_path_id'] = str(row[3]) + "," + str(row[4])
-                args['result_node_id'] = row[5]
-                args['result_edge_id'] = row[6]
-                args['result_cost'] = row[7]
-                if args['result_path_id'] != cur_path_id:
-                    cur_path_id = args['result_path_id']
-                    if rubberBand:
-                        resultPathsRubberBands.append(rubberBand)
-                        rubberBand = None
-
-                    rubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
-                    rubberBand.setColor(QColor(255, 0, 0, 128))
-                    rubberBand.setWidth(4)
-
-                if args['result_edge_id'] != -1:
-                    query2 = """
-                        SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
-                        UNION
-                        SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
-                        """ % args
-                    ##Utils.logMessage(query2)
-                    cur2.execute(query2)
-                    row2 = cur2.fetchone()
-                    ##Utils.logMessage(str(row2[0]))
-                    assert row2, "Invalid result geometry. (path_id:%(result_path_id)s, node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
-
-                    geom = QgsGeometry().fromWkt(str(row2[0]))
-                    if geom.wkbType() == QGis.WKBMultiLineString:
-                        for line in geom.asMultiPolyline():
-                            for pt in line:
-                                rubberBand.addPoint(pt)
-                    elif geom.wkbType() == QGis.WKBLineString:
-                        for pt in geom.asPolyline():
-                            rubberBand.addPoint(pt)
-
-            if rubberBand:
-                resultPathsRubberBands.append(rubberBand)
-                rubberBand = None
-
-        
 
 
 

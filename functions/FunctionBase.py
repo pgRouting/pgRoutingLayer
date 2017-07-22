@@ -1,3 +1,8 @@
+from PyQt4.QtGui import *
+from qgis.core import *
+from qgis.gui import *
+from .. import pgRoutingLayer_utils as Utils
+
 
 class FunctionBase(object):
 
@@ -173,6 +178,85 @@ class FunctionBase(object):
                 USING (path_name)
             """ % args
         return query
+
+
+    def drawManyPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        resultPathsRubberBands = canvasItemList['paths']
+        rubberBand = None
+        cur_path_id = str(-1) + "," + str(-1)
+        for row in rows:
+            cur2 = con.cursor()
+            args['result_path_id'] = str(row[3]) + "," + str(row[4])
+            args['result_node_id'] = row[5]
+            args['result_edge_id'] = row[6]
+            args['result_cost'] = row[7]
+            if args['result_path_id'] != cur_path_id:
+                cur_path_id = args['result_path_id']
+                if rubberBand:
+                    resultPathsRubberBands.append(rubberBand)
+                    rubberBand = None
+
+                rubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
+                rubberBand.setColor(QColor(255, 0, 0, 128))
+                rubberBand.setWidth(4)
+
+            if args['result_edge_id'] != -1:
+                query2 = """
+                    SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
+                        WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
+                    UNION
+                    SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
+                        WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
+                    """ % args
+                ##Utils.logMessage(query2)
+                cur2.execute(query2)
+                row2 = cur2.fetchone()
+                ##Utils.logMessage(str(row2[0]))
+                assert row2, "Invalid result geometry. (path_id:%(result_path_id)s, node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
+
+                geom = QgsGeometry().fromWkt(str(row2[0]))
+                if geom.wkbType() == QGis.WKBMultiLineString:
+                    for line in geom.asMultiPolyline():
+                        for pt in line:
+                            rubberBand.addPoint(pt)
+                elif geom.wkbType() == QGis.WKBLineString:
+                    for pt in geom.asPolyline():
+                        rubberBand.addPoint(pt)
+
+        if rubberBand:
+            resultPathsRubberBands.append(rubberBand)
+            rubberBand = None
+
+
+    def drawOnePath(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+            resultPathRubberBand = canvasItemList['path']
+            for row in rows:
+                cur2 = con.cursor()
+                args['result_node_id'] = row[1]
+                args['result_edge_id'] = row[2]
+                args['result_cost'] = row[3]
+                if args['result_edge_id'] != -1:
+                    query2 = """
+                        SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
+                            WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
+                        UNION
+                        SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
+                            WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
+                    """ % args
+                    ##Utils.logMessage(query2)
+                    cur2.execute(query2)
+                    row2 = cur2.fetchone()
+                    ##Utils.logMessage(str(row2[0]))
+                    assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
+
+                    geom = QgsGeometry().fromWkt(str(row2[0]))
+                    if geom.wkbType() == QGis.WKBMultiLineString:
+                        for line in geom.asMultiPolyline():
+                            for pt in line:
+                                resultPathRubberBand.addPoint(pt)
+                    elif geom.wkbType() == QGis.WKBLineString:
+                        for pt in geom.asPolyline():
+                            resultPathRubberBand.addPoint(pt)
 
 
 
