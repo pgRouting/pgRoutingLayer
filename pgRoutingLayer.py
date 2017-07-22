@@ -38,7 +38,7 @@ class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'dijkstra',
-        'pgr_dijkstraCost',
+        'dijkstraCost',
         'astar',
         'drivingDistance',
         'alphashape',
