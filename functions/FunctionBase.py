@@ -5,6 +5,22 @@ class FunctionBase(object):
     exportButton = True
     exportMergeButton = True
     exportEdgeBase = False
+    commonControls = [
+        'labelId',      'lineEditId',
+        'labelSource',  'lineEditSource',
+        'labelTarget',  'lineEditTarget',
+        'labelCost',    'lineEditCost',
+        'labelReverseCost', 'lineEditReverseCost']
+    commonBoxes = [
+            'checkBoxUseBBOX',
+            'checkBoxDirected',
+            'checkBoxHasReverseCost']
+    astarControls = [
+            'labelX1', 'lineEditX1',
+            'labelY1', 'lineEditY1',
+            'labelX2', 'lineEditX2',
+            'labelY2', 'lineEditY2']
+
 
     @classmethod
     def getName(self):
@@ -12,7 +28,12 @@ class FunctionBase(object):
     
     @classmethod
     def getControlNames(self, version):
-        return [ '' ]
+        return self.commonControls + self.commonBoxes + [
+            'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+            'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+        ]
+
+
     
     @classmethod
     def isEdgeBase(self):
@@ -29,6 +50,13 @@ class FunctionBase(object):
     @classmethod
     def isSupportedVersion(self, version):
         return version >= 2.0 and version < 3.0
+
+    @classmethod
+    def whereClause(self, table, geometry, bbox):
+        if bbox == ' ':
+            return ' '
+        else:
+            return 'WHERE {0}.{1} {2}'.format(table, geometry, bbox)
 
     def prepare(self, canvasItemList):
         pass

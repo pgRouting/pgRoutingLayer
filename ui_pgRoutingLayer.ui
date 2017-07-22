@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>265</width>
+    <width>298</width>
     <height>1077</height>
    </rect>
   </property>
@@ -120,29 +120,20 @@
       <property name="title">
        <string>sql</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayoutSql">
-       <property name="spacing">
-        <number>3</number>
-       </property>
+      <layout class="QGridLayout" name="gridLayout_4">
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
-       <property name="leftMargin">
+       <property name="margin">
         <number>6</number>
        </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
-       <property name="rightMargin">
-        <number>6</number>
-       </property>
-       <property name="bottomMargin">
-        <number>6</number>
-       </property>
-       <item>
-        <layout class="QGridLayout" name="gridLayoutSqlBase">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayoutSqlBase" rowstretch="0,0,0" rowminimumheight="0,0,0">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetFixedSize</enum>
+         </property>
          <property name="spacing">
-          <number>3</number>
+          <number>0</number>
          </property>
          <item row="0" column="0">
           <widget class="QLabel" name="labelTable">
@@ -151,16 +142,6 @@
            </property>
            <property name="text">
             <string>edge_table</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEditTable">
-           <property name="toolTip">
-            <string>Name of the table containing the routable network</string>
-           </property>
-           <property name="locale">
-            <locale language="English" country="UnitedStates"/>
            </property>
           </widget>
          </item>
@@ -181,9 +162,32 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEditTable">
+           <property name="toolTip">
+            <string>Name of the table containing the routable network</string>
+           </property>
+           <property name="locale">
+            <locale language="English" country="UnitedStates"/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="checkBoxUseBBOX">
+           <property name="toolTip">
+            <string>When ticked, BBOX will be used.</string>
+           </property>
+           <property name="text">
+            <string>BBOX</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
-       <item>
+       <item row="1" column="0">
         <widget class="QScrollArea" name="scrollAreaSqlColumns">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
@@ -211,24 +215,15 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>223</width>
-            <height>319</height>
+            <width>260</width>
+            <height>297</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
            <property name="sizeConstraint">
             <enum>QLayout::SetDefaultConstraint</enum>
            </property>
-           <property name="leftMargin">
-            <number>6</number>
-           </property>
-           <property name="topMargin">
-            <number>6</number>
-           </property>
-           <property name="rightMargin">
-            <number>6</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>6</number>
            </property>
            <property name="spacing">
@@ -239,13 +234,6 @@
              <property name="spacing">
               <number>3</number>
              </property>
-             <item row="9" column="0">
-              <widget class="QLabel" name="labelRule">
-               <property name="text">
-                <string>rule</string>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="0">
               <widget class="QLabel" name="labelId">
                <property name="locale">
@@ -256,23 +244,10 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditId">
-               <property name="toolTip">
-                <string>identifier of the edge</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="labelSource">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
+             <item row="5" column="0">
+              <widget class="QLabel" name="labelX1">
                <property name="text">
-                <string>source</string>
+                <string>x1</string>
                </property>
               </widget>
              </item>
@@ -286,13 +261,37 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="labelTarget">
+             <item row="6" column="1">
+              <widget class="QLineEdit" name="lineEditY1"/>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="lineEditId">
+               <property name="toolTip">
+                <string>identifier of the edge</string>
+               </property>
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
                </property>
+              </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="labelRule">
                <property name="text">
-                <string>target</string>
+                <string>rule</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="labelX2">
+               <property name="text">
+                <string>x2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="labelY1">
+               <property name="text">
+                <string>y1</string>
                </property>
               </widget>
              </item>
@@ -306,6 +305,54 @@
                </property>
               </widget>
              </item>
+             <item row="7" column="1">
+              <widget class="QLineEdit" name="lineEditX2"/>
+             </item>
+             <item row="5" column="1">
+              <widget class="QLineEdit" name="lineEditX1"/>
+             </item>
+             <item row="4" column="2">
+              <widget class="QCheckBox" name="checkBoxHasReverseCost">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>When ticked, reverse_cost will be used.</string>
+               </property>
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1">
+              <widget class="QLineEdit" name="lineEditRule"/>
+             </item>
+             <item row="10" column="1">
+              <widget class="QLineEdit" name="lineEditToCost"/>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="labelTarget">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string>target</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLineEdit" name="lineEditReverseCost">
+               <property name="toolTip">
+                <string>Name of the reverse_cost column. Used only when ticked.</string>
+               </property>
+              </widget>
+             </item>
              <item row="2" column="1">
               <widget class="QLineEdit" name="lineEditTarget">
                <property name="toolTip">
@@ -313,6 +360,16 @@
                </property>
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="labelSource">
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="text">
+                <string>source</string>
                </property>
               </widget>
              </item>
@@ -333,36 +390,8 @@
                </property>
               </widget>
              </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="labelX1">
-               <property name="text">
-                <string>x1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEditReverseCost">
-               <property name="toolTip">
-                <string>Name of the reverse_cost column. Used only when ticked.</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QLineEdit" name="lineEditX1"/>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="labelY1">
-               <property name="text">
-                <string>y1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QLabel" name="labelX2">
-               <property name="text">
-                <string>x2</string>
-               </property>
-              </widget>
+             <item row="8" column="1">
+              <widget class="QLineEdit" name="lineEditY2"/>
              </item>
              <item row="8" column="0">
               <widget class="QLabel" name="labelY2">
@@ -375,40 +404,6 @@
               <widget class="QLabel" name="labelToCost">
                <property name="text">
                 <string>to_cost</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QLineEdit" name="lineEditY1"/>
-             </item>
-             <item row="7" column="1">
-              <widget class="QLineEdit" name="lineEditX2"/>
-             </item>
-             <item row="8" column="1">
-              <widget class="QLineEdit" name="lineEditY2"/>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLineEdit" name="lineEditRule"/>
-             </item>
-             <item row="10" column="1">
-              <widget class="QLineEdit" name="lineEditToCost"/>
-             </item>
-             <item row="4" column="2">
-              <widget class="QCheckBox" name="checkBoxHasReverseCost">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>When ticked, reverse_cost will be used.</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string/>
                </property>
               </widget>
              </item>
@@ -436,16 +431,7 @@
        <property name="spacing">
         <number>3</number>
        </property>
-       <property name="leftMargin">
-        <number>6</number>
-       </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
-       <property name="rightMargin">
-        <number>6</number>
-       </property>
-       <property name="bottomMargin">
+       <property name="margin">
         <number>6</number>
        </property>
        <item>
@@ -464,21 +450,12 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>223</width>
-            <height>399</height>
+            <width>245</width>
+            <height>376</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
-           <property name="leftMargin">
-            <number>6</number>
-           </property>
-           <property name="topMargin">
-            <number>6</number>
-           </property>
-           <property name="rightMargin">
-            <number>6</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>6</number>
            </property>
            <property name="spacing">
@@ -761,9 +738,6 @@ _sql</string>
                </property>
                <item>
                 <widget class="QCheckBox" name="checkBoxDirected">
-                 <property name="text">
-                  <string>directed</string>
-                 </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
@@ -775,6 +749,9 @@ _sql</string>
                  </property>
                  <property name="locale">
                   <locale language="English" country="UnitedStates"/>
+                 </property>
+                 <property name="text">
+                  <string>directed</string>
                  </property>
                 </widget>
                </item>
@@ -975,8 +952,6 @@ _sql</string>
  <tabstops>
   <tabstop>comboConnections</tabstop>
   <tabstop>comboBoxFunction</tabstop>
-  <tabstop>lineEditTable</tabstop>
-  <tabstop>lineEditGeometry</tabstop>
   <tabstop>scrollAreaSqlColumns</tabstop>
   <tabstop>lineEditId</tabstop>
   <tabstop>lineEditSource</tabstop>

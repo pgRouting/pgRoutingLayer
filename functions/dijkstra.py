@@ -14,32 +14,22 @@ class Function(FunctionBase):
     def getName(self):
         return 'dijkstra'
     
+
     @classmethod
     def getControlNames(self, version):
         self.version = version
         if self.version < 2.1:
-            return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
-                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-                'checkBoxDirected', 'checkBoxHasReverseCost'
-            ]
+            # version 2.0 has only one to one
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                    'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                    ]
         else:
-            # 'id' and 'target' are used for finding nearest node
-            return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
-                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                'checkBoxDirected', 'checkBoxHasReverseCost'
-            ]
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                    'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                    ]
+
     
     def prepare(self, canvasItemList):
         if self.version < 2.1:
@@ -53,6 +43,7 @@ class Function(FunctionBase):
 
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.1:
             return """
                 SELECT seq, 
@@ -63,7 +54,7 @@ class Function(FunctionBase):
                     %(cost)s::float8 AS cost
                     %(reverse_cost)s
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                   %(source_id)s, %(target_id)s, %(directed)s, %(has_reverse_cost)s)
                 """ % args
         else:
@@ -77,7 +68,7 @@ class Function(FunctionBase):
                     %(cost)s AS cost
                     %(reverse_cost)s
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                   array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
                 """ % args
 

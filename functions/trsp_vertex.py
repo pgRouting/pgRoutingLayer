@@ -14,16 +14,13 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
+        return self.commonControls + self.commonBoxes + [
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId', 
+                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql'
+                ]                       
+
         return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-            'checkBoxDirected', 'checkBoxHasReverseCost',
-            'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql'
         ]
     
     def isSupportedVersion(self, version):
@@ -34,6 +31,7 @@ class Function(FunctionBase):
         resultPathRubberBand.reset(Utils.getRubberBandType(False))
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_trsp('
               SELECT %(id)s::int4 AS id,
@@ -41,7 +39,7 @@ class Function(FunctionBase):
                 %(target)s::int4 AS target,
                 %(cost)s::float8 AS cost%(reverse_cost)s
               FROM %(edge_table)s
-              WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+              %(where_clause)s',
               %(source_id)s, %(target_id)s,
               %(directed)s, %(has_reverse_cost)s,
               %(turn_restrict_sql)s)

@@ -38,8 +38,8 @@ class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'dijkstra',
+        'dijkstraCost',
         'astar',
-        #'shootingStar',
         'drivingDistance',
         'alphashape',
         'tsp_euclid',
@@ -77,7 +77,10 @@ class PgRoutingLayer:
         'labelDistance', 'lineEditDistance',
         'labelAlpha', 'lineEditAlpha',
         'labelPaths', 'lineEditPaths',
-        'checkBoxDirected', 'checkBoxHasReverseCost', 'checkBoxHeapPaths',
+        'checkBoxDirected',
+        'checkBoxHasReverseCost',
+        'checkBoxHeapPaths',
+        'checkBoxUseBBOX',
         'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql',
     ]
     FIND_RADIUS = 10
@@ -577,7 +580,7 @@ class PgRoutingLayer:
             
             function.prepare(self.canvasItemList)
             
-            args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
+            args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox']) 
             query = function.getQuery(args)
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + query)
            
@@ -646,7 +649,7 @@ class PgRoutingLayer:
 
 
             srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
-            args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
+            args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox']) 
 
             #get the EXPORT query
             msgQuery = function.getExportQuery(args)
@@ -691,8 +694,10 @@ class PgRoutingLayer:
         query = query.strip()
         return query
 
-    def getBBOX(self, srid):
+    def getBBOX(self, srid, use_bbox):
         """ Returns the (Ready to use in query BBOX , print BBOX) """
+        if use_bbox == 'false':
+            return ' ', ' '
         bbox = {}
         bbox['srid'] = srid
         bbox['xMin'] = self.iface.mapCanvas().extent().xMinimum()
@@ -704,7 +709,7 @@ class PgRoutingLayer:
         text += "," + str(round(bbox['xMax'],2))
         text += " " + str(round(bbox['yMax'],2)) + ")"
         return """
-            ST_MakeEnvelope(
+           && ST_MakeEnvelope(
               %(xMin)s, %(yMin)s,
               %(xMax)s, %(yMax)s, %(srid)s
               )
@@ -739,7 +744,7 @@ class PgRoutingLayer:
             args['version'] = version
             
             srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
-            args['BBOX'], args['printBBOX'] = self.getBBOX(srid) 
+            args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox']) 
 
             # get the exportMerge query
             msgQuery = function.getExportMergeQuery(args)
@@ -956,6 +961,13 @@ class PgRoutingLayer:
         if 'checkBoxHeapPaths' in controls:
             args['heap_paths'] = str(self.dock.checkBoxHeapPaths.isChecked()).lower()
         
+        if 'checkBoxUseBBOX' in controls:
+            args['use_bbox'] = str(self.dock.checkBoxUseBBOX.isChecked()).lower()
+        else:
+             args['use_bbox'] = 'false'
+
+
+
         if 'checkBoxHasReverseCost' in controls:
             args['has_reverse_cost'] = str(self.dock.checkBoxHasReverseCost.isChecked()).lower()
             if args['has_reverse_cost'] == 'false':

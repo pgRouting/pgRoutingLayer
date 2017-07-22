@@ -12,7 +12,7 @@ PgRouting Layer is a plugin for QGIS that serves as a GUI for pgRouting - a popu
 
 ## What this plugin currently does
 
-Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org/2.0/en/doc/index.html
+Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org/2.4/en/doc/index.html
 
 PgRoutingLayer currently supports the following functions:
 

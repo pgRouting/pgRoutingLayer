@@ -14,26 +14,17 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
-            'labelX1', 'lineEditX1',
-            'labelY1', 'lineEditY1',
-            'labelX2', 'lineEditX2',
-            'labelY2', 'lineEditY2',
-            'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-            'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-            'checkBoxDirected', 'checkBoxHasReverseCost'
-        ]
-    
+        return self.commonControls + self.commonBoxes + self.astarControls + [ 
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
+                ]   
+
     def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']
         resultPathRubberBand.reset(Utils.getRubberBandType(False))
     
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_bdastar('
                 SELECT %(id)s::int4 AS id,
@@ -45,7 +36,7 @@ class Function(FunctionBase):
                     %(x2)s::float8 AS x2,
                     %(y2)s::float8 AS y2
                     FROM %(edge_table)s
-                    WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                    %(where_clause)s',
                 %(source_id)s, %(target_id)s, %(directed)s, %(has_reverse_cost)s)""" % args
     
     def getExportQuery(self, args):
