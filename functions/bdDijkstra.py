@@ -13,12 +13,12 @@ class Function(FunctionBase):
     def getControlNames(self, version):
         self.version = version
         if self.version < 2.5:
-            return self.commonControls + self.commonBoxes [
+            return self.commonControls + self.commonBoxes + [
                     'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
                     'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
                     ]
         else:
-            return self.commonControls + self.commonBoxes [
+            return self.commonControls + self.commonBoxes + [
                     'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
                     'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
                     ]
