@@ -7,51 +7,53 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
-        return 'kdijkstra(cost)'
-    
+        return 'pgr_dijkstraCost'
+
     @classmethod
     def isSupportedVersion(self, version):
-        # Deprecated on version 2.2
-        return version >= 2.0 and version < 2.2
+        # valid starting pgr v2.1
+        return version >= 2.1
+
 
     @classmethod
-    def getControlNames(self, version):
-        # version 2.0 has only one to many
-        return self.commonControls + self.commonBoxes + [
-                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                ]
+    def canExportQuery(self):
+        return False
 
-    
-    @classmethod
-    def canExport(self):
-        return True
-    
     @classmethod
     def canExportMerged(self):
         return False
+
+
     
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
         canvasItemList['annotations'] = []
+
     
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
-            SELECT seq, id1 AS source, id2 AS target, cost FROM pgr_kdijkstraCost('
-                SELECT %(id)s::int4 AS id,
-                    %(source)s::int4 AS source,
-                    %(target)s::int4 AS target,
-                    %(cost)s::float8 AS cost%(reverse_cost)s
-                    FROM %(edge_table)s
-                    %(where_clause)s',
-                %(source_id)s, array[%(target_ids)s], %(directed)s, %(has_reverse_cost)s)""" % args
-    
+            SELECT row_number() over() AS seq,
+                   start_vid , end_vid, agg_cost AS cost,
+                    '(' || start_vid || ',' || end_vid || ')' AS path_name
+            FROM pgr_dijkstraCost('
+              SELECT %(id)s AS id,
+                %(source)s AS source,
+                %(target)s AS target,
+                %(cost)s AS cost
+                %(reverse_cost)s
+                FROM %(edge_table)s
+                %(where_clause)s
+                ',
+              array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
+            """ % args
+
+
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
         args['vertex_table'] = """ 
@@ -64,9 +66,11 @@ class Function(FunctionBase):
             SELECT result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
 
             FROM result
-            JOIN  %(vertex_table)s AS a ON (source = a.id)
-            JOIN  %(vertex_table)s AS b ON (target = b.id)
+            JOIN  %(vertex_table)s AS a ON (start_vid = a.id)
+            JOIN  %(vertex_table)s AS b ON (end_vid = b.id)
             """ % args
+
+
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
@@ -113,8 +117,6 @@ class Function(FunctionBase):
         if rubberBand:
             resultPathsRubberBands.append(rubberBand)
             rubberBand = None
-
-
         resultNodesTextAnnotations = canvasItemList['annotations']
         Utils.setStartPoint(geomType, args)
         Utils.setEndPoint(geomType, args)
@@ -134,7 +136,7 @@ class Function(FunctionBase):
             cur2.execute(query2)
             row2 = cur2.fetchone()
             assert row2, "Invalid result geometry. (target_id:%(result_target_id)d)" % args
-            
+
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_target_id)d:%(result_cost)f" % args)
@@ -143,9 +145,11 @@ class Function(FunctionBase):
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
             textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))
             textAnnotation.setDocument(textDocument)
-            
+
             textAnnotation.update()
             resultNodesTextAnnotations.append(textAnnotation)
-    
+
+
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
