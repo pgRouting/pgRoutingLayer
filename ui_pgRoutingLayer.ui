@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>298</width>
+    <width>265</width>
     <height>1077</height>
    </rect>
   </property>
@@ -20,7 +20,7 @@
    <string>pgRouting Layer</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
     <property name="spacing">
      <number>3</number>
     </property>
@@ -113,250 +113,55 @@
      </layout>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBoxSql">
-      <property name="locale">
-       <locale language="English" country="UnitedStates"/>
-      </property>
-      <property name="title">
-       <string>sql</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
+     <widget class="QWidget" name="widgetSqlArguments" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>3</number>
        </property>
        <property name="margin">
-        <number>6</number>
+        <number>0</number>
        </property>
-       <item row="0" column="0">
-        <layout class="QGridLayout" name="gridLayoutSqlBase" rowstretch="0,0,0" rowminimumheight="0,0,0">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetFixedSize</enum>
+       <item>
+        <widget class="QSplitter" name="splitter">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="labelTable">
-           <property name="locale">
-            <locale language="English" country="UnitedStates"/>
-           </property>
-           <property name="text">
-            <string>edge_table</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="labelGeometry">
-           <property name="locale">
-            <locale language="English" country="UnitedStates"/>
-           </property>
-           <property name="text">
-            <string>geometry</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEditGeometry">
-           <property name="toolTip">
-            <string>Name of the geometry column in network table</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEditTable">
-           <property name="toolTip">
-            <string>Name of the table containing the routable network</string>
-           </property>
-           <property name="locale">
-            <locale language="English" country="UnitedStates"/>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QCheckBox" name="checkBoxUseBBOX">
-           <property name="toolTip">
-            <string>When ticked, BBOX will be used.</string>
-           </property>
-           <property name="text">
-            <string>BBOX</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0">
-        <widget class="QScrollArea" name="scrollAreaSqlColumns">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>150</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContentsSqlColumns">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>260</width>
-            <height>297</height>
-           </rect>
+         <widget class="QGroupBox" name="groupBoxSql">
+          <property name="locale">
+           <locale language="English" country="UnitedStates"/>
           </property>
-          <layout class="QGridLayout" name="gridLayout_2">
+          <property name="title">
+           <string>sql</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayoutSql">
+           <property name="spacing">
+            <number>3</number>
+           </property>
            <property name="sizeConstraint">
             <enum>QLayout::SetDefaultConstraint</enum>
            </property>
            <property name="margin">
             <number>6</number>
            </property>
-           <property name="spacing">
-            <number>3</number>
-           </property>
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayoutSqlColumns">
+           <item>
+            <layout class="QGridLayout" name="gridLayoutSqlBase">
              <property name="spacing">
               <number>3</number>
              </property>
              <item row="0" column="0">
-              <widget class="QLabel" name="labelId">
+              <widget class="QLabel" name="labelTable">
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
                </property>
                <property name="text">
-                <string>id</string>
+                <string>edge_table</string>
                </property>
               </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="labelX1">
-               <property name="text">
-                <string>x1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEditSource">
-               <property name="toolTip">
-                <string>Name of the source column</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QLineEdit" name="lineEditY1"/>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditId">
+              <widget class="QLineEdit" name="lineEditTable">
                <property name="toolTip">
-                <string>identifier of the edge</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLabel" name="labelRule">
-               <property name="text">
-                <string>rule</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QLabel" name="labelX2">
-               <property name="text">
-                <string>x2</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="labelY1">
-               <property name="text">
-                <string>y1</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="labelCost">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>cost</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="1">
-              <widget class="QLineEdit" name="lineEditX2"/>
-             </item>
-             <item row="5" column="1">
-              <widget class="QLineEdit" name="lineEditX1"/>
-             </item>
-             <item row="4" column="2">
-              <widget class="QCheckBox" name="checkBoxHasReverseCost">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>When ticked, reverse_cost will be used.</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLineEdit" name="lineEditRule"/>
-             </item>
-             <item row="10" column="1">
-              <widget class="QLineEdit" name="lineEditToCost"/>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="labelTarget">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>target</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEditReverseCost">
-               <property name="toolTip">
-                <string>Name of the reverse_cost column. Used only when ticked.</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEditTarget">
-               <property name="toolTip">
-                <string>Name of the target column</string>
+                <string>Name of the table containing the routable network</string>
                </property>
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
@@ -364,479 +169,715 @@
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="labelSource">
+              <widget class="QLabel" name="labelGeometry">
                <property name="locale">
                 <locale language="English" country="UnitedStates"/>
                </property>
                <property name="text">
-                <string>source</string>
+                <string>geometry</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="labelReverseCost">
-               <property name="text">
-                <string>reverse_cost</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="lineEditCost">
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="lineEditGeometry">
                <property name="toolTip">
-                <string>Name of the edge cost column</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
+                <string>Name of the geometry column in network table</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="1">
-              <widget class="QLineEdit" name="lineEditY2"/>
-             </item>
-             <item row="8" column="0">
-              <widget class="QLabel" name="labelY2">
+             <item row="2" column="1">
+              <widget class="QCheckBox" name="checkBoxUseBBOX">
                <property name="text">
-                <string>y2</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0">
-              <widget class="QLabel" name="labelToCost">
-               <property name="text">
-                <string>to_cost</string>
+                <string>BBOX</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QGroupBox" name="groupBoxArguments">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Arguments</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayoutArguments">
-       <property name="spacing">
-        <number>3</number>
-       </property>
-       <property name="margin">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QScrollArea" name="scrollAreaArguments">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContentsArguments">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>245</width>
-            <height>376</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <property name="margin">
-            <number>6</number>
-           </property>
-           <property name="spacing">
-            <number>3</number>
-           </property>
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayoutArguments">
-             <property name="spacing">
-              <number>3</number>
+           <item>
+            <widget class="QScrollArea" name="scrollAreaSqlColumns">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <item row="4" column="0">
-              <widget class="QLabel" name="labelSourceIds">
-               <property name="text">
-                <string>source_ids</string>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>70</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContentsSqlColumns">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>221</width>
+                <height>392</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetMinimumSize</enum>
                </property>
-              </widget>
-             </item>
-             <item row="7" column="1">
-              <widget class="QLineEdit" name="lineEditTargetPos">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
+               <property name="margin">
+                <number>6</number>
                </property>
-              </widget>
-             </item>
-             <item row="11" column="0">
-              <widget class="QLabel" name="labelPaths">
-               <property name="text">
-                <string>paths</string>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="1">
-              <widget class="QLineEdit" name="lineEditPaths"/>
-             </item>
-             <item row="8" column="1">
-              <widget class="QLineEdit" name="lineEditTargetIds"/>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="labelSourceId">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>source_id</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="labelTargetId">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>target_id</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="labelIds">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>ids</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QLineEdit" name="lineEditTargetId">
-               <property name="toolTip">
-                <string>id of the end node</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEditSourceId">
-               <property name="toolTip">
-                <string>id of the start node</string>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEditIds">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QToolButton" name="buttonSelectSourceId">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>22</width>
-                 <height>22</height>
-                </size>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLabel" name="labelDistance">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>distance</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="2">
-              <widget class="QToolButton" name="buttonSelectTargetId">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>22</width>
-                 <height>22</height>
-                </size>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QLineEdit" name="lineEditSourcePos">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLineEdit" name="lineEditDistance">
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QToolButton" name="buttonSelectIds">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>22</width>
-                 <height>22</height>
-                </size>
-               </property>
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-               <property name="toolButtonStyle">
-                <enum>Qt::ToolButtonIconOnly</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="labelSourcePos">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>source_pos</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="0">
-              <widget class="QLabel" name="labelTurnRestrictSql">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>turn
-_restrict
-_sql</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="1" colspan="2">
-              <widget class="QPlainTextEdit" name="plainTextEditTurnRestrictSql">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="tabStopWidth">
-                <number>40</number>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0">
-              <widget class="QLabel" name="labelTargetIds">
-               <property name="text">
-                <string>target_ids</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QLabel" name="labelTargetPos">
-               <property name="locale">
-                <locale language="English" country="UnitedStates"/>
-               </property>
-               <property name="text">
-                <string>target_pos</string>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="0" colspan="3">
-              <layout class="QHBoxLayout" name="horizontalLayoutDirected">
                <property name="spacing">
                 <number>3</number>
                </property>
-               <property name="sizeConstraint">
-                <enum>QLayout::SetMaximumSize</enum>
-               </property>
-               <item>
-                <widget class="QCheckBox" name="checkBoxDirected">
-                 <property name="maximumSize">
+               <item row="0" column="0">
+                <layout class="QGridLayout" name="gridLayoutSqlColumns">
+                 <property name="spacing">
+                  <number>3</number>
+                 </property>
+                 <item row="9" column="0">
+                  <widget class="QLabel" name="labelRule">
+                   <property name="text">
+                    <string>rule</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="labelId">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>id</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="lineEditId">
+                   <property name="toolTip">
+                    <string>identifier of the edge</string>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="labelSource">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>source</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="lineEditSource">
+                   <property name="toolTip">
+                    <string>Name of the source column</string>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="labelTarget">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>target</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="labelCost">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>cost</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="lineEditTarget">
+                   <property name="toolTip">
+                    <string>Name of the target column</string>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="labelReverseCost">
+                   <property name="text">
+                    <string>reverse_cost</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QLineEdit" name="lineEditCost">
+                   <property name="toolTip">
+                    <string>Name of the edge cost column</string>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="labelX1">
+                   <property name="text">
+                    <string>x1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QLineEdit" name="lineEditReverseCost">
+                   <property name="toolTip">
+                    <string>Name of the reverse_cost column. Used only when ticked.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QLineEdit" name="lineEditX1"/>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="labelY1">
+                   <property name="text">
+                    <string>y1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QLabel" name="labelX2">
+                   <property name="text">
+                    <string>x2</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QLabel" name="labelY2">
+                   <property name="text">
+                    <string>y2</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="0">
+                  <widget class="QLabel" name="labelToCost">
+                   <property name="text">
+                    <string>to_cost</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QLineEdit" name="lineEditY1"/>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QLineEdit" name="lineEditX2"/>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QLineEdit" name="lineEditY2"/>
+                 </item>
+                 <item row="9" column="1">
+                  <widget class="QLineEdit" name="lineEditRule"/>
+                 </item>
+                 <item row="10" column="1">
+                  <widget class="QLineEdit" name="lineEditToCost"/>
+                 </item>
+                 <item row="4" column="2">
+                  <widget class="QCheckBox" name="checkBoxHasReverseCost">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>When ticked, reverse_cost will be used.</string>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
                   <size>
-                   <width>16777215</width>
-                   <height>16777215</height>
+                   <width>20</width>
+                   <height>40</height>
                   </size>
                  </property>
-                 <property name="toolTip">
-                  <string>Tick if the graph is directed</string>
-                 </property>
-                 <property name="locale">
-                  <locale language="English" country="UnitedStates"/>
-                 </property>
-                 <property name="text">
-                  <string>directed</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="checkBoxHeapPaths">
-                 <property name="toolTip">
-                  <string>Tick for algorithm heap paths</string>
-                 </property>
-                 <property name="text">
-                  <string>heap_paths</string>
-                 </property>
-                </widget>
+                </spacer>
                </item>
               </layout>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="labelPcts">
-               <property name="text">
-                <string>pcts</string>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QGroupBox" name="groupBoxArguments">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Arguments</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayoutArguments">
+           <property name="margin">
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QScrollArea" name="scrollAreaArguments">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>90</height>
+              </size>
+             </property>
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContentsArguments">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>221</width>
+                <height>381</height>
+               </rect>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_3">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetMinimumSize</enum>
                </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEditPcts"/>
-             </item>
-             <item row="8" column="2">
-              <widget class="QToolButton" name="buttonSelectTargetIds">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+               <property name="margin">
+                <number>6</number>
                </property>
-               <property name="maximumSize">
-                <size>
-                 <width>22</width>
-                 <height>22</height>
-                </size>
+               <property name="spacing">
+                <number>3</number>
                </property>
-               <property name="text">
-                <string>...</string>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0">
-              <widget class="QLabel" name="labelAlpha">
-               <property name="text">
-                <string>alpha</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="1">
-              <widget class="QLineEdit" name="lineEditAlpha"/>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEditSourceIds"/>
-             </item>
-             <item row="4" column="2">
-              <widget class="QToolButton" name="buttonSelectSourceIds">
-               <property name="maximumSize">
-                <size>
-                 <width>22</width>
-                 <height>22</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>...</string>
-               </property>
-               <property name="icon">
-                <iconset>
-                 <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
+               <item row="0" column="0">
+                <layout class="QGridLayout" name="gridLayoutArguments">
+                 <property name="spacing">
+                  <number>3</number>
+                 </property>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="labelSourceIds">
+                   <property name="text">
+                    <string>source_ids</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QLineEdit" name="lineEditTargetPos">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="0">
+                  <widget class="QLabel" name="labelPaths">
+                   <property name="text">
+                    <string>paths</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="10" column="1">
+                  <widget class="QLineEdit" name="lineEditPaths"/>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QLineEdit" name="lineEditTargetIds"/>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="labelSourceId">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>source_id</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="labelTargetId">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>target_id</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="labelIds">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>ids</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QLineEdit" name="lineEditTargetId">
+                   <property name="toolTip">
+                    <string>id of the end node</string>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="lineEditSourceId">
+                   <property name="toolTip">
+                    <string>id of the start node</string>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="lineEditIds">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="QToolButton" name="buttonSelectSourceId">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>22</width>
+                     <height>22</height>
+                    </size>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QLabel" name="labelDistance">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>distance</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="2">
+                  <widget class="QToolButton" name="buttonSelectTargetId">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>22</width>
+                     <height>22</height>
+                    </size>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QLineEdit" name="lineEditSourcePos">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QLineEdit" name="lineEditDistance">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QToolButton" name="buttonSelectIds">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>22</width>
+                     <height>22</height>
+                    </size>
+                   </property>
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="toolButtonStyle">
+                    <enum>Qt::ToolButtonIconOnly</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="labelSourcePos">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>source_pos</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="12" column="0">
+                  <widget class="QLabel" name="labelTurnRestrictSql">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>turn
+_restrict
+_sql</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="12" column="1" colspan="2">
+                  <widget class="QPlainTextEdit" name="plainTextEditTurnRestrictSql">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="tabStopWidth">
+                    <number>40</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QLabel" name="labelTargetIds">
+                   <property name="text">
+                    <string>target_ids</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="labelTargetPos">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>target_pos</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="11" column="0" colspan="3">
+                  <layout class="QHBoxLayout" name="horizontalLayoutDirected">
+                   <property name="spacing">
+                    <number>3</number>
+                   </property>
+                   <property name="sizeConstraint">
+                    <enum>QLayout::SetMaximumSize</enum>
+                   </property>
+                   <item>
+                    <widget class="QCheckBox" name="checkBoxDirected">
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>Tick if the graph is directed</string>
+                     </property>
+                     <property name="locale">
+                      <locale language="English" country="UnitedStates"/>
+                     </property>
+                     <property name="text">
+                      <string>directed</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="checkBoxHeapPaths">
+                     <property name="toolTip">
+                      <string>Tick for algorithm heap paths</string>
+                     </property>
+                     <property name="text">
+                      <string>heap_paths</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="labelPcts">
+                   <property name="text">
+                    <string>pcts</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="lineEditPcts"/>
+                 </item>
+                 <item row="7" column="2">
+                  <widget class="QToolButton" name="buttonSelectTargetIds">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>22</width>
+                     <height>22</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>...</string>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="0">
+                  <widget class="QLabel" name="labelAlpha">
+                   <property name="text">
+                    <string>alpha</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1">
+                  <widget class="QLineEdit" name="lineEditAlpha"/>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QLineEdit" name="lineEditSourceIds"/>
+                 </item>
+                 <item row="3" column="2">
+                  <widget class="QToolButton" name="buttonSelectSourceIds">
+                   <property name="maximumSize">
+                    <size>
+                     <width>22</width>
+                     <height>22</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>...</string>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <spacer name="verticalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -844,19 +885,6 @@ _sql</string>
        </item>
       </layout>
      </widget>
-    </item>
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayoutCommands">
@@ -952,6 +980,8 @@ _sql</string>
  <tabstops>
   <tabstop>comboConnections</tabstop>
   <tabstop>comboBoxFunction</tabstop>
+  <tabstop>lineEditTable</tabstop>
+  <tabstop>lineEditGeometry</tabstop>
   <tabstop>scrollAreaSqlColumns</tabstop>
   <tabstop>lineEditId</tabstop>
   <tabstop>lineEditSource</tabstop>
