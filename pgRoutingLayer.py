@@ -869,8 +869,10 @@ class PgRoutingLayer:
         for anno in self.canvasItemList['annotations']:
             try:
                 anno.setVisible(False)
+                self.iface.mapCanvas().scene().removeItem(anno)
             except RuntimeError, e:
-                Utils.logMessage("anno.setVisible(False) failed, " + e.message, QgsMessageLog.WARNING)
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
         self.canvasItemList['annotations'] = []
         for path in self.canvasItemList['paths']:
             path.reset(Utils.getRubberBandType(False))
