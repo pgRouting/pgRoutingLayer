@@ -215,8 +215,8 @@ class PgRoutingLayer:
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock)
         
     def unload(self):
-        self.saveSettings()
         self.clear()
+        self.saveSettings()
         # Remove the plugin menu item and icon
         self.iface.removePluginDatabaseMenu("&pgRouting Layer", self.action)
         self.iface.removeDockWidget(self.dock)
