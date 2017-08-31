@@ -203,11 +203,11 @@ class PgRoutingLayer:
         self.dock.lineEditDistance.setValidator(QDoubleValidator())
         self.dock.lineEditAlpha.setValidator(QDoubleValidator())
         self.dock.lineEditPaths.setValidator(QIntValidator())
-        self.loadSettings()
         
         #populate the combo with connections
         self.reloadMessage = False
         self.reloadConnections()
+        self.loadSettings()
         Utils.logMessage("startup version " + str(self.version))
         self.reloadMessage = True
         
@@ -1204,7 +1204,7 @@ class PgRoutingLayer:
     
     def loadSettings(self):
         settings = QSettings()
-        idx = self.dock.comboConnections.findText(Utils.getStringValue(settings, '/pgRoutingLayer/Database', ''))
+        idx = self.dock.comboConnections.findText(settings.value('/pgRoutingLayer/Database', type=str))
         if idx >= 0:
             self.dock.comboConnections.setCurrentIndex(idx)
         idx = self.dock.comboBoxFunction.findText(Utils.getStringValue(settings, '/pgRoutingLayer/Function', 'dijkstra'))
