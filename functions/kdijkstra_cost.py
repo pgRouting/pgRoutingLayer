@@ -38,6 +38,7 @@ class Function(FunctionBase):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
+            self.iface.mapCanvas().scene().removeItem(anno)
         canvasItemList['annotations'] = []
     
     def getQuery(self, args):
@@ -146,6 +147,8 @@ class Function(FunctionBase):
             
             textAnnotation.update()
             resultNodesTextAnnotations.append(textAnnotation)
+            canvasItemList['annotations'] = resultNodesTextAnnotations
+
     
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
