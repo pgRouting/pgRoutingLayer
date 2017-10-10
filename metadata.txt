@@ -8,6 +8,8 @@ qgisMaximumVersion=2.99
 author=Anita Graser, Ko Nagase, Vicky Vergara
 email=project@pgrouting.org
 changelog=2.2.0
+    - Support for pgRouting V2.0 up to v2.5
+    - BBOX is optional
     2.1.0
     - change support sites
     - port to pgRouting 2.1 API by pgRouting team
