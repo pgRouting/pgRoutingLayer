@@ -203,11 +203,11 @@ class PgRoutingLayer:
         self.dock.lineEditDistance.setValidator(QDoubleValidator())
         self.dock.lineEditAlpha.setValidator(QDoubleValidator())
         self.dock.lineEditPaths.setValidator(QIntValidator())
-        self.loadSettings()
         
         #populate the combo with connections
         self.reloadMessage = False
         self.reloadConnections()
+        self.loadSettings()
         Utils.logMessage("startup version " + str(self.version))
         self.reloadMessage = True
         
@@ -215,8 +215,8 @@ class PgRoutingLayer:
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock)
         
     def unload(self):
-        self.saveSettings()
         self.clear()
+        self.saveSettings()
         # Remove the plugin menu item and icon
         self.iface.removePluginDatabaseMenu("&pgRouting Layer", self.action)
         self.iface.removeDockWidget(self.dock)
@@ -869,8 +869,10 @@ class PgRoutingLayer:
         for anno in self.canvasItemList['annotations']:
             try:
                 anno.setVisible(False)
+                self.iface.mapCanvas().scene().removeItem(anno)
             except RuntimeError, e:
-                Utils.logMessage("anno.setVisible(False) failed, " + e.message, QgsMessageLog.WARNING)
+                QApplication.restoreOverrideCursor()
+                QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
         self.canvasItemList['annotations'] = []
         for path in self.canvasItemList['paths']:
             path.reset(Utils.getRubberBandType(False))
@@ -1202,7 +1204,7 @@ class PgRoutingLayer:
     
     def loadSettings(self):
         settings = QSettings()
-        idx = self.dock.comboConnections.findText(Utils.getStringValue(settings, '/pgRoutingLayer/Database', ''))
+        idx = self.dock.comboConnections.findText(settings.value('/pgRoutingLayer/Database', type=str))
         if idx >= 0:
             self.dock.comboConnections.setCurrentIndex(idx)
         idx = self.dock.comboBoxFunction.findText(Utils.getStringValue(settings, '/pgRoutingLayer/Function', 'dijkstra'))
