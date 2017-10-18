@@ -1204,7 +1204,7 @@ class PgRoutingLayer:
     
     def loadSettings(self):
         settings = QSettings()
-        idx = self.dock.comboConnections.findText(settings.value('/pgRoutingLayer/Database', type=str))
+        idx = self.dock.comboConnections.findText(Utils.getStringValue(settings, '/pgRoutingLayer/Database', ''))
         if idx >= 0:
             self.dock.comboConnections.setCurrentIndex(idx)
         idx = self.dock.comboBoxFunction.findText(Utils.getStringValue(settings, '/pgRoutingLayer/Function', 'dijkstra'))
