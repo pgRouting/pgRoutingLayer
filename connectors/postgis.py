@@ -119,7 +119,7 @@ class Connection(DbConn.Connection):
 			raise DbError( 'there is no defined database connection "%s".' % selected )
 	
 		get_value_str = lambda x: unicode(settings.value(x) if Utils.isSIPv2() else settings.value(x).toString())
-		host, port, database, username, password = map(get_value_str, ["host", "port", "database", "username", "password"])
+		service, host, port, database, username, password = map(get_value_str, ["service", "host", "port", "database", "username", "password"])
 
 		# qgis1.5 use 'savePassword' instead of 'save' setting
 		isSave = settings.value("save") if Utils.isSIPv2() else settings.value("save").toBool()
@@ -131,26 +131,31 @@ class Connection(DbConn.Connection):
 		settings.endGroup()
 
 		uri = qgis.core.QgsDataSourceURI()
-		uri.setConnection(host, port, database, username, password)
+		if service:
+			uri.setConnection(service, database, username, password)
+		else:
+			uri.setConnection(host, port, database, username, password)
+
 		return Connection(uri)
 
 	
 	def __init__(self, uri):
 		DbConn.Connection.__init__(self, uri)
 
+		self.service = uri.service()
 		self.host = uri.host()
 		self.port = uri.port()
 		self.dbname = uri.database()
 		self.user = uri.username()
 		self.passwd = uri.password()
 		
-		if self.dbname == '' or self.dbname is None:
-			self.dbname = self.user
-		
 		try:
 			self.con = psycopg2.connect(self.con_info())
 		except psycopg2.OperationalError, e:
 			raise DbError(e)
+
+		if not self.dbname:
+			self.dbname = self.get_dbname()
 		
 		self.has_spatial = self.check_spatial()
 
@@ -158,15 +163,21 @@ class Connection(DbConn.Connection):
 
 		# a counter to ensure that the cursor will be unique
 		self.last_cursor_id = 0
-		
+
 	def con_info(self):
 		con_str = ''
-		if self.host:   con_str += "host='%s' "     % self.host
-		if self.port:   con_str += "port=%s "       % self.port
-		if self.dbname: con_str += "dbname='%s' "   % self.dbname
-		if self.user:   con_str += "user='%s' "     % self.user
-		if self.passwd: con_str += "password='%s' " % self.passwd
+		if self.service: con_str += "service='%s' "  % self.service
+		if self.host:    con_str += "host='%s' "     % self.host
+		if self.port:    con_str += "port=%s "       % self.port
+		if self.dbname:  con_str += "dbname='%s' "   % self.dbname
+		if self.user:    con_str += "user='%s' "     % self.user
+		if self.passwd:  con_str += "password='%s' " % self.passwd
 		return con_str
+
+        def get_dbname(self):
+		c = self.con.cursor()
+		self._exec_sql(c, "SELECT current_database()")
+		return c.fetchone()[0]
 
 	def get_info(self):
 		c = self.con.cursor()
@@ -841,3 +852,4 @@ if __name__ == '__main__':
 	#except DbError, e:
 	#	print e.message, e.query
 	
+# vim: noet ts=8 :
