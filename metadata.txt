@@ -8,7 +8,7 @@ qgisMaximumVersion=2.99
 author=Anita Graser, Ko Nagase, Vicky Vergara
 email=project@pgrouting.org
 changelog=2.2.2
-    - Bug fix: activating alphashape.py to use BBOX (by mixedbredie)
+    - Bug fix: activating alphashape.py to use BBOX by mixedbredie
     2.2.1
     - Bug fix activating plugin
     2.2.0
