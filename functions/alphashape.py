@@ -14,7 +14,7 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        self.version = version	
+        self.version = version
         return self.commonControls + self.commonBoxes + [
             'labelId', 'lineEditId',
             'labelSource', 'lineEditSource',
