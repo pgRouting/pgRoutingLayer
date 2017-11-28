@@ -48,7 +48,7 @@ class Function(FunctionBase):
                         %(target)s::int4 AS target,
                         %(cost)s::float8 AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-						%(where_clause)s',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s, %(has_reverse_cost)s)
                 ),
@@ -74,7 +74,7 @@ class Function(FunctionBase):
                         %(target)s AS target,
                         %(cost)s AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-						%(where_clause)s',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s)
                 ),
@@ -101,7 +101,7 @@ class Function(FunctionBase):
                         %(target)s::int4 AS target,
                         %(cost)s::float8 AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-						%(where_clause)s',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s, %(has_reverse_cost)s)
                 ),
@@ -124,7 +124,7 @@ class Function(FunctionBase):
                         %(target)s AS target,
                         %(cost)s AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-						%(where_clause)s',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s)
                 ),
@@ -136,8 +136,6 @@ class Function(FunctionBase):
                 )
                 SELECT * FROM node$$::text)
                 """ % args
-
-
 
 
 
