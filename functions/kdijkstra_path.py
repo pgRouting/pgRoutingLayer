@@ -7,7 +7,7 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
         return 'kdijkstra(path)'
@@ -17,7 +17,7 @@ class Function(FunctionBase):
         # Deprecated on version 2.2
         return version >= 2.0 and version < 2.2
 
-    
+
     @classmethod
     def getControlNames(self, version):
         # version 2.0 has only one to many
@@ -26,17 +26,22 @@ class Function(FunctionBase):
                 'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
                 ]
 
-    
+
     def prepare(self, canvasItemList):
         resultPathsRubberBands = canvasItemList['paths']
         for path in resultPathsRubberBands:
             path.reset(Utils.getRubberBandType(False))
         canvasItemList['paths'] = []
-    
+
+
+    """ pgr_kdijkstraPath gives shortest path from one startpoint to many target points. Its signature is:
+    pgr_kdijkstraPath(sql_query,startpoint,array[targets],directed,has_reverse_cost)"""
+
+    # SELECT startpoint,targets,edges,cost from result of pgr_kdijkstraPath.
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
-            SELECT seq, 
+            SELECT seq,
                 id1 AS _path, id2 AS _node, id3 AS _edge, cost AS _cost FROM pgr_kdijkstraPath('
                 SELECT %(id)s::int4 AS id,
                     %(source)s::int4 AS source,
@@ -53,7 +58,7 @@ class Function(FunctionBase):
         args['result_query'] = self.getQuery(args)
 
         args['with_geom_query'] = """
-            SELECT 
+            SELECT
               seq, _path,
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
@@ -61,7 +66,7 @@ class Function(FunctionBase):
                 ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
               END AS path_geom
             FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge 
+              ON %(edge_table)s.%(id)s = result._edge
             """ % args
 
         args['one_geom_query'] = """
@@ -92,7 +97,8 @@ class Function(FunctionBase):
             USING (_path)
             """ % args
         return query
-
+        
+# Draw the result.
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None

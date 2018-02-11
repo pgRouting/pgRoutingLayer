@@ -7,11 +7,12 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+    #returns Function name.
     @classmethod
     def getName(self):
         return 'alphashape'
-    
+
+    # returns control names.
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -35,6 +36,12 @@ class Function(FunctionBase):
         resultAreaRubberBand = canvasItemList['area']
         resultAreaRubberBand.reset(Utils.getRubberBandType(True))
 
+
+""" An alpha shape is a bounding area that envelopes a set of points. pgr_alphaShape returns a table of (x,y) which
+describes the vertices of the polygon of alpha shape. Its signature is
+pgr_alphaShape(text sql [, float8 alpha]) """
+
+# SELECT x,y coordinates from result of alphashape.
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if args['version'] < 2.1:
@@ -60,7 +67,7 @@ class Function(FunctionBase):
                 )
                 SELECT * FROM node$$::text)
                 """ % args
-                    
+
         # V21.+ has pgr_drivingDistance with big int
         # and pgr_alphaShape has an alpha value
         args['alpha'] = ', ' + str(args['alpha'])
@@ -86,7 +93,7 @@ class Function(FunctionBase):
                 )
                 SELECT * FROM node$$::text%(alpha)s)
                 """ % args
-                    
+
 
 
     def getExportQuery(self, args):
@@ -138,7 +145,7 @@ class Function(FunctionBase):
                 """ % args
 
 
-
+# draw the resulting polygon.
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultAreaRubberBand = canvasItemList['area']
         trans = None
@@ -147,7 +154,7 @@ class Function(FunctionBase):
             layerCrs = QgsCoordinateReferenceSystem()
             Utils.createFromSrid(layerCrs, args['srid'])
             trans = QgsCoordinateTransform(layerCrs, canvasCrs)
-        
+
         # return columns are 'x', 'y'
         for row in rows:
             x = row[0]
@@ -158,8 +165,8 @@ class Function(FunctionBase):
             pt = QgsPoint(x, y)
             if trans:
                 pt = trans.transform(pt)
-            
+
             resultAreaRubberBand.addPoint(pt)
-    
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)

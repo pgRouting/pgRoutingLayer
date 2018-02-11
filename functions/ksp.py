@@ -10,11 +10,11 @@ class Function(FunctionBase):
 
     version = 2.0
 
-    
+
     @classmethod
     def getName(self):
         return 'ksp'
-    
+
     @classmethod
     def getControlNames(self, version):
         # function pgr_ksp(text,integer,integer,integer, boolean)
@@ -54,7 +54,11 @@ class Function(FunctionBase):
         for path in resultPathsRubberBands:
             path.reset(Utils.getRubberBandType(False))
         canvasItemList['paths'] = []
+""" pgr_ksp returns k shortest paths between a source and a target. Its minimum signature is:
+pgr_ksp(TEXT sql_q, BIGINT start_vid, BIGINT end_vid, INTEGER k);
+  RETURNS SET OF (seq, path_id, path_seq, node, edge, cost, agg_cost) or EMPTY SET """
 
+  
     def getQuery(self, args):
         if (self.version < 2.1):
             return """
@@ -101,7 +105,7 @@ class Function(FunctionBase):
             args['result_query'] = self.getQuery(args)
 
             args['with_geom_query'] = """
-                SELECT 
+                SELECT
                   seq, _route,
                   CASE
                     WHEN result._node = %(edge_table)s.%(source)s
@@ -109,7 +113,7 @@ class Function(FunctionBase):
                     ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
                   END AS path_geom
                 FROM %(edge_table)s JOIN result
-                  ON %(edge_table)s.%(id)s = result._edge 
+                  ON %(edge_table)s.%(id)s = result._edge
                 """ % args
 
             args['one_geom_query'] = """
@@ -144,7 +148,7 @@ class Function(FunctionBase):
             args['result_query'] = self.getQuery(args)
 
             args['with_geom_query'] = """
-                SELECT 
+                SELECT
                   seq, result.path_name,
                   CASE
                     WHEN result._node = %(edge_table)s.%(source)s
@@ -152,7 +156,7 @@ class Function(FunctionBase):
                     ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
                   END AS path_geom
                 FROM %(edge_table)s JOIN result
-                  ON %(edge_table)s.%(id)s = result._edge 
+                  ON %(edge_table)s.%(id)s = result._edge
                 """ % args
 
             args['one_geom_query'] = """
@@ -178,7 +182,7 @@ class Function(FunctionBase):
                 aggregates AS ( %(aggregates_query)s )
                 SELECT row_number() over() as seq,
                     _path_id, path_name, _nodes, _edges, agg_cost,
-                    path_geom FROM aggregates JOIN one_geom 
+                    path_geom FROM aggregates JOIN one_geom
                     USING (path_name)
                     ORDER BY _path_id
                 """ % args

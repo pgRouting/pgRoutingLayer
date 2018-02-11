@@ -8,9 +8,11 @@ import pgRoutingLayer_utils as Utils
 
 class ConnectionManager:
 
-	SUPPORTED_CONNECTORS = ['postgis']
+	SUPPORTED_CONNECTORS = ['postgis']  #list that contains supported connectors.
 	MISSED_CONNECTORS = []
 
+
+# for each connector in SUPPORTED_CONNECTORS try to establish connection , if failed remove it and append in MISSED_CONNECTORS.
 	@classmethod
 	def initConnectionSupport(self):
 		conntypes = ConnectionManager.SUPPORTED_CONNECTORS
@@ -27,16 +29,18 @@ class ConnectionManager:
 	@classmethod
 	def getConnection(self, conntype, uri=None):
 		if not self.isSupported(conntype):
-			raise NotSupportedConnTypeException(conntype)
+			raise NotSupportedConnTypeException(conntype) # raise error if connector not supported
 
 		# import the connector
 		exec( "from connectors import %s as connector" % conntype)
 		return connector.Connection(uri) if uri else connector.Connection
 
+		# this Function checks if the connection is supported.
 	@classmethod
 	def isSupported(self, conntype):
 		return conntype in ConnectionManager.SUPPORTED_CONNECTORS
 
+# returns a list of imported connectors.
 	@classmethod
 	def getAvailableConnections(self, conntypes=None):
 		if conntypes == None:
@@ -50,7 +54,7 @@ class ConnectionManager:
 			connections.extend( connection.getAvailableConnections() )
 		return connections
 
-
+# raises a message that connector is not supported
 class NotSupportedConnTypeException(Exception):
 	def __init__(self, conntype):
 		self.msg = u"%s is not supported yet" % conntype
@@ -128,6 +132,7 @@ class Connection:
 			selected = self.text()
 			conn = ConnectionManager.getConnection( self.type ).connect( selected, self.parent() )
 
+""" Note: QSettings allow applications to remember its settings across sessions. """
 			# set as default in QSettings
 			settings = QSettings()
 			settings.setValue( "/%s/connections/selected" % conn.getSettingsKey(), selected )
@@ -140,10 +145,10 @@ class TableAttribute:
 
 class TableConstraint:
 	""" class that represents a constraint of a table (relation) """
-	
+
 	TypeCheck, TypeForeignKey, TypePrimaryKey, TypeUnique = range(4)
 	types = { "c" : TypeCheck, "f" : TypeForeignKey, "p" : TypePrimaryKey, "u" : TypeUnique }
-	
+
 	on_action = { "a" : "NO ACTION", "r" : "RESTRICT", "c" : "CASCADE", "n" : "SET NULL", "d" : "SET DEFAULT" }
 	match_types = { "u" : "UNSPECIFIED", "f" : "FULL", "p" : "PARTIAL" }
 
@@ -173,7 +178,7 @@ class TableField:
 			return "NULL"
 		else:
 			return "NOT NULL"
-		
+
 	def field_def(self, db):
 		""" return field definition as used for CREATE TABLE or ALTER TABLE command """
 		data_type = self.data_type if (not self.modifier or self.modifier < 0) else "%s(%d)" % (self.data_type, self.modifier)

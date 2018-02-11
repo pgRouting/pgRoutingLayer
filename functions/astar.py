@@ -4,11 +4,11 @@ from FunctionBase import FunctionBase
 class Function(FunctionBase):
 
     version = 2.0
-
+# returns Function name.
     @classmethod
     def getName(self):
         return 'astar'
-
+# returns control names.
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -33,6 +33,8 @@ class Function(FunctionBase):
                 path.reset(Utils.getRubberBandType(False))
             canvasItemList['paths'] = []
 
+""" pgr_astar Function calculates shortest path between nodes heuristic approach. Its signature is :
+pgr_astar(sql text, source integer, target integer,directed boolean, has_rcost boolean);"""
 
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
@@ -99,7 +101,7 @@ class Function(FunctionBase):
         else:
             return self.getExportManySourceManyTargetMergeQuery(args)
 
-
+# draw the result.
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         if self.version < 2.4:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)
