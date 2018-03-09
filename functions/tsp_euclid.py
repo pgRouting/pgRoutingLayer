@@ -74,7 +74,7 @@ pgr_tsp(sql text, start_id integer, end_id integer); """
             """ % args
         return query
 
-#Draw the result
+''' Draw the result '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['path']
         i = 0
@@ -139,7 +139,7 @@ pgr_tsp(sql text, start_id integer, end_id integer); """
 
 
 
-        ############ ANOTATIONS
+        ''' ANOTATIONS '''
         resultNodesTextAnnotations = canvasItemList['annotations']
         Utils.setStartPoint(geomType, args)
         Utils.setEndPoint(geomType, args)

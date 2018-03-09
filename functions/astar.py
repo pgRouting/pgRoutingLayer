@@ -4,11 +4,11 @@ from FunctionBase import FunctionBase
 class Function(FunctionBase):
 
     version = 2.0
-# returns Function name.
+''' returns Function name. '''
     @classmethod
     def getName(self):
         return 'astar'
-# returns control names.
+''' returns control names. '''
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -101,7 +101,7 @@ pgr_astar(sql text, source integer, target integer,directed boolean, has_rcost b
         else:
             return self.getExportManySourceManyTargetMergeQuery(args)
 
-# draw the result.
+''' draw the result. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         if self.version < 2.4:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)

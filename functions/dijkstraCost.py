@@ -7,7 +7,7 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    #returns function name
+    ''' returns function name '''
     @classmethod
     def getName(self):
         return 'pgr_dijkstraCost'
@@ -56,7 +56,7 @@ class Function(FunctionBase):
               array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
             """ % args
 
-# makes line geometry for each pair of vertex from the result query.
+''' makes line geometry for each pair of vertex from the result query. '''
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
         args['vertex_table'] = """
@@ -75,7 +75,7 @@ class Function(FunctionBase):
 
 
 
-# draws the result on mapCanvas.
+''' draws the result on mapCanvas. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None

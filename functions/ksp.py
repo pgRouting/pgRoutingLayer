@@ -17,9 +17,9 @@ class Function(FunctionBase):
 
     @classmethod
     def getControlNames(self, version):
-        # function pgr_ksp(text,integer,integer,integer, boolean)
-        # boolean is has_rcost
-        # only works for directed graph
+        ''' function pgr_ksp(text,integer,integer,integer, boolean)
+         boolean is has_rcost
+         only works for directed graph '''
         self.version = version
         if (self.version < 2.1):
             return [
@@ -58,7 +58,7 @@ class Function(FunctionBase):
 pgr_ksp(TEXT sql_q, BIGINT start_vid, BIGINT end_vid, INTEGER k);
   RETURNS SET OF (seq, path_id, path_seq, node, edge, cost, agg_cost) or EMPTY SET """
 
-  
+
     def getQuery(self, args):
         if (self.version < 2.1):
             return """

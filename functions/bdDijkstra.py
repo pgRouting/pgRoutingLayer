@@ -4,11 +4,11 @@ from FunctionBase import FunctionBase
 class Function(FunctionBase):
 
     version = 2.0
-# returns Function name.
+''' returns Function name. '''
     @classmethod
     def getName(self):
         return 'bdDijkstra'
-# returns control names.
+''' returns control names. '''
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -35,7 +35,7 @@ class Function(FunctionBase):
 
 """ pgr_bdDijkstra returns shortest path using Bidirectional Dijkstra algorithm. Its signature is
  pgr_bdDijkstra(sql text, source integer, target integer,directed boolean, has_rcost boolean);"""
- # select seq,node,edge,cost from pgr_bdDijkstra result.
+ ''' select seq,node,edge,cost from pgr_bdDijkstra result. '''
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.4:
@@ -89,7 +89,7 @@ class Function(FunctionBase):
         else:
             return self.getExportManySourceManyTargetMergeQuery(args)
 
-# draw the result.
+''' draw the result. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         if self.version < 2.5:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)

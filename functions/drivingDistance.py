@@ -7,11 +7,11 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    # returns Function name
+    '''  returns Function name '''
     @classmethod
     def getName(self):
         return 'drivingDistance'
-    # returns control names.
+    ''' returns control names. '''
     @classmethod
     def getControlNames(self, version):
         if version < 2.1:
@@ -37,7 +37,7 @@ class Function(FunctionBase):
 pgr_drivingDistance(sql text, start_v bigint, distance float8)
   RETURNS SET OF (seq, node, edge, cost, agg_cost)"""
 
-     # SELECT sequence,node,edge and cost from result of pgr_drivingDistance.
+     ''' SELECT sequence,node,edge and cost from result of pgr_drivingDistance. '''
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if (args['version'] < 2.1):
@@ -72,7 +72,7 @@ pgr_drivingDistance(sql text, start_v bigint, distance float8)
                 """ % args
 
     def getExportQuery(self, args):
-        # points are returned
+        '''  points are returned '''
         args['result_query'] = self.getQuery(args)
 
         args['with_geom_query'] = """
@@ -93,10 +93,10 @@ pgr_drivingDistance(sql text, start_v bigint, distance float8)
         return msgQuery
 
     def getExportMergeQuery(self, args):
-        # the set of edges of the spanning tree are returned
+        '''  the set of edges of the spanning tree are returned '''
         return self.getJoinResultWithEdgeTable(args)
 
-# draw the result.
+'''  draw the result. ''' 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultNodesVertexMarkers = canvasItemList['markers']
         table =  """%(edge_table)s_vertices_pgr""" % args

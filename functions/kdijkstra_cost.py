@@ -45,7 +45,7 @@ class Function(FunctionBase):
     """ pgr_kdijkstraCost gives cost of reaching a many vertices from a single startpoint.Its signature is:
     pgr_kdijkstraCost(sql_query,startpoint,array_of_targets,directed)"""
 
-    # SELECT seq , startpoint,targets,cost from result of pgr_kdijkstraCost.
+    ''' SELECT seq , startpoint,targets,cost from result of pgr_kdijkstraCost. '''
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
@@ -74,7 +74,7 @@ class Function(FunctionBase):
             JOIN  %(vertex_table)s AS b ON (target = b.id)
             """ % args
 
-# Draw the result.
+''' Draw the result. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None

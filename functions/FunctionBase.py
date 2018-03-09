@@ -6,7 +6,7 @@ from .. import pgRoutingLayer_utils as Utils
 
 class FunctionBase(object):
 
-    # the mayority of the functions have this values
+    ''' the mayority of the functions have this values '''
     exportButton = True
     exportMergeButton = True
     exportEdgeBase = False
@@ -39,29 +39,29 @@ class FunctionBase(object):
         ]
 
 
-    # checks if EdgeBase is set or not.
+    ''' checks if EdgeBase is set or not. '''
     @classmethod
     def isEdgeBase(self):
         return self.exportEdgeBase
-    # checks if exportButton is set or not.
+    ''' checks if exportButton is set or not. '''
     @classmethod
     def canExport(self):
         return self.exportButton
 
-     # checks if exportMergeButton is set or not.
+     ''' checks if exportMergeButton is set or not. '''
     @classmethod
     def canExportMerged(self):
         return self.exportMergeButton
 
-     # returns true if version is between 2 and 3.0
+     ''' returns true if version is between 2 and 3.0 '''
     @classmethod
     def isSupportedVersion(self, version):
         return version >= 2.0 and version < 3.0
 
-     # this function is used for SQL parameterising
+     ''' this function is used for SQL parameterising '''
     @classmethod
     def whereClause(self, table, geometry, bbox):
-        if bbox == ' ':   # if bounding box is empty return empty.
+        if bbox == ' ':   ''' if bounding box is empty return empty. '''
             return ' '
         else:
             return 'WHERE {0}.{1} {2}'.format(table, geometry, bbox)
@@ -117,19 +117,19 @@ class FunctionBase(object):
               ON %(edge_table)s.%(id)s = result._edge
             """ % args
 
-          # returns a set of multilines sewn together by ST_LineMerge from path_geom.
+          ''' returns a set of multilines sewn together by ST_LineMerge from path_geom. '''
         args['one_geom_query'] = """
             SELECT ST_LineMerge(ST_Union(path_geom)) AS path_geom
             FROM with_geom
             """
-            # returns total cost as agg_cost,array of concatenated nodes ordered by seq,array of concatenated edges ordered by seq
+            ''' returns total cost as agg_cost,array of concatenated nodes ordered by seq,array of concatenated edges ordered by seq '''
         args['aggregates_query'] = """SELECT
             SUM(_cost) AS agg_cost,
             array_agg(_node ORDER BY seq) AS _nodes,
             array_agg(_edge ORDER BY seq) AS _edges
             FROM result
             """
-          # gives unique row_number to each row of nodes ,edges originating from them,cost,geometry.
+          ''' gives unique row_number to each row of nodes ,edges originating from them,cost,geometry. '''
         query = """WITH
             result AS ( %(result_query)s ),
             with_geom AS ( %(with_geom_query)s ),
@@ -173,7 +173,7 @@ class FunctionBase(object):
                     FROM result
                 GROUP BY path_name, _start_vid, _end_vid
                 ORDER BY _start_vid, _end_vid"""
-# gives unique row_number to each row having path_name,start_vertex,end_vertex,cost,edges,geometry
+''' gives unique row_number to each row having path_name,start_vertex,end_vertex,cost,edges,geometry '''
         query = """WITH
             result AS ( %(result_query)s ),
             with_geom AS ( %(with_geom_query)s ),
@@ -186,7 +186,7 @@ class FunctionBase(object):
             """ % args
         return query
 
-# draws multi line string on the mapCanvas.
+''' draws multi line string on the mapCanvas. '''
     def drawManyPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
@@ -234,7 +234,7 @@ class FunctionBase(object):
             resultPathsRubberBands.append(rubberBand)
             rubberBand = None
 
-# selects geometry of nodes as text  and then draws line or multilines on the mapCanvas,else throws error message.
+''' selects geometry of nodes as text  and then draws line or multilines on the mapCanvas,else throws error message. '''
     def drawOnePath(self, rows, con, args, geomType, canvasItemList, mapCanvas):
             resultPathRubberBand = canvasItemList['path']
             for row in rows:

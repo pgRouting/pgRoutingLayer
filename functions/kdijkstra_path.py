@@ -20,7 +20,7 @@ class Function(FunctionBase):
 
     @classmethod
     def getControlNames(self, version):
-        # version 2.0 has only one to many
+        ''' version 2.0 has only one to many '''
         return self.commonControls + self.commonBoxes + [
                 'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
                 'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
@@ -37,7 +37,7 @@ class Function(FunctionBase):
     """ pgr_kdijkstraPath gives shortest path from one startpoint to many target points. Its signature is:
     pgr_kdijkstraPath(sql_query,startpoint,array[targets],directed,has_reverse_cost)"""
 
-    # SELECT startpoint,targets,edges,cost from result of pgr_kdijkstraPath.
+    """ SELECT startpoint,targets,edges,cost from result of pgr_kdijkstraPath. """
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
@@ -97,8 +97,8 @@ class Function(FunctionBase):
             USING (_path)
             """ % args
         return query
-        
-# Draw the result.
+
+''' Draw the result. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None

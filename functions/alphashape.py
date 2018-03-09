@@ -7,12 +7,12 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    #returns Function name.
+    ''' returns Function name. '''
     @classmethod
     def getName(self):
         return 'alphashape'
 
-    # returns control names.
+    ''' returns control names. '''
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -27,7 +27,7 @@ class Function(FunctionBase):
             'labelAlpha', 'lineEditAlpha',
             'checkBoxDirected', 'checkBoxHasReverseCost'
         ]
-    
+
     @classmethod
     def canExportMerged(self):
         return False
@@ -41,7 +41,7 @@ class Function(FunctionBase):
 describes the vertices of the polygon of alpha shape. Its signature is
 pgr_alphaShape(text sql [, float8 alpha]) """
 
-# SELECT x,y coordinates from result of alphashape.
+''' SELECT x,y coordinates from result of alphashape. '''
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if args['version'] < 2.1:
@@ -68,8 +68,8 @@ pgr_alphaShape(text sql [, float8 alpha]) """
                 SELECT * FROM node$$::text)
                 """ % args
 
-        # V21.+ has pgr_drivingDistance with big int
-        # and pgr_alphaShape has an alpha value
+        ''' V21.+ has pgr_drivingDistance with big int
+          and pgr_alphaShape has an alpha value '''
         args['alpha'] = ', ' + str(args['alpha'])
         return """
                 SELECT x, y FROM pgr_alphashape($$
@@ -145,7 +145,7 @@ pgr_alphaShape(text sql [, float8 alpha]) """
                 """ % args
 
 
-# draw the resulting polygon.
+''' draw the resulting polygon. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultAreaRubberBand = canvasItemList['area']
         trans = None

@@ -8,11 +8,11 @@ import pgRoutingLayer_utils as Utils
 
 class ConnectionManager:
 
-	SUPPORTED_CONNECTORS = ['postgis']  #list that contains supported connectors.
+	SUPPORTED_CONNECTORS = ['postgis']  '''list that contains supported connectors. '''
 	MISSED_CONNECTORS = []
 
 
-# for each connector in SUPPORTED_CONNECTORS try to establish connection , if failed remove it and append in MISSED_CONNECTORS.
+''' for each connector in SUPPORTED_CONNECTORS try to establish connection , if failed remove it and append in MISSED_CONNECTORS. '''
 	@classmethod
 	def initConnectionSupport(self):
 		conntypes = ConnectionManager.SUPPORTED_CONNECTORS
@@ -31,16 +31,16 @@ class ConnectionManager:
 		if not self.isSupported(conntype):
 			raise NotSupportedConnTypeException(conntype) # raise error if connector not supported
 
-		# import the connector
+		''' import the connector '''
 		exec( "from connectors import %s as connector" % conntype)
 		return connector.Connection(uri) if uri else connector.Connection
 
-		# this Function checks if the connection is supported.
+		''' this Function checks if the connection is supported. '''
 	@classmethod
 	def isSupported(self, conntype):
 		return conntype in ConnectionManager.SUPPORTED_CONNECTORS
 
-# returns a list of imported connectors.
+''' returns a list of imported connectors. '''
 	@classmethod
 	def getAvailableConnections(self, conntypes=None):
 		if conntypes == None:
@@ -54,7 +54,7 @@ class ConnectionManager:
 			connections.extend( connection.getAvailableConnections() )
 		return connections
 
-# raises a message that connector is not supported
+''' raises a message that connector is not supported '''
 class NotSupportedConnTypeException(Exception):
 	def __init__(self, conntype):
 		self.msg = u"%s is not supported yet" % conntype
@@ -115,7 +115,7 @@ class Connection:
 
 
 	def getURI(self):
-		# returns a new QgsDataSourceURI instance
+		''' returns a new QgsDataSourceURI instance '''
 		return qgis.core.QgsDataSourceURI( self.uri.connectionInfo() )
 
 	def getAction(self, parent=None):

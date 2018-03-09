@@ -4,12 +4,12 @@ from FunctionBase import FunctionBase
 class Function(FunctionBase):
 
     version = 2.0
-    # returns function name.
+    ''' returns function name. '''
     @classmethod
     def getName(self):
         return 'dijkstra'
 
-# returns control names based on version.
+''' returns control names based on version. '''
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -82,7 +82,7 @@ class Function(FunctionBase):
             return self.getExportManySourceManyTargetMergeQuery(args)
 
 
-# draws the resulting path or paths.
+''' draws the resulting path or paths. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         if self.version < 2.1:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)
