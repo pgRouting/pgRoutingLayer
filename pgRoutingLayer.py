@@ -703,7 +703,14 @@ class PgRoutingLayer:
         if use_bbox == 'false':
             return ' ', ' '
         bbox = {}
-        bbox['srid'] = srid
+        canvasCrs = Utils.getDestinationCrs(self.iface.mapCanvas())
+        canvasSrid = Utils.getCanvasSrid(canvasCrs)
+        bbox['srid'] = canvasSrid
+        bbox['prefix'] = ''
+        bbox['suffix'] = ''
+        if srid != canvasSrid:
+            bbox['prefix'] = 'ST_Transform('
+            bbox['suffix'] = ', %d)' % srid
         bbox['xMin'] = self.iface.mapCanvas().extent().xMinimum()
         bbox['yMin'] = self.iface.mapCanvas().extent().yMinimum()
         bbox['xMax'] = self.iface.mapCanvas().extent().xMaximum()
@@ -713,10 +720,10 @@ class PgRoutingLayer:
         text += "," + str(round(bbox['xMax'],2))
         text += " " + str(round(bbox['yMax'],2)) + ")"
         return """
-           && ST_MakeEnvelope(
+           && %(prefix)s ST_MakeEnvelope(
               %(xMin)s, %(yMin)s,
               %(xMax)s, %(yMax)s, %(srid)s
-              )
+              )%(suffix)s
         """ % bbox, text
     
                         
