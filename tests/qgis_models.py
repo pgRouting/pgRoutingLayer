@@ -7,7 +7,7 @@ from PyQt4.QtCore import QObject, pyqtSlot, pyqtSignal, QCoreApplication
 from qgis.core import QgsMapLayerRegistry, QgsApplication, QgsVectorLayer
 from qgis.gui import QgsMapCanvasLayer
 
-from mole.project import config
+
 
 
 LOGGER = logging.getLogger('QGIS')
@@ -191,6 +191,7 @@ class QgisInterface(QObject):
         :param action: Action to add to the toolbar.
         :type action: QAction
         """
+        pass
 
 
     def removeToolBarIcon(self, action):
