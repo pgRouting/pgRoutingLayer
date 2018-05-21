@@ -6,7 +6,7 @@ import sys
 from PyQt4.QtCore import QObject, pyqtSlot, pyqtSignal, QCoreApplication
 from qgis.core import QgsMapLayerRegistry, QgsApplication, QgsVectorLayer
 from qgis.gui import QgsMapCanvasLayer
-
+import config 
 
 
 
