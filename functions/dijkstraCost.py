@@ -7,7 +7,7 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-
+    ''' returns function name '''
     @classmethod
     def getName(self):
         return 'pgr_dijkstraCost'
@@ -27,14 +27,17 @@ class Function(FunctionBase):
         return False
 
 
-    
+
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
         canvasItemList['annotations'] = []
 
-    
+
+    """ pgr_dijkstraCost returns cost if there exists a path, below function gives unique row_number
+    to each row having start vertex,end vertex,cost of shortest path between them,path name."""
+
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
@@ -53,10 +56,10 @@ class Function(FunctionBase):
               array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
             """ % args
 
-
+''' makes line geometry for each pair of vertex from the result query. '''
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
-        args['vertex_table'] = """ 
+        args['vertex_table'] = """
             %(edge_table)s_vertices_pgr
             """ % args
 
@@ -72,7 +75,7 @@ class Function(FunctionBase):
 
 
 
-
+''' draws the result on mapCanvas. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
@@ -94,7 +97,7 @@ class Function(FunctionBase):
                 rubberBand.setWidth(4)
             if args['result_cost'] != -1:
                 query2 = """
-                    SELECT ST_AsText( ST_MakeLine( 
+                    SELECT ST_AsText( ST_MakeLine(
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_source_id)d),
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_target_id)d)
                         ))

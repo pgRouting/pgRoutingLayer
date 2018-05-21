@@ -7,11 +7,11 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+    '''  returns Function name '''
     @classmethod
     def getName(self):
         return 'drivingDistance'
-    
+    ''' returns control names. '''
     @classmethod
     def getControlNames(self, version):
         if version < 2.1:
@@ -31,7 +31,13 @@ class Function(FunctionBase):
         for marker in resultNodesVertexMarkers:
             marker.setVisible(False)
         canvasItemList['markers'] = []
-    
+
+
+""" pgr_drivingDistance gives the list of nodes which are reachable within a specific drivingDistance, its signature is
+pgr_drivingDistance(sql text, start_v bigint, distance float8)
+  RETURNS SET OF (seq, node, edge, cost, agg_cost)"""
+
+     ''' SELECT sequence,node,edge and cost from result of pgr_drivingDistance. '''
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if (args['version'] < 2.1):
@@ -66,7 +72,7 @@ class Function(FunctionBase):
                 """ % args
 
     def getExportQuery(self, args):
-        # points are returned
+        '''  points are returned '''
         args['result_query'] = self.getQuery(args)
 
         args['with_geom_query'] = """
@@ -81,15 +87,16 @@ class Function(FunctionBase):
             result AS ( %(result_query)s ),
             with_geom AS ( %(with_geom_query)s )
             SELECT with_geom.*
-            FROM with_geom 
+            FROM with_geom
             ORDER BY seq
             """ % args
         return msgQuery
 
     def getExportMergeQuery(self, args):
-        # the set of edges of the spanning tree are returned
+        '''  the set of edges of the spanning tree are returned '''
         return self.getJoinResultWithEdgeTable(args)
 
+'''  draw the result. ''' 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultNodesVertexMarkers = canvasItemList['markers']
         table =  """%(edge_table)s_vertices_pgr""" % args

@@ -7,11 +7,11 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+    #returns Function name.
     @classmethod
     def getName(self):
         return 'tsp(euclid)'
-    
+    #returns control names.
     @classmethod
     def getControlNames(self, version):
         return [
@@ -22,7 +22,7 @@ class Function(FunctionBase):
             'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
             'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId'
         ]
-    
+
     @classmethod
     def canExport(self):
         return False
@@ -39,7 +39,12 @@ class Function(FunctionBase):
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
         canvasItemList['annotations'] = []
-    
+
+
+""" pgr_euclid gives the shortest distance for visiting all vertices starting from a source and ending on a target,
+it uses simple euclidean distance, its signature is:
+pgr_tsp(sql text, start_id integer, end_id integer); """
+
     def getQuery(self, args):
         return """
             SELECT seq, id1 AS internal, id2 AS node, cost FROM pgr_tsp('
@@ -50,14 +55,14 @@ class Function(FunctionBase):
                 FROM  %(edge_table)s_vertices_pgr WHERE id IN (%(ids)s)',
             %(source_id)s::int4, %(target_id)s::int4)
             """ % args
-    
+
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
 
         query = """
             WITH
             result AS ( %(result_query)s )
-            SELECT 
+            SELECT
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
                   THEN %(edge_table)s.%(geometry)s
@@ -69,6 +74,7 @@ class Function(FunctionBase):
             """ % args
         return query
 
+''' Draw the result '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['path']
         i = 0
@@ -76,14 +82,14 @@ class Function(FunctionBase):
             if i == 0:
                 prevrow = row
                 firstrow = row
-                i += 1  
+                i += 1
             cur2 = con.cursor()
             args['result_seq'] = row[0]
             args['result_source_id'] = prevrow[2]
             args['result_target_id'] = row[2]
             args['result_cost'] = row[3]
             query2 = """
-                    SELECT ST_AsText( ST_MakeLine( 
+                    SELECT ST_AsText( ST_MakeLine(
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_source_id)d),
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_target_id)d)
                         ))
@@ -104,12 +110,12 @@ class Function(FunctionBase):
                     resultPathsRubberBands.addPoint(pt)
             prevrow = row
             lastrow = row
-        
+
         args['result_source_id'] = lastrow[2]
         args['result_target_id'] = firstrow[2]
         args['result_cost'] = row[3]
         query2 = """
-                SELECT ST_AsText( ST_MakeLine( 
+                SELECT ST_AsText( ST_MakeLine(
                     (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_source_id)d),
                     (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_target_id)d)
                     ))
@@ -133,7 +139,7 @@ class Function(FunctionBase):
 
 
 
-        ############ ANOTATIONS
+        ''' ANOTATIONS '''
         resultNodesTextAnnotations = canvasItemList['annotations']
         Utils.setStartPoint(geomType, args)
         Utils.setEndPoint(geomType, args)
@@ -154,7 +160,7 @@ class Function(FunctionBase):
             cur2.execute(query2)
             row2 = cur2.fetchone()
             assert row2, "Invalid result geometry. (node_id:%(result_node_id)d)" % args
-            
+
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_seq)d:%(result_node_id)d" % args)
@@ -165,6 +171,6 @@ class Function(FunctionBase):
             textAnnotation.setDocument(textDocument)
             textAnnotation.update()
             resultNodesTextAnnotations.append(textAnnotation)
-    
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)

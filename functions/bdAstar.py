@@ -4,11 +4,11 @@ from FunctionBase import FunctionBase
 class Function(FunctionBase):
 
     version = 2.0
-
+''' returns Function name. '''
     @classmethod
     def getName(self):
         return 'bdAstar'
-
+''' returns control names. '''
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -33,7 +33,11 @@ class Function(FunctionBase):
                 path.reset(Utils.getRubberBandType(False))
             canvasItemList['paths'] = []
 
+""" pgr_bdAstar Function calculates shortest path using Bidirectional A_star algorithm. It searches from start_vertex towards
+end_vertex, and at the same time end_vertex to start_vertex, it gives the result when search meets at the middle. Its signature is
+gr_bdAstar(sql text, source integer, target integer,directed boolean, has_rcost boolean);"""
 
+''' SELECT node,edge and cost from result of pgr_bdAstar. '''
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.5:
@@ -82,7 +86,7 @@ class Function(FunctionBase):
         else:
             return self.getExportManySourceManyTargetMergeQuery(args)
 
-
+''' draw the result '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         if self.version < 2.5:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)

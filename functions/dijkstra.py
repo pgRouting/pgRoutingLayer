@@ -1,15 +1,15 @@
 from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
-
+# function inherits FunctionBase.
 class Function(FunctionBase):
 
     version = 2.0
-    
+    ''' returns function name. '''
     @classmethod
     def getName(self):
         return 'dijkstra'
-    
 
+''' returns control names based on version. '''
     @classmethod
     def getControlNames(self, version):
         self.version = version
@@ -25,7 +25,7 @@ class Function(FunctionBase):
                     'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
                     ]
 
-    
+
     def prepare(self, canvasItemList):
         if self.version < 2.1:
             resultPathRubberBand = canvasItemList['path']
@@ -36,8 +36,11 @@ class Function(FunctionBase):
                 path.reset(Utils.getRubberBandType(False))
             canvasItemList['paths'] = []
 
-    
+
+    """ pgr_dijkstra is a function which calculates shortest path from start vertex to end vertex.
+   minimum signature is pgr_dijkstra('sql query that selects edge_table',startpoint,endpoint,directed=T/F)"""
     def getQuery(self, args):
+
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.1:
             return """
@@ -79,7 +82,7 @@ class Function(FunctionBase):
             return self.getExportManySourceManyTargetMergeQuery(args)
 
 
-
+''' draws the resulting path or paths. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         if self.version < 2.1:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)

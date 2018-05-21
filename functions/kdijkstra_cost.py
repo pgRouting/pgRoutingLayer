@@ -7,11 +7,11 @@ from .. import pgRoutingLayer_utils as Utils
 from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
         return 'kdijkstra(cost)'
-    
+
     @classmethod
     def isSupportedVersion(self, version):
         # Deprecated on version 2.2
@@ -25,22 +25,27 @@ class Function(FunctionBase):
                 'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
                 ]
 
-    
+
     @classmethod
     def canExport(self):
         return True
-    
+
     @classmethod
     def canExportMerged(self):
         return False
-    
+
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
             self.iface.mapCanvas().scene().removeItem(anno)
         canvasItemList['annotations'] = []
-    
+
+
+    """ pgr_kdijkstraCost gives cost of reaching a many vertices from a single startpoint.Its signature is:
+    pgr_kdijkstraCost(sql_query,startpoint,array_of_targets,directed)"""
+
+    ''' SELECT seq , startpoint,targets,cost from result of pgr_kdijkstraCost. '''
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
@@ -52,10 +57,10 @@ class Function(FunctionBase):
                     FROM %(edge_table)s
                     %(where_clause)s',
                 %(source_id)s, array[%(target_ids)s], %(directed)s, %(has_reverse_cost)s)""" % args
-    
+
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
-        args['vertex_table'] = """ 
+        args['vertex_table'] = """
             %(edge_table)s_vertices_pgr
             """ % args
 
@@ -69,7 +74,7 @@ class Function(FunctionBase):
             JOIN  %(vertex_table)s AS b ON (target = b.id)
             """ % args
 
-
+''' Draw the result. '''
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
@@ -91,7 +96,7 @@ class Function(FunctionBase):
                 rubberBand.setWidth(4)
             if args['result_cost'] != -1:
                 query2 = """
-                    SELECT ST_AsText( ST_MakeLine( 
+                    SELECT ST_AsText( ST_MakeLine(
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_source_id)d),
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_target_id)d)
                         ))
@@ -135,7 +140,7 @@ class Function(FunctionBase):
             cur2.execute(query2)
             row2 = cur2.fetchone()
             assert row2, "Invalid result geometry. (target_id:%(result_target_id)d)" % args
-            
+
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_target_id)d:%(result_cost)f" % args)
@@ -144,11 +149,11 @@ class Function(FunctionBase):
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
             textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))
             textAnnotation.setDocument(textDocument)
-            
+
             textAnnotation.update()
             resultNodesTextAnnotations.append(textAnnotation)
             canvasItemList['annotations'] = resultNodesTextAnnotations
 
-    
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
