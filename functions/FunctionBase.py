@@ -1,6 +1,7 @@
-from PyQt4.QtGui import *
 from qgis.core import *
 from qgis.gui import *
+from PyQt4.QtGui import *
+
 from .. import pgRoutingLayer_utils as Utils
 
 
