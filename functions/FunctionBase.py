@@ -1,6 +1,8 @@
-from qgis.core import *
-from qgis.gui import *
-from PyQt4.QtGui import *
+from builtins import str
+from builtins import object
+from qgis.core import (QgsMessageLog, QGis, QgsGeometry)
+from qgis.gui import QgsRubberBand
+from qgis.PyQt.QtGui import QColor
 
 from .. import pgRoutingLayer_utils as Utils
 
