@@ -15,11 +15,15 @@ http://www.alberton.info/postgresql_meta_info.html
 System information functions:
 http://www.postgresql.org/docs/8.0/static/functions-info.html
 """
+from __future__ import print_function
+from builtins import str
+from builtins import map
+from qgis.core import QgsDataSourceURI
+from qgis.PyQt.QtCore import QSettings
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QInputDialog
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 
-import qgis.core
 
 import psycopg2
 import psycopg2.extensions # for isolation levels
@@ -43,7 +47,7 @@ class TableConstraint(DbConn.TableConstraint):
 
 	def __init__(self, row):
 		self.name, con_type, self.is_defferable, self.is_deffered, keys = row[:5]
-		self.keys = map(int, keys.split(' '))
+		self.keys = list(map(int, keys.split(' ')))
 		self.con_type = TableConstraint.types[con_type]   # convert to enum
 		if self.con_type == TableConstraint.TypeCheck:
 			self.check_src = row[5]
@@ -58,7 +62,7 @@ class TableConstraint(DbConn.TableConstraint):
 class TableIndex(DbConn.TableIndex):
 	def __init__(self, row):
 		self.name, columns = row
-		self.columns = map(int, columns.split(' '))
+		self.columns = list(map(int, columns.split(' ')))
 
 
 class TableTrigger(DbConn.TableTrigger):
@@ -74,12 +78,12 @@ class TableRule(DbConn.TableRule):
 class DbError(DbConn.DbError):
 	def __init__(self, error, query=None):
 		# save error. funny that the variables are in utf8, not 
-		msg = unicode( error.args[0], 'utf-8')
+		msg = str( error.args[0], 'utf-8')
 		if query == None:
 			if hasattr(error, "cursor") and hasattr(error.cursor, "query"):
-				query = unicode(error.cursor.query, 'utf-8')
+				query = str(error.cursor.query, 'utf-8')
 		else:
-			query = unicode(query)
+			query = str(query)
 		DbConn.DbError.__init__(self, msg, query)
 		
 
@@ -118,8 +122,8 @@ class Connection(DbConn.Connection):
 		if not settings.contains( "database" ): # non-existent entry?
 			raise DbError( 'there is no defined database connection "%s".' % selected )
 	
-		get_value_str = lambda x: unicode(settings.value(x) if Utils.isSIPv2() else settings.value(x).toString())
-		service, host, port, database, username, password = map(get_value_str, ["service", "host", "port", "database", "username", "password"])
+		get_value_str = lambda x: str(settings.value(x) if Utils.isSIPv2() else settings.value(x).toString())
+		service, host, port, database, username, password = list(map(get_value_str, ["service", "host", "port", "database", "username", "password"]))
 
 		# qgis1.5 use 'savePassword' instead of 'save' setting
 		isSave = settings.value("save") if Utils.isSIPv2() else settings.value("save").toBool()
@@ -151,7 +155,7 @@ class Connection(DbConn.Connection):
 		
 		try:
 			self.con = psycopg2.connect(self.con_info())
-		except psycopg2.OperationalError, e:
+		except psycopg2.OperationalError as e:
 			raise DbError(e)
 
 		if not self.dbname:
@@ -722,7 +726,7 @@ class Connection(DbConn.Connection):
 			if x is not None:
 				srtext = x.group()
 			return srtext
-		except DbError, e:
+		except DbError as e:
 			return "Unknown"
 	
 	def insert_table_row(self, table, values, schema=None, cursor=None):
@@ -788,7 +792,7 @@ class Connection(DbConn.Connection):
 	def _exec_sql(self, cursor, sql):
 		try:
 			cursor.execute(sql)
-		except psycopg2.Error, e:
+		except psycopg2.Error as e:
 			# do the rollback to avoid a "current transaction aborted, commands ignored" errors
 			self.con.rollback()
 			raise DbError(e)
@@ -804,12 +808,12 @@ class Connection(DbConn.Connection):
 		#	raise
 
 	def _quote(self, identifier):
-		identifier = unicode(identifier) # make sure it's python unicode string
+		identifier = str(identifier) # make sure it's python unicode string
 		return u'"%s"' % identifier.replace('"', '""')
 	
 	def _quote_str(self, txt):
 		""" make the string safe - replace ' with '' """
-		txt = unicode(txt) # make sure it's python unicode string
+		txt = str(txt) # make sure it's python unicode string
 		return txt.replace("'", "''")
 		
 	def _table_name(self, schema, table):
@@ -824,25 +828,34 @@ if __name__ == '__main__':
 
 	db = GeoDB(host='localhost',dbname='gis',user='gisak',passwd='g')
 	
-	print db.list_schemas()
-	print '=========='
+	# fix_print_with_import
+	print(db.list_schemas())
+	# fix_print_with_import
+	print('==========')
 	
 	for row in db.list_geotables():
-		print row
+		# fix_print_with_import
+		print(row)
 
-	print '=========='
+	# fix_print_with_import
+	print('==========')
 	
 	for row in db.get_table_indexes('trencin'):
-		print row
+		# fix_print_with_import
+		print(row)
 
-	print '=========='
+	# fix_print_with_import
+	print('==========')
 	
 	for row in db.get_table_constraints('trencin'):
-		print row
+		# fix_print_with_import
+		print(row)
 	
-	print '=========='
+	# fix_print_with_import
+	print('==========')
 	
-	print db.get_table_rows('trencin')
+	# fix_print_with_import
+	print(db.get_table_rows('trencin'))
 	
 	#for fld in db.get_table_metadata('trencin'):
 	#	print fld
