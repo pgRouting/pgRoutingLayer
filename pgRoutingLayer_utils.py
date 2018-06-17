@@ -1,4 +1,4 @@
-from qgis.core import QgsMessageLog,QGis
+from qgis.core import QgsMessageLog,Qgis
 from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QVariant, QSettings
 #from PyQt4.QtGui import *
@@ -94,7 +94,7 @@ def refreshMapCanvas(mapCanvas):
     else:
         return mapCanvas.refresh()
 
-def logMessage(message, level=QgsMessageLog.INFO):
+def logMessage(message, level=Qgis.Info):
     QgsMessageLog.logMessage(message, 'pgRouting Layer', level)
 
 def getNodeQuery(args, geomType):

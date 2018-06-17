@@ -18,7 +18,7 @@ http://www.postgresql.org/docs/8.0/static/functions-info.html
 from __future__ import print_function
 from builtins import str
 from builtins import map
-from qgis.core import QgsDataSourceURI
+from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QInputDialog
@@ -134,7 +134,7 @@ class Connection(DbConn.Connection):
 
 		settings.endGroup()
 
-		uri = qgis.core.QgsDataSourceURI()
+		uri = qgis.core.QgsDataSourceUri()
 		if service:
 			uri.setConnection(service, database, username, password)
 		else:

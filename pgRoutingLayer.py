@@ -28,7 +28,7 @@ from qgis.PyQt.QtCore import Qt, QObject, pyqtSignal, QRegExp, QSettings
 
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator
 from qgis.PyQt.QtWidgets import QAction
-from qgis.core import QgsMessageLog,QGis
+from qgis.core import QgsMessageLog,Qgis
 from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
 from . import dbConnection
 from qgis.utils import iface
@@ -387,11 +387,11 @@ class PgRoutingLayer(object):
                 idRubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
                 idRubberBand.setColor(Qt.yellow)
                 idRubberBand.setWidth(4)
-                if geom.wkbType() == QGis.WKBMultiLineString:
+                if geom.wkbType() == Qgis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             idRubberBand.addPoint(pt)
-                elif geom.wkbType() == QGis.WKBLineString:
+                elif geom.wkbType() == Qgis.WKBLineString:
                     for pt in geom.asPolyline():
                         idRubberBand.addPoint(pt)
                 self.idsRubberBands.append(idRubberBand)
@@ -434,11 +434,11 @@ class PgRoutingLayer(object):
             if result:
                 self.dock.lineEditSourceId.setText(str(id))
                 geom = QgsGeometry().fromWkt(wkt)
-                if geom.wkbType() == QGis.WKBMultiLineString:
+                if geom.wkbType() == Qgis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             self.sourceIdRubberBand.addPoint(pt)
-                elif geom.wkbType() == QGis.WKBLineString:
+                elif geom.wkbType() == Qgis.WKBLineString:
                     for pt in geom.asPolyline():
                         self.sourceIdRubberBand.addPoint(pt)
                 self.dock.lineEditSourcePos.setText(str(pos))
@@ -506,11 +506,11 @@ class PgRoutingLayer(object):
             if result:
                 self.dock.lineEditTargetId.setText(str(id))
                 geom = QgsGeometry().fromWkt(wkt)
-                if geom.wkbType() == QGis.WKBMultiLineString:
+                if geom.wkbType() == Qgis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             self.targetIdRubberBand.addPoint(pt)
-                elif geom.wkbType() == QGis.WKBLineString:
+                elif geom.wkbType() == Qgis.WKBLineString:
                     for pt in geom.asPolyline():
                         self.targetIdRubberBand.addPoint(pt)
                 self.dock.lineEditTargetPos.setText(str(pos))

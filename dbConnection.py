@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from builtins import str
 from builtins import range
 from builtins import object
-from qgis.core import QgsDataSourceURI
+from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QAction
 
@@ -116,8 +116,8 @@ class Connection(object):
 
 
 	def getURI(self):
-		# returns a new QgsDataSourceURI instance
-		return qgis.core.QgsDataSourceURI( self.uri.connectionInfo() )
+		# returns a new QgsDataSourceUri instance
+		return qgis.core.QgsDataSourceUri( self.uri.connectionInfo() )
 
 	def getAction(self, parent=None):
 		return Connection.ConnectionAction(self.uri.database(), self.getTypeName(), parent)
