@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-from builtins import str
-from builtins import range
-from builtins import object
-from qgis.core import QgsDataSourceUri
-from qgis.PyQt.QtCore import QSettings
-from qgis.PyQt.QtWidgets import QAction
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
+import qgis.core
+import pgRoutingLayer_utils as Utils
 
-from . import pgRoutingLayer_utils as Utils
-
-class ConnectionManager(object):
+class ConnectionManager:
 
 	SUPPORTED_CONNECTORS = ['postgis']
 	MISSED_CONNECTORS = []
@@ -22,7 +17,7 @@ class ConnectionManager(object):
 		for c in conntypes:
 			try:
 				connector = self.getConnection( c )
-			except ImportError as e:
+			except ImportError, e:
 				module = e.args[0][ len("No module named "): ]
 				ConnectionManager.SUPPORTED_CONNECTORS.remove( c )
 				ConnectionManager.MISSED_CONNECTORS.append( (c, module) )
@@ -66,8 +61,8 @@ class NotSupportedConnTypeException(Exception):
 
 class DbError(Exception):
 	def __init__(self, errormsg, query=None):
-		self.msg = str( errormsg )
-		self.query = str( query ) if query else None
+		self.msg = unicode( errormsg )
+		self.query = unicode( query ) if query else None
 
 	def __str__(self):
 		msg = self.msg.encode('utf-8')
@@ -76,7 +71,7 @@ class DbError(Exception):
 		return msg
 
 
-class Connection(object):
+class Connection:
 
 	def __init__(self, uri):
 		self.uri = uri
@@ -116,8 +111,8 @@ class Connection(object):
 
 
 	def getURI(self):
-		# returns a new QgsDataSourceUri instance
-		return qgis.core.QgsDataSourceUri( self.uri.connectionInfo() )
+		# returns a new QgsDataSourceURI instance
+		return qgis.core.QgsDataSourceURI( self.uri.connectionInfo() )
 
 	def getAction(self, parent=None):
 		return Connection.ConnectionAction(self.uri.database(), self.getTypeName(), parent)
@@ -140,13 +135,13 @@ class Connection(object):
 			return conn
 
 
-class TableAttribute(object):
+class TableAttribute:
 	pass
 
-class TableConstraint(object):
+class TableConstraint:
 	""" class that represents a constraint of a table (relation) """
 	
-	TypeCheck, TypeForeignKey, TypePrimaryKey, TypeUnique = list(range(4))
+	TypeCheck, TypeForeignKey, TypePrimaryKey, TypeUnique = range(4)
 	types = { "c" : TypeCheck, "f" : TypeForeignKey, "p" : TypePrimaryKey, "u" : TypeUnique }
 	
 	on_action = { "a" : "NO ACTION", "r" : "RESTRICT", "c" : "CASCADE", "n" : "SET NULL", "d" : "SET DEFAULT" }
@@ -154,10 +149,10 @@ class TableConstraint(object):
 
 	pass
 
-class TableIndex(object):
+class TableIndex:
 	pass
 
-class TableTrigger(object):
+class TableTrigger:
 	# Bits within tgtype (pg_trigger.h)
 	TypeRow      = (1 << 0) # row or statement
 	TypeBefore   = (1 << 1) # before or after
@@ -169,10 +164,10 @@ class TableTrigger(object):
 
 	pass
 
-class TableRule(object):
+class TableRule:
 	pass
 
-class TableField(object):
+class TableField:
 	def is_null_txt(self):
 		if self.is_null:
 			return "NULL"

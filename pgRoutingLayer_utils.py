@@ -1,7 +1,7 @@
-from qgis.core import QgsMessageLog,Qgis
-from qgis.gui import QgsMapCanvas
-from qgis.PyQt.QtCore import QVariant, QSettings
-#from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
+from qgis.gui import *
 import psycopg2
 import sip
 
@@ -94,7 +94,7 @@ def refreshMapCanvas(mapCanvas):
     else:
         return mapCanvas.refresh()
 
-def logMessage(message, level=Qgis.Info):
+def logMessage(message, level=QgsMessageLog.INFO):
     QgsMessageLog.logMessage(message, 'pgRouting Layer', level)
 
 def getNodeQuery(args, geomType):
@@ -127,9 +127,9 @@ def getPgrVersion(con):
         if versions[1]:
             version += '.' + versions[1]
         return float(version)
-    except psycopg2.DatabaseError as e:
+    except psycopg2.DatabaseError, e:
         #database didn't have pgrouting
         return 0;
-    except SystemError as e:
+    except SystemError, e:
         return 0
 
