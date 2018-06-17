@@ -32,5 +32,5 @@ def icon():
 def qgisMinimumVersion():
     return "1.7"
 def classFactory(iface):
-    from pgRoutingLayer import pgRoutingLayer
-    return pgRoutingLayer(iface)
+    from pgRoutingLayer import PgRoutingLayer
+    return PgRoutingLayer(iface)

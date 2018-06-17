@@ -19,20 +19,14 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
-from builtins import str
-from builtins import object
-from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt, QObject, pyqtSignal, QRegExp, QSettings
-
-from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator
-from qgis.PyQt.QtWidgets import QAction
-from qgis.core import QgsMessageLog,Qgis
-from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
-from . import dbConnection
-from qgis.utils import iface
-from . import pgRoutingLayer_utils as Utils
+from PyQt4 import uic
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
+from qgis.gui import *
+import dbConnection
+import pgRoutingLayer_utils as Utils
 #import highlighter as hl
 import os
 import psycopg2
@@ -40,7 +34,7 @@ import re
 
 conn = dbConnection.ConnectionManager()
 
-class PgRoutingLayer(object):
+class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'dijkstra',
@@ -156,34 +150,34 @@ class PgRoutingLayer(object):
         #self.targetIdsEmitPoint.setButton(buttonSelectTargetId)
         
         #connect the action to each method
-        self.action.triggered.connect(self.show)
-        self.dock.buttonReloadConnections.clicked.connect(self.reloadConnections)
-        self.dock.comboConnections.currentIndexChanged.connect(self.updateConnectionEnabled)
-        self.dock.comboBoxFunction.currentIndexChanged.connect(self.updateFunctionEnabled)
+        QObject.connect(self.action, SIGNAL("triggered()"), self.show)
+        QObject.connect(self.dock.buttonReloadConnections, SIGNAL("clicked()"), self.reloadConnections)
+        QObject.connect(self.dock.comboConnections, SIGNAL("currentIndexChanged(const QString&)"), self.updateConnectionEnabled)
+        QObject.connect(self.dock.comboBoxFunction, SIGNAL("currentIndexChanged(const QString&)"), self.updateFunctionEnabled)
 
-        self.dock.buttonSelectIds.clicked.connect(self.selectIds)
-        self.idsEmitPoint.canvasClicked.connect(self.setIds)
+        QObject.connect(self.dock.buttonSelectIds, SIGNAL("clicked(bool)"), self.selectIds)
+        QObject.connect(self.idsEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setIds)
 
         # One source id can be selected in some functions/version
-        self.dock.buttonSelectSourceId.clicked.connect(self.selectSourceId)
-        self.sourceIdEmitPoint.canvasClicked.connect(self.setSourceId)
+        QObject.connect(self.dock.buttonSelectSourceId, SIGNAL("clicked(bool)"), self.selectSourceId)
+        QObject.connect(self.sourceIdEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setSourceId)
 
-        self.dock.buttonSelectTargetId.clicked.connect(self.selectTargetId)
-        self.targetIdEmitPoint.canvasClicked.connect(self.setTargetId)
+        QObject.connect(self.dock.buttonSelectTargetId, SIGNAL("clicked(bool)"), self.selectTargetId)
+        QObject.connect(self.targetIdEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setTargetId)
 
         # More than one source id can be selected in some functions/version
-        self.dock.buttonSelectSourceIds.clicked.connect(self.selectSourceIds)
-        self.sourceIdsEmitPoint.canvasClicked.connect(self.setSourceIds)
+        QObject.connect(self.dock.buttonSelectSourceIds, SIGNAL("clicked(bool)"), self.selectSourceIds)
+        QObject.connect(self.sourceIdsEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setSourceIds)
 
-        self.dock.buttonSelectTargetIds.clicked.connect(self.selectTargetIds)
-        self.targetIdsEmitPoint.canvasClicked.connect(self.setTargetIds)
+        QObject.connect(self.dock.buttonSelectTargetIds, SIGNAL("clicked(bool)"), self.selectTargetIds)
+        QObject.connect(self.targetIdsEmitPoint, SIGNAL("canvasClicked(const QgsPoint&, Qt::MouseButton)"), self.setTargetIds)
 
-        self.dock.checkBoxHasReverseCost.stateChanged.connect(self.updateReverseCostEnabled)
+        QObject.connect(self.dock.checkBoxHasReverseCost, SIGNAL("stateChanged(int)"), self.updateReverseCostEnabled)
 
-        self.dock.buttonRun.clicked.connect(self.run)
-        self.dock.buttonExport.clicked.connect(self.export)
-        self.dock.buttonExportMerged.clicked.connect(self.exportMerged)
-        self.dock.buttonClear.clicked.connect(self.clear)
+        QObject.connect(self.dock.buttonRun, SIGNAL("clicked()"), self.run)
+        QObject.connect(self.dock.buttonExport, SIGNAL("clicked()"), self.export)
+        QObject.connect(self.dock.buttonExportMerged, SIGNAL("clicked()"), self.exportMerged)
+        QObject.connect(self.dock.buttonClear, SIGNAL("clicked()"), self.clear)
 
         self.prevType = None
         self.functions = {}
@@ -237,7 +231,7 @@ class PgRoutingLayer(object):
         actions = conn.getAvailableConnections()
         self.actionsDb = {}
         for a in actions:
-            self.actionsDb[ str(a.text()) ] = a
+            self.actionsDb[ unicode(a.text()) ] = a
 
         for dbname in self.actionsDb:
             db = None
@@ -248,7 +242,7 @@ class PgRoutingLayer(object):
                 if (Utils.getPgrVersion(con) != 0):
                     self.dock.comboConnections.addItem(dbname)
 
-            except dbConnection.DbError as e:
+            except dbConnection.DbError, e:
                 Utils.logMessage("dbname:" + dbname + ", " + e.msg)
 
             finally:
@@ -387,11 +381,11 @@ class PgRoutingLayer(object):
                 idRubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
                 idRubberBand.setColor(Qt.yellow)
                 idRubberBand.setWidth(4)
-                if geom.wkbType() == Qgis.WKBMultiLineString:
+                if geom.wkbType() == QGis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             idRubberBand.addPoint(pt)
-                elif geom.wkbType() == Qgis.WKBLineString:
+                elif geom.wkbType() == QGis.WKBLineString:
                     for pt in geom.asPolyline():
                         idRubberBand.addPoint(pt)
                 self.idsRubberBands.append(idRubberBand)
@@ -434,11 +428,11 @@ class PgRoutingLayer(object):
             if result:
                 self.dock.lineEditSourceId.setText(str(id))
                 geom = QgsGeometry().fromWkt(wkt)
-                if geom.wkbType() == Qgis.WKBMultiLineString:
+                if geom.wkbType() == QGis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             self.sourceIdRubberBand.addPoint(pt)
-                elif geom.wkbType() == Qgis.WKBLineString:
+                elif geom.wkbType() == QGis.WKBLineString:
                     for pt in geom.asPolyline():
                         self.sourceIdRubberBand.addPoint(pt)
                 self.dock.lineEditSourcePos.setText(str(pos))
@@ -506,11 +500,11 @@ class PgRoutingLayer(object):
             if result:
                 self.dock.lineEditTargetId.setText(str(id))
                 geom = QgsGeometry().fromWkt(wkt)
-                if geom.wkbType() == Qgis.WKBMultiLineString:
+                if geom.wkbType() == QGis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             self.targetIdRubberBand.addPoint(pt)
-                elif geom.wkbType() == Qgis.WKBLineString:
+                elif geom.wkbType() == QGis.WKBLineString:
                     for pt in geom.asPolyline():
                         self.targetIdRubberBand.addPoint(pt)
                 self.dock.lineEditTargetPos.setText(str(pos))
@@ -564,7 +558,7 @@ class PgRoutingLayer(object):
         args = self.getArguments(function.getControlNames(self.version))
         
         empties = []
-        for key in list(args.keys()):
+        for key in args.keys():
             if not args[key]:
                 empties.append(key)
         
@@ -605,15 +599,15 @@ class PgRoutingLayer(object):
             Utils.setTransformQuotes(args, srid, args['canvas_srid'])
             function.draw(rows, con, args, geomType, self.canvasItemList, self.iface.mapCanvas())
             
-        except psycopg2.DatabaseError as e:
+        except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             
-        except SystemError as e:
+        except SystemError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             
-        except AssertionError as e:
+        except AssertionError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.warning(self.dock, self.dock.windowTitle(), '%s' % e)
             
@@ -633,7 +627,7 @@ class PgRoutingLayer(object):
         args = self.getArguments(function.getControlNames(self.version))
         
         empties = []
-        for key in list(args.keys()):
+        for key in args.keys():
             if not args[key]:
                 empties.append(key)
         
@@ -679,11 +673,11 @@ class PgRoutingLayer(object):
                 #QMessageBox.information(self.dock, self.dock.windowTitle(), 'pgRouting Query:' + function.getQuery(args))
                 #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + msgQuery)
             
-        except psycopg2.DatabaseError as e:
+        except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             
-        except SystemError as e:
+        except SystemError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             
@@ -740,7 +734,7 @@ class PgRoutingLayer(object):
         args = self.getArguments(function.getControlNames(self.version))
         
         empties = []
-        for key in list(args.keys()):
+        for key in args.keys():
             if not args[key]:
                 empties.append(key)
         
@@ -789,11 +783,11 @@ class PgRoutingLayer(object):
                 else:
                     QMessageBox.information(self.dock, self.dock.windowTitle(), 'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
             
-        except psycopg2.DatabaseError as e:
+        except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             
-        except SystemError as e:
+        except SystemError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             
@@ -883,7 +877,7 @@ class PgRoutingLayer(object):
             try:
                 anno.setVisible(False)
                 self.iface.mapCanvas().scene().removeItem(anno)
-            except RuntimeError as e:
+            except RuntimeError, e:
                 QApplication.restoreOverrideCursor()
                 QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
         self.canvasItemList['annotations'] = []
@@ -1008,7 +1002,7 @@ class PgRoutingLayer(object):
         args['target'] = self.dock.lineEditTarget.text()
         
         empties = []
-        for key in list(args.keys()):
+        for key in args.keys():
             if not args[key]:
                 empties.append(key)
         
@@ -1134,7 +1128,7 @@ class PgRoutingLayer(object):
             
             return True, node, wkt
             
-        except psycopg2.DatabaseError as e:
+        except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             return False, None, None
@@ -1206,7 +1200,7 @@ class PgRoutingLayer(object):
             
             return True, link, wkt, pos, pointWkt
             
-        except psycopg2.DatabaseError as e:
+        except psycopg2.DatabaseError, e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
             return False, None, None

@@ -1,6 +1,5 @@
-from __future__ import absolute_import
 from .. import pgRoutingLayer_utils as Utils
-from .FunctionBase import FunctionBase
+from FunctionBase import FunctionBase
 
 class Function(FunctionBase):
 

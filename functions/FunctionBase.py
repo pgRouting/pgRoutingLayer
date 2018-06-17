@@ -1,9 +1,6 @@
-from builtins import str
-from builtins import object
-from qgis.core import (QgsMessageLog, Qgis, QgsGeometry)
-from qgis.gui import QgsRubberBand
-from qgis.PyQt.QtGui import QColor
-
+from PyQt4.QtGui import *
+from qgis.core import *
+from qgis.gui import *
 from .. import pgRoutingLayer_utils as Utils
 
 
@@ -218,11 +215,11 @@ class FunctionBase(object):
                 assert row2, "Invalid result geometry. (path_id:%(result_path_id)s, node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
-                if geom.wkbType() == Qgis.WKBMultiLineString:
+                if geom.wkbType() == QGis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             rubberBand.addPoint(pt)
-                elif geom.wkbType() == Qgis.WKBLineString:
+                elif geom.wkbType() == QGis.WKBLineString:
                     for pt in geom.asPolyline():
                         rubberBand.addPoint(pt)
 
@@ -253,7 +250,7 @@ class FunctionBase(object):
                     assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
 
                     geom = QgsGeometry().fromWkt(str(row2[0]))
-                    if geom.wkbType() == Qgis.WKBMultiLineString:
+                    if geom.wkbType() == QGis.WKBMultiLineString:
                         for line in geom.asMultiPolyline():
                             for pt in line:
                                 resultPathRubberBand.addPoint(pt)
@@ -268,5 +265,5 @@ class FunctionBase(object):
 
     def __init__(self, ui):
         self.ui = ui
-        self.minVersion = 3.0
-        self.maxVersion = 3.0
+        self.minVersion = 2.0
+        self.maxVersion = 2.99
