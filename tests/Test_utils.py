@@ -1,5 +1,13 @@
 import pgRoutingLayer_utils as utils
 import unittest
+import sys
+from qgis.core import *
+from qgis.gui import *
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+import psycopg2
+import sip
+
 
 
 class TestUtils(unittest.TestCase):
@@ -26,19 +34,19 @@ class TestUtils(unittest.TestCase):
         args = { 'geometry': 'test_geom','table' : 'test_table'}
         geomType = 'ST_MultiLineString'
         utils.setEndPoint(geomType,args)
-        self.assertEqual(args['Endpoint'], 'ST_EndPoint(ST_GeometryN(test_geom, 1))')
+        self.assertEqual(args['endpoint'], 'ST_EndPoint(ST_GeometryN(test_geom, 1))')
 
     def test_isSIPv2(self):
         self.assertTrue(utils.isSIPv2())
 
     def test_getStringValue(self):
         setting = QSettings()
-        settings.setValue('/pgRoutingLayer/Database', 99)
-        self.assertEqual(utils.getStringValue(setting,'/pgRoutingLayer/Database', 99) ,99)
+        setting.setValue('/pgRoutingLayer/Database', 99)
+        self.assertEqual(utils.getStringValue(setting,'/pgRoutingLayer/Database', 99) ,'99')
 
     def test_getBoolValue(self):
         setting = QSettings()
-        settings.setValue('/pgRoutingLayer/Database', 99)
+        setting.setValue('/pgRoutingLayer/Database', 99)
         self.assertTrue(utils.getBoolValue(setting,'/pgRoutingLayer/Database', 99))
 
     
@@ -72,7 +80,7 @@ class TestUtils(unittest.TestCase):
 
     def test_getNodeQuery(self):
         args = {'geometry' : 'test_geom','source': 1,'startpoint' : 10,'edge_table':'test_Table','target':100,'endpoint':90}
-        expeced_sql=  """
+        expected_sql=  """
         WITH node AS (
             SELECT id::int4,
                 ST_X(test_geom) AS x,
@@ -80,7 +88,7 @@ class TestUtils(unittest.TestCase):
                 test_geom
                 FROM (
                     SELECT 1::int4 AS id,
-                        10 AS test_geom
+                        ST_StartPoint(ST_GeometryN(test_geom, 1)) AS test_geom
                         FROM test_Table
                     UNION
                     SELECT 100::int4 AS id,
@@ -91,6 +99,16 @@ class TestUtils(unittest.TestCase):
         self.maxDiff = None
         geomType = 'ST_MultiLineString'
         self.assertMultiLineEqual(utils.getNodeQuery(args,geomType),expected_sql)
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+
+
+
+
+
 
 
     
