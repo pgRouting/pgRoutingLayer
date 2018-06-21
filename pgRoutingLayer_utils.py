@@ -1,4 +1,4 @@
-from qgis.core import QgsMessageLog,Qgis
+from qgis.core import QgsMessageLog, Qgis, QgsWkbTypes
 from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QVariant, QSettings
 #from PyQt4.QtGui import *
@@ -13,7 +13,7 @@ def getSridAndGeomType(con, table, geometry):
     cur = con.cursor()
     cur.execute("""
         SELECT ST_SRID(%(geometry)s), ST_GeometryType(%(geometry)s)
-            FROM %(table)s 
+            FROM %(table)s
             LIMIT 1
     """ % args)
     row = cur.fetchone()
@@ -56,13 +56,13 @@ def getBoolValue(settings, key, value):
         return settings.value(key, QVariant(value)).toBool()
 
 def isQGISv1():
-    return QGis.QGIS_VERSION_INT < 10900
+    return Qgis.QGIS_VERSION_INT < 10900
 
 def getDestinationCrs(mapCanvas):
     if isQGISv1():
         return mapCanvas.mapRenderer().destinationSrs()
     else:
-        if QGis.QGIS_VERSION_INT < 20400:
+        if Qgis.QGIS_VERSION_INT < 20400:
             return mapCanvas.mapRenderer().destinationCrs()
         else:
             return mapCanvas.mapSettings().destinationCrs()
@@ -84,12 +84,12 @@ def getRubberBandType(isPolygon):
         return isPolygon
     else:
         if isPolygon:
-            return QGis.Polygon
+            return QgsWkbTypes.PolygonGeometry
         else:
-            return QGis.Line
+            return QgsWkbTypes.LineGeometry
 
 def refreshMapCanvas(mapCanvas):
-    if QGis.QGIS_VERSION_INT < 20400:
+    if Qgis.QGIS_VERSION_INT < 20400:
         return mapCanvas.clear()
     else:
         return mapCanvas.refresh()
@@ -132,4 +132,3 @@ def getPgrVersion(con):
         return 0;
     except SystemError as e:
         return 0
-
