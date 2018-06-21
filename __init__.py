@@ -2,8 +2,8 @@
 /***************************************************************************
  pgRouting Layer
                                  a QGIS plugin
-                                 
- based on "Fast SQL Layer" plugin Copyright 2011 Pablo Torres Carreira 
+
+ based on "Fast SQL Layer" plugin Copyright 2011 Pablo Torres Carreira
                              -------------------
         begin                : 2011-11-25
         copyright            : (c) 2011 by Anita Graser
@@ -21,6 +21,7 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
+
 def name():
     return "pgRouting Layer"
 def description():
@@ -32,5 +33,5 @@ def icon():
 def qgisMinimumVersion():
     return "1.7"
 def classFactory(iface):
-    from pgRoutingLayer import PgRoutingLayer
+    from pgRoutingLayer.pgRoutingLayer import PgRoutingLayer
     return PgRoutingLayer(iface)
