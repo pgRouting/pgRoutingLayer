@@ -2,8 +2,8 @@ from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import QSizeF, QPointF
 from qgis.PyQt.QtGui import QColor 
-from qgis.core import (QgsGeometry, QGis)
-from qgis.gui import (QgsRubberBand, QgsTextAnnotationItem)
+from qgis.core import QgsGeometry, Qgis
+from qgis.gui import QgsRubberBand, QgsTextAnnotation
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
@@ -108,11 +108,11 @@ class Function(FunctionBase):
                 assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
-                if geom.wkbType() == QGis.WKBMultiLineString:
+                if geom.wkbType() == Qgis.WKBMultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             rubberBand.addPoint(pt)
-                elif geom.wkbType() == QGis.WKBLineString:
+                elif geom.wkbType() == Qgis.WKBLineString:
                     for pt in geom.asPolyline():
                         rubberBand.addPoint(pt)
 
@@ -142,7 +142,7 @@ class Function(FunctionBase):
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_target_id)d:%(result_cost)f" % args)
-            textAnnotation = QgsTextAnnotationItem(mapCanvas)
+            textAnnotation = QgsTextAnnotation(mapCanvas)
             textAnnotation.setMapPosition(geom.asPoint())
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
             textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))
