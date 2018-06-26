@@ -25,9 +25,8 @@ from builtins import str
 from builtins import object
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QObject, pyqtSignal, QRegExp, QSettings
-
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction,QDockWidget,QApplication,QLabel,QLineEdit,QPushButton,QWidget
 from qgis.core import QgsMessageLog,Qgis
 from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
 from . import dbConnection
@@ -44,17 +43,17 @@ class PgRoutingLayer(object):
 
     SUPPORTED_FUNCTIONS = [
         'dijkstra',
-        'dijkstraCost',
+        'trsp_vertex',
         'astar',
         'drivingDistance',
         'alphashape',
-        'tsp_euclid',
-        'trsp_vertex',
-        'trsp_edge',
-        'kdijkstra_cost',
-        'kdijkstra_path',
         'bdDijkstra',
         'bdAstar',
+        'dijkstraCost',
+        'tsp_euclid',
+        'kdijkstra_cost',
+        'trsp_edge',
+        'kdijkstra_path',
         'ksp',
         'trsp_via_vertices',
         'trsp_via_edges'
@@ -91,7 +90,7 @@ class PgRoutingLayer(object):
     ]
     FIND_RADIUS = 10
     FRACTION_DECIMAL_PLACES = 2
-    version = 2.0
+    version = 3.0
     functions = {}
 
     def __init__(self, iface):
@@ -189,8 +188,9 @@ class PgRoutingLayer(object):
         self.functions = {}
         for funcfname in self.SUPPORTED_FUNCTIONS:
             # import the function
-            exec("from pgRoutingLayer.functions import %s as function" % funcfname)
+            exec("from pgRoutingLayer.functions import %s as function" % funcfname, globals(),globals())
             funcname = function.Function.getName()
+            print(funcname)
             self.functions[funcname] = function.Function(self.dock)
             self.dock.comboBoxFunction.addItem(funcname)
 
@@ -228,7 +228,7 @@ class PgRoutingLayer(object):
         self.iface.removeDockWidget(self.dock)
 
     def reloadConnections(self):
-        oldReloadMessage = self.reloadMessage
+        oldReloadMessage = False
         self.reloadMessage = False
         database = str(self.dock.comboConnections.currentText())
 
@@ -303,10 +303,8 @@ class PgRoutingLayer(object):
 
 
     def updateFunctionEnabled(self, text):
-        if text == '':
-            return
-        self.clear()
-        function = self.functions[str(text)]
+        
+        function = self.functions.get(str(text))
 
         self.toggleSelectButton(None)
 

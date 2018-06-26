@@ -1,10 +1,12 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
+from __future__ import absolute_import
+from builtins import str
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import QTextDocument 
+from qgis.core import QgsGeometry, Qgis
+from qgis.gui import QgsTextAnnotation
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
-from FunctionBase import FunctionBase
+from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
@@ -95,11 +97,11 @@ class Function(FunctionBase):
             assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
 
             geom = QgsGeometry().fromWkt(str(row2[0]))
-            if geom.wkbType() == QGis.WKBMultiLineString:
+            if geom.wkbType() == Qgis.WKBMultiLineString:
                 for line in geom.asMultiPolyline():
                     for pt in line:
                         resultPathsRubberBands.addPoint(pt)
-            elif geom.wkbType() == QGis.WKBLineString:
+            elif geom.wkbType() == Qgis.WKBLineString:
                 for pt in geom.asPolyline():
                     resultPathsRubberBands.addPoint(pt)
             prevrow = row
@@ -121,11 +123,11 @@ class Function(FunctionBase):
         assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
 
         geom = QgsGeometry().fromWkt(str(row2[0]))
-        if geom.wkbType() == QGis.WKBMultiLineString:
+        if geom.wkbType() == Qgis.WKBMultiLineString:
             for line in geom.asMultiPolyline():
                 for pt in line:
                     resultPathsRubberBands.addPoint(pt)
-        elif geom.wkbType() == QGis.WKBLineString:
+        elif geom.wkbType() == Qgis.WKBLineString:
             for pt in geom.asPolyline():
                 resultPathsRubberBands.addPoint(pt)
 
@@ -158,7 +160,7 @@ class Function(FunctionBase):
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_seq)d:%(result_node_id)d" % args)
-            textAnnotation = QgsTextAnnotationItem(mapCanvas)
+            textAnnotation = QgsTextAnnotation(mapCanvas)
             textAnnotation.setMapPosition(geom.asPoint())
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
             textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))

@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import Qt
-#from PyQt4.QtGui import *
+#from PyQt.QtGui import *
 from qgis.core import QgsGeometry, QgsPoint
 from qgis.gui import QgsVertexMarker
 import psycopg2
