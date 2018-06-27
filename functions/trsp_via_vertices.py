@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from qgis.PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 from builtins import str
 from qgis.PyQt.QtGui import QColor
 from qgis.core import Qgis, QgsGeometry
