@@ -29,9 +29,9 @@ from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegE
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit
 from qgis.core import QgsMessageLog,Qgis
 from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
-from . import dbConnection
+from pgRoutingLayer import dbConnection
 from qgis.utils import iface
-from . import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 #import highlighter as hl
 import os
 import psycopg2
@@ -92,7 +92,7 @@ class PgRoutingLayer(object):
     FRACTION_DECIMAL_PLACES = 2
     version = 3.0
     functions = {}
-    
+
 
     def __init__(self, iface):
         # Save reference to the QGIS interface
