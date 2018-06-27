@@ -25,8 +25,8 @@ from builtins import str
 from builtins import object
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QObject, pyqtSignal, QRegExp, QSettings
-from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator
-from qgis.PyQt.QtWidgets import QAction,QDockWidget,QApplication,QLabel,QLineEdit,QPushButton,QWidget
+from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit
 from qgis.core import QgsMessageLog,Qgis
 from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
 from . import dbConnection
@@ -47,10 +47,10 @@ class PgRoutingLayer(object):
         'astar',
         'drivingDistance',
         'alphashape',
+        'tsp_euclid',
         'bdDijkstra',
         'bdAstar',
         'dijkstraCost',
-        'tsp_euclid',
         'kdijkstra_cost',
         'trsp_edge',
         'kdijkstra_path',
@@ -92,6 +92,7 @@ class PgRoutingLayer(object):
     FRACTION_DECIMAL_PLACES = 2
     version = 3.0
     functions = {}
+    
 
     def __init__(self, iface):
         # Save reference to the QGIS interface
@@ -190,7 +191,6 @@ class PgRoutingLayer(object):
             # import the function
             exec("from pgRoutingLayer.functions import %s as function" % funcfname, globals(),globals())
             funcname = function.Function.getName()
-            print(funcname)
             self.functions[funcname] = function.Function(self.dock)
             self.dock.comboBoxFunction.addItem(funcname)
 
@@ -303,7 +303,8 @@ class PgRoutingLayer(object):
 
 
     def updateFunctionEnabled(self, text):
-        
+        # for testing //TODO remove text ='dijkstra'
+        text='dijkstra'
         function = self.functions.get(str(text))
 
         self.toggleSelectButton(None)

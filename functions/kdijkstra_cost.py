@@ -2,8 +2,8 @@ from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import QSizeF, QPointF
 from qgis.PyQt.QtGui import QColor
-from qgis.core import Qgis, QgsGeometry
-from qgis.gui import QgsRubberBand, QgsTextAnnotation
+from qgis.core import Qgis, QgsGeometry, QgsTextAnnotation
+from qgis.gui import QgsRubberBand
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase

@@ -1,8 +1,8 @@
 from __future__ import absolute_import
-#from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 from builtins import str
 from qgis.PyQt.QtGui import QColor
-from qgis.core import Qis, QgsGeometry
+from qgis.core import Qgis, QgsGeometry
 from qgis.gui import QgsRubberBand
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils

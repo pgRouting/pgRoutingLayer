@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from qgis.PyQt.QtCore import *
-from PyQt.QtGui import *
-from PyQt.QtWidgets import *
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtWidgets import *
 from builtins import str
 from qgis.core import Qgis, QgsGeometry
 from qgis.gui import QgsRubberBand
