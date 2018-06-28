@@ -77,11 +77,10 @@ class TableRule(DbConn.TableRule):
 
 class DbError(DbConn.DbError):
     def __init__(self, error, query=None):
-        # save error. funny that the variables are in utf8, not
-        msg = str( error.args[0], 'utf-8')
+        msg = str(error.args[0])
         if query == None:
             if hasattr(error, "cursor") and hasattr(error.cursor, "query"):
-                query = str(error.cursor.query, 'utf-8')
+                query = str(error.cursor.query)
         else:
             query = str(query)
         DbConn.DbError.__init__(self, msg, query)
