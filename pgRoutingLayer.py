@@ -25,9 +25,9 @@ from builtins import str
 from builtins import object
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QObject, pyqtSignal, QRegExp, QSettings
-from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit
-from qgis.core import QgsMessageLog,Qgis
+from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit, QMessageBox
+from qgis.core import QgsMessageLog,Qgis,QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsGeometry
 from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
 from qgis.utils import iface
@@ -279,8 +279,8 @@ class PgRoutingLayer(object):
                 'Selected database: ' + dbname + '\npgRouting version: ' + str(self.version))
 
 
-        currentFunction = self.dock.comboBoxFunction.currentText()
-        if currentFunction =='':
+        currentFunction = str (self.dock.comboBoxFunction.currentText())
+        if currentFunction ==' ':
             return
 
         self.loadFunctionsForVersion()
@@ -303,8 +303,8 @@ class PgRoutingLayer(object):
 
 
     def updateFunctionEnabled(self, text):
-        # for testing //TODO remove text ='dijkstra'
-        text='dijkstra'
+        # for testing only. Remove text = dikstra
+        text = 'dijkstra'
         function = self.functions.get(str(text))
 
         self.toggleSelectButton(None)
@@ -1027,12 +1027,11 @@ class PgRoutingLayer(object):
             #srid, geomType = self.getSridAndGeomType(con, args)
             #srid, geomType = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])
             srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
-            if self.iface.mapCanvas().hasCrsTransformEnabled():
-                layerCrs = QgsCoordinateReferenceSystem()
-                Utils.createFromSrid(layerCrs, srid)
-                trans = QgsCoordinateTransform(canvasCrs, layerCrs)
-                pt = trans.transform(pt)
-                rect = trans.transform(rect)
+            layerCrs = QgsCoordinateReferenceSystem()
+            Utils.createFromSrid(layerCrs, srid)
+            trans = QgsCoordinateTransform(canvasCrs, layerCrs, QgsProject.instance())
+            pt = trans.transform(pt)
+            rect = trans.transform(rect)
 
             args['canvas_srid'] = Utils.getCanvasSrid(canvasCrs)
             args['srid'] = srid
