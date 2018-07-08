@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from qgis.PyQt.QtCore import *
 from builtins import str
 from qgis.PyQt.QtGui import QColor
-from qgis.core import Qgis, QgsGeometry
+from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
@@ -105,11 +105,11 @@ class Function(FunctionBase):
                 assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
                 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
-                if geom.wkbType() == Qgis.WKBMultiLineString:
+                if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             rubberBand.addPoint(pt)
-                elif geom.wkbType() == Qgis.WKBLineString:
+                elif geom.wkbType() == QgsWkbTypes.LineString:
                     for pt in geom.asPolyline():
                         rubberBand.addPoint(pt)
 
