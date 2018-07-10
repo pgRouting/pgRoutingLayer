@@ -73,7 +73,7 @@ class Function(FunctionBase):
                         %(source)s AS source,
                         %(target)s AS target,
                         %(cost)s AS cost
-                        %(reverse_cost)s,
+                        %(reverse_cost)s
                     FROM %(edge_table)s
                     %(where_clause)s',
                     array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
