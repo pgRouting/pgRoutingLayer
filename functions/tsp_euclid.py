@@ -97,11 +97,11 @@ class Function(FunctionBase):
             assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
 
             geom = QgsGeometry().fromWkt(str(row2[0]))
-            if geom.wkbType() == Qgis.WKBMultiLineString:
+            if geom.wkbType() == QgsWkbTypes.MultiLineString:
                 for line in geom.asMultiPolyline():
                     for pt in line:
                         resultPathsRubberBands.addPoint(pt)
-            elif geom.wkbType() == Qgis.WKBLineString:
+            elif geom.wkbType() == QgsWkbTypes.LineString:
                 for pt in geom.asPolyline():
                     resultPathsRubberBands.addPoint(pt)
             prevrow = row
@@ -123,11 +123,11 @@ class Function(FunctionBase):
         assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
 
         geom = QgsGeometry().fromWkt(str(row2[0]))
-        if geom.wkbType() == Qgis.WKBMultiLineString:
+        if geom.wkbType() == QgsWkbTypes.MultiLineString:
             for line in geom.asMultiPolyline():
                 for pt in line:
                     resultPathsRubberBands.addPoint(pt)
-        elif geom.wkbType() == Qgis.WKBLineString:
+        elif geom.wkbType() == QgsWkbTypes.LineString:
             for pt in geom.asPolyline():
                 resultPathsRubberBands.addPoint(pt)
 
@@ -163,9 +163,9 @@ class Function(FunctionBase):
             textAnnotation = QgsTextAnnotation(mapCanvas)
             textAnnotation.setMapPosition(geom.asPoint())
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
-            textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))
+            textAnnotation.setFrameOffsetFromReferencePoint(QPointF(20, -40))
             textAnnotation.setDocument(textDocument)
-            textAnnotation.update()
+            #textAnnotation.update()
             resultNodesTextAnnotations.append(textAnnotation)
     
     def __init__(self, ui):
