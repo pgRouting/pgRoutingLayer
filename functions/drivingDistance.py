@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import Qt
-#from PyQt.QtGui import *
-from qgis.core import QgsGeometry, QgsPoint
+from qgis.PyQt.QtGui import *
+from qgis.core import QgsGeometry, QgsPointXY
 from qgis.gui import QgsVertexMarker
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
@@ -123,7 +123,7 @@ class Function(FunctionBase):
                 vertexMarker.setColor(Qt.red)
                 vertexMarker.setPenWidth(2)
                 vertexMarker.setIconSize(5)
-                vertexMarker.setCenter(QgsPoint(pt))
+                vertexMarker.setCenter(QgsPointXY(pt))
                 resultNodesVertexMarkers.append(vertexMarker)
 
     def __init__(self, ui):

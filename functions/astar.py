@@ -4,7 +4,7 @@ from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
 
-    version = 2.0
+    version = 3.0
 
     @classmethod
     def getName(self):

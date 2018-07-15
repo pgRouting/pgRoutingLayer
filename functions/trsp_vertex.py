@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import *
 from builtins import str
-from qgis.core import Qgis, QgsGeometry
+from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
@@ -26,7 +26,7 @@ class Function(FunctionBase):
         ]
     
     def isSupportedVersion(self, version):
-        return version >= 2.0 and version < 3.0
+        return version >= 2.0 
 
     def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']

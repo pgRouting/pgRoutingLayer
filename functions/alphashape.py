@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from builtins import str
-from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, QgsMessageLog
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, QgsMessageLog, QgsProject
 from qgis.gui import QgsRubberBand
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
@@ -143,11 +143,11 @@ class Function(FunctionBase):
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultAreaRubberBand = canvasItemList['area']
         trans = None
-        if mapCanvas.hasCrsTransformEnabled():
-            canvasCrs = Utils.getDestinationCrs(mapCanvas)
-            layerCrs = QgsCoordinateReferenceSystem()
-            Utils.createFromSrid(layerCrs, args['srid'])
-            trans = QgsCoordinateTransform(layerCrs, canvasCrs)
+        
+        canvasCrs = Utils.getDestinationCrs(mapCanvas)
+        layerCrs = QgsCoordinateReferenceSystem()
+        Utils.createFromSrid(layerCrs, args['srid'])
+        trans = QgsCoordinateTransform(layerCrs, canvasCrs,QgsProject.instance())
         
         # return columns are 'x', 'y'
         for row in rows:
@@ -158,7 +158,7 @@ class Function(FunctionBase):
                 return
             pt = QgsPoint(x, y)
             if trans:
-                pt = trans.transform(pt)
+                pt = trans.transform(pt.x(),pt.y())
             
             resultAreaRubberBand.addPoint(pt)
     

@@ -17,7 +17,7 @@ class Function(FunctionBase):
     @classmethod
     def isSupportedVersion(self, version):
         # Deprecated on version 2.2
-        return version >= 2.0 and version < 2.2
+        return version >= 2.0 and version > 2.2
 
     
     @classmethod
