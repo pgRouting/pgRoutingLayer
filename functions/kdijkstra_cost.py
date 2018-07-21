@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import QSizeF, QPointF
-from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtGui import QColor, QTextDocument
 from qgis.core import Qgis, QgsGeometry, QgsTextAnnotation, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
@@ -17,7 +17,7 @@ class Function(FunctionBase):
     @classmethod
     def isSupportedVersion(self, version):
         # Deprecated on version 2.2
-        return version >= 2.0 and version < 2.2
+        return version >= 2.0 and version > 2.2
 
     @classmethod
     def getControlNames(self, version):

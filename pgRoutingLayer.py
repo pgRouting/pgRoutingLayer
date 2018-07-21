@@ -42,6 +42,7 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer(object):
 
     SUPPORTED_FUNCTIONS = [
+        'tsp_euclid',
         'dijkstra',
         'trsp_vertex',
         'astar',
@@ -90,7 +91,7 @@ class PgRoutingLayer(object):
     ]
     FIND_RADIUS = 10
     FRACTION_DECIMAL_PLACES = 2
-    version = 3.0
+    version = 2.6
     functions = {}
 
 
@@ -228,7 +229,7 @@ class PgRoutingLayer(object):
         self.iface.removeDockWidget(self.dock)
 
     def reloadConnections(self):
-        oldReloadMessage = False
+        oldReloadMessage = self.reloadMessage
         self.reloadMessage = False
         database = str(self.dock.comboConnections.currentText())
 
@@ -303,8 +304,10 @@ class PgRoutingLayer(object):
 
 
     def updateFunctionEnabled(self, text):
-        # for testing only. Remove text = dikstra
-        text = 'dijkstra'
+        text = str (self.dock.comboBoxFunction.currentText())
+        if text== '':
+            return
+        self.clear()
         function = self.functions.get(str(text))
 
         self.toggleSelectButton(None)
@@ -1149,12 +1152,12 @@ class PgRoutingLayer(object):
 
             srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
 
-            if self.iface.mapCanvas().hasCrsTransformEnabled():
-                layerCrs = QgsCoordinateReferenceSystem()
-                Utils.createFromSrid(layerCrs, srid)
-                trans = QgsCoordinateTransform(canvasCrs, layerCrs)
-                pt = trans.transform(pt)
-                rect = trans.transform(rect)
+            
+            layerCrs = QgsCoordinateReferenceSystem()
+            Utils.createFromSrid(layerCrs, srid)
+            trans = QgsCoordinateTransform(canvasCrs, layerCrs, QgsProject.instance())
+            pt = trans.transform(pt)
+            rect = trans.transform(rect)
 
             args['canvas_srid'] = Utils.getCanvasSrid(canvasCrs)
             args['srid'] = srid

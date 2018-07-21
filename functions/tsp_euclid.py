@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import QPointF, QSizeF
 from qgis.PyQt.QtGui import QTextDocument 
-from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation
+from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes
 from qgis.gui import *
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
@@ -34,7 +34,7 @@ class Function(FunctionBase):
         return False
 
     def isSupportedVersion(self, version):
-        return version >= 2.0 and version < 3.0
+        return version >= 2.0 
 
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
