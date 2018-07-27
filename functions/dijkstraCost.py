@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import QSizeF, QPointF
-from qgis.PyQt.QtGui import QColor, QTextDocument 
+from qgis.PyQt.QtGui import QColor, QTextDocument
 from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes, QgsAnnotation
 from qgis.gui import QgsRubberBand
 import psycopg2
@@ -12,7 +12,7 @@ class Function(FunctionBase):
 
     @classmethod
     def getName(self):
-        return 'pgr_dijkstraCost'
+        return 'dijkstraCost'
 
     @classmethod
     def isSupportedVersion(self, version):
@@ -29,14 +29,14 @@ class Function(FunctionBase):
         return False
 
 
-    
+
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
         canvasItemList['annotations'] = []
 
-    
+
     def getQuery(self, args):
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
@@ -58,7 +58,7 @@ class Function(FunctionBase):
 
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
-        args['vertex_table'] = """ 
+        args['vertex_table'] = """
             %(edge_table)s_vertices_pgr
             """ % args
 
@@ -96,7 +96,7 @@ class Function(FunctionBase):
                 rubberBand.setWidth(4)
             if args['result_cost'] != -1:
                 query2 = """
-                    SELECT ST_AsText( ST_MakeLine( 
+                    SELECT ST_AsText( ST_MakeLine(
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_source_id)d),
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_target_id)d)
                         ))

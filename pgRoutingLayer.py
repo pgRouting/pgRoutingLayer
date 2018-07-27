@@ -52,9 +52,7 @@ class PgRoutingLayer(object):
         'bdDijkstra',
         'bdAstar',
         'dijkstraCost',
-        'kdijkstra_cost',
         'trsp_edge',
-        'kdijkstra_path',
         'ksp',
         'trsp_via_vertices',
         'trsp_via_edges'
@@ -1152,7 +1150,7 @@ class PgRoutingLayer(object):
 
             srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
 
-            
+
             layerCrs = QgsCoordinateReferenceSystem()
             Utils.createFromSrid(layerCrs, srid)
             trans = QgsCoordinateTransform(canvasCrs, layerCrs, QgsProject.instance())

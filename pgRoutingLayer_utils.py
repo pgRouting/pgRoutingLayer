@@ -129,6 +129,6 @@ def getPgrVersion(con):
         return float(version)
     except psycopg2.DatabaseError as e:
         #database didn't have pgrouting
-        return 0;
+        return 0
     except SystemError as e:
         return 0
