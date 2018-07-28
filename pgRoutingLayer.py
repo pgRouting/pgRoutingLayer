@@ -875,7 +875,6 @@ class PgRoutingLayer(object):
         for anno in self.canvasItemList['annotations']:
             try:
                 anno.setVisible(False)
-                self.iface.mapCanvas().scene().removeItem(anno)
             except RuntimeError as e:
                 QApplication.restoreOverrideCursor()
                 QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
