@@ -142,16 +142,14 @@ class Function(FunctionBase):
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_target_id)d:%(result_cost)f" % args)
-            textAnnotation = QgsTextAnnotation(mapCanvas)
+            textAnnotation = QgsTextAnnotation()
             textAnnotation.setMapPosition(geom.asPoint())
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
             textAnnotation.setFrameOffsetFromReferencePoint(QPointF(20, -40))
             textAnnotation.setDocument(textDocument)
 
-            #textAnnotation.update()
+            QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
             resultNodesTextAnnotations.append(textAnnotation)
-
-
 
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
