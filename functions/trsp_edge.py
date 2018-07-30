@@ -6,17 +6,19 @@ from builtins import str
 from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'trsp(edge)'
     
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         return self.commonControls + self.commonBoxes + [
                 'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
                 'labelSourcePos', 'lineEditSourcePos',
@@ -34,6 +36,7 @@ class Function(FunctionBase):
         resultPathRubberBand.reset(Utils.getRubberBandType(False))
     
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_trsp_edge '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_trsp('
@@ -128,6 +131,7 @@ class Function(FunctionBase):
             """ % args
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathRubberBand = canvasItemList['path']
         i = 0
         count = len(rows)

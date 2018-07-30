@@ -117,7 +117,7 @@ class Connection(object):
 
     def getURI(self):
         # returns a new QgsDataSourceUri instance
-        return qgis.core.QgsDataSourceUri( self.uri.connectionInfo() )
+        return QgsDataSourceUri( self.uri.connectionInfo() )
 
     def getAction(self, parent=None):
         return Connection.ConnectionAction(self.uri.database(), self.getTypeName(), parent)

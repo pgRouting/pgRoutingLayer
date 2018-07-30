@@ -5,17 +5,19 @@ from qgis.PyQt.QtGui import *
 from qgis.core import QgsGeometry, QgsPointXY
 from qgis.gui import QgsVertexMarker
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'drivingDistance'
     
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         if version < 2.1:
             # version 2.0 has only one to one
             return self.commonControls + self.commonBoxes + [
@@ -35,6 +37,7 @@ class Function(FunctionBase):
         canvasItemList['markers'] = []
     
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_drivingDistance '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if (args['version'] < 2.1):
             return """
@@ -93,6 +96,7 @@ class Function(FunctionBase):
         return self.getJoinResultWithEdgeTable(args)
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultNodesVertexMarkers = canvasItemList['markers']
         table =  """%(edge_table)s_vertices_pgr""" % args
         srid, geomType = Utils.getSridAndGeomType(con, table, 'the_geom')
