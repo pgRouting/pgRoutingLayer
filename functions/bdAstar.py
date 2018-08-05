@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
@@ -8,10 +8,12 @@ class Function(FunctionBase):
 
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'bdAstar'
 
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         self.version = version
         if self.version < 2.5:
             return self.commonControls + self.commonBoxes + self.astarControls + [
@@ -36,6 +38,7 @@ class Function(FunctionBase):
 
 
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_bdAstar '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.5:
             return """
@@ -85,6 +88,7 @@ class Function(FunctionBase):
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draws the result '''
         if self.version < 2.5:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)
         else:

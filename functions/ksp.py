@@ -5,7 +5,7 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
@@ -15,10 +15,12 @@ class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'ksp'
     
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         # function pgr_ksp(text,integer,integer,integer, boolean)
         # boolean is has_rcost
         # only works for directed graph
@@ -58,6 +60,7 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
 
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_bdDijkstra '''
         if (self.version < 2.1):
             return """
                 SELECT
@@ -189,6 +192,7 @@ class Function(FunctionBase):
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_route_id = -1

@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
@@ -8,11 +8,13 @@ class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'dijkstra'
     
 
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         self.version = version
         if self.version < 2.1:
             # version 2.0 has only one to one
@@ -39,6 +41,7 @@ class Function(FunctionBase):
 
     
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_bdDijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.1:
             return """
@@ -82,6 +85,7 @@ class Function(FunctionBase):
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         if self.version < 2.1:
             self.drawOnePath(rows, con, args, geomType, canvasItemList, mapCanvas)
         else:

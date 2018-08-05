@@ -4,7 +4,7 @@ from qgis.core import (QgsMessageLog, Qgis, QgsGeometry,QgsWkbTypes)
 from qgis.gui import QgsRubberBand
 from qgis.PyQt.QtGui import QColor
 
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 
 
 class FunctionBase(object):
@@ -45,22 +45,27 @@ class FunctionBase(object):
     
     @classmethod
     def isEdgeBase(self):
+        ''' checks if EdgeBase is set. '''
         return self.exportEdgeBase
     
     @classmethod
     def canExport(self):
+        ''' checks if exportButton is set '''
         return self.exportButton
 
     @classmethod
     def canExportMerged(self):
+        ''' checks if exportMergeButton is set. '''
         return self.exportMergeButton
 
     @classmethod
     def isSupportedVersion(self, version):
+        ''' returns true if version is between 2 and 3.0 '''
         return version >= 2.0 and version < 3.0
 
     @classmethod
     def whereClause(self, table, geometry, bbox):
+        ''' returns where clause for sql parameterising '''
         if bbox == ' ':
             return ' '
         else:
@@ -82,6 +87,7 @@ class FunctionBase(object):
         pass
     
     def getJoinResultWithEdgeTable(self, args):
+        '''returns a query which joins edge_table with result based on edge.id'''
         args['result_query'] = self.getQuery(args)
 
         query = """
@@ -101,6 +107,7 @@ class FunctionBase(object):
 
 
     def getExportOneSourceOneTargetMergeQuery(self, args):
+        ''' returns merge query for one source and one target '''
         args['result_query'] = self.getQuery(args)
 
         args['with_geom_query'] = """
@@ -139,6 +146,7 @@ class FunctionBase(object):
 
 
     def getExportManySourceManyTargetMergeQuery(self, args):
+        ''' returns merge query for many source and many target '''
         args['result_query'] = self.getQuery(args)
 
         args['with_geom_query'] = """
@@ -184,6 +192,7 @@ class FunctionBase(object):
 
 
     def drawManyPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draws multi line string on the mapCanvas. '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = str(-1) + "," + str(-1)
@@ -232,8 +241,9 @@ class FunctionBase(object):
 
 
     def drawOnePath(self, rows, con, args, geomType, canvasItemList, mapCanvas):
-            resultPathRubberBand = canvasItemList['path']
-            for row in rows:
+        ''' draws  line string on the mapCanvas. '''
+        resultPathRubberBand = canvasItemList['path']
+        for row in rows:
                 cur2 = con.cursor()
                 args['result_node_id'] = row[1]
                 args['result_edge_id'] = row[2]

@@ -5,17 +5,19 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'trsp(via vertices)'
     
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         return self.commonControls + self.commonBoxes + [
             'labelIds', 'lineEditIds', 'buttonSelectIds',
             'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql'
@@ -23,6 +25,7 @@ class Function(FunctionBase):
     
 
     def isSupportedVersion(self, version):
+        ''' checks the supported version '''
         return version >= 2.1 
 
     def prepare(self, canvasItemList):
@@ -32,6 +35,7 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
     
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of trsp_via_vertices '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _path, id2 AS _node, id3 AS _edge, cost AS _cost FROM pgr_trspViaVertices('
