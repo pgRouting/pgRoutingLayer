@@ -4,17 +4,19 @@ from builtins import str
 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, QgsMessageLog, QgsProject
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'alphashape'
     
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names for this function. '''
         self.version = version
         return self.commonControls + self.commonBoxes + [
             'labelId', 'lineEditId',
@@ -37,6 +39,7 @@ class Function(FunctionBase):
         resultAreaRubberBand.reset(Utils.getRubberBandType(True))
 
     def getQuery(self, args):
+        ''' returns the sql query for pgr_alphashape '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if args['version'] < 2.1:
             return """
@@ -141,6 +144,8 @@ class Function(FunctionBase):
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the resulting polygon. '''
+
         resultAreaRubberBand = canvasItemList['area']
         trans = None
         

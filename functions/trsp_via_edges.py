@@ -5,17 +5,19 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'trsp(via edges)'
     
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         return [
             'labelId', 'lineEditId',
             'labelSource', 'lineEditSource',
@@ -50,6 +52,7 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
 
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of trsp_via_edges '''
         return """
             SELECT seq, id1 AS _path, id2 AS _node, id3 AS _edge, cost as _cost FROM pgr_trspViaEdges('
               SELECT %(id)s::int4 AS id,
@@ -166,6 +169,7 @@ class Function(FunctionBase):
         return query
     
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = -1

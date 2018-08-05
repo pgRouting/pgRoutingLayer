@@ -5,17 +5,19 @@ from qgis.PyQt.QtGui import QColor, QTextDocument
 from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes, QgsAnnotation
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
 
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'dijkstraCost'
 
     @classmethod
     def isSupportedVersion(self, version):
+        ''' Checks supported version '''
         # valid starting pgr v2.1
         return version >= 2.1
 
@@ -38,6 +40,7 @@ class Function(FunctionBase):
 
 
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_dijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT row_number() over() AS seq,
@@ -76,6 +79,7 @@ class Function(FunctionBase):
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = -1
