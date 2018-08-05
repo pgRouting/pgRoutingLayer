@@ -43,6 +43,8 @@ class PgRoutingLayer(object):
 
     SUPPORTED_FUNCTIONS = [
         'tsp_euclid',
+        'with_Points',
+        'with_PointsCost',
         'dijkstra',
         'trsp_vertex',
         'astar',
@@ -80,12 +82,14 @@ class PgRoutingLayer(object):
         'labelTargetPos', 'lineEditTargetPos',
         'labelDistance', 'lineEditDistance',
         'labelAlpha', 'lineEditAlpha',
-        'labelPaths', 'lineEditPaths',
+        'labelPaths', 'lineEditPaths','label_pointsTable','lineEditPointsTable',
         'checkBoxDirected',
         'checkBoxHasReverseCost',
         'checkBoxHeapPaths',
-        'checkBoxUseBBOX',
+        'checkBoxUseBBOX', 'checkBoxDetails',
         'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql',
+        'labelPid', 'lineEditPid', 'labelEdge_id', 'lineEditEdge_id', 
+        'labelFraction', 'lineEditFraction', 'labelSide', 'lineEditSide','labelDrivingSide','checkBoxLeft','checkBoxRight'
     ]
     FIND_RADIUS = 10
     FRACTION_DECIMAL_PLACES = 2
@@ -930,6 +934,22 @@ class PgRoutingLayer(object):
 
         if 'lineEditTarget' in controls:
             args['target'] = self.dock.lineEditTarget.text()
+            
+        if 'lineEditPointsTable' in controls:
+            args['points_table'] = self.dock.lineEditPointsTable.text()
+
+        if 'lineEditPid' in controls:
+            args['pid'] = self.dock.lineEditPid.text()
+
+        if 'lineEditEdge_id' in controls:
+            args['edge_id'] = self.dock.lineEditEdge_id.text()
+
+        if 'lineEditFraction' in controls:
+            args['fraction'] = self.dock.lineEditFraction.text()
+            
+        if 'lineEditSide' in controls:
+            args['side'] = self.dock.lineEditSide.text()
+
 
         if 'lineEditCost' in controls:
             args['cost'] = self.dock.lineEditCost.text()
@@ -991,6 +1011,12 @@ class PgRoutingLayer(object):
         if 'checkBoxDirected' in controls:
             args['directed'] = str(self.dock.checkBoxDirected.isChecked()).lower()
 
+        if 'checkBoxDetails' in controls:
+            args['details'] = str(self.dock.checkBoxDirected.isChecked()).lower()
+
+
+
+
         if 'checkBoxHeapPaths' in controls:
             args['heap_paths'] = str(self.dock.checkBoxHeapPaths.isChecked()).lower()
 
@@ -998,9 +1024,14 @@ class PgRoutingLayer(object):
             args['use_bbox'] = str(self.dock.checkBoxUseBBOX.isChecked()).lower()
         else:
              args['use_bbox'] = 'false'
-
-
-
+             
+        if 'labelDrivingSide' in controls:
+            args['driving_side'] = str('b')
+            if (self.dock.checkBoxLeft.isChecked() == True and self.dock.checkBoxRight.isChecked() == False):
+                args['driving_side'] = str('l')
+            elif (self.dock.checkBoxLeft.isChecked() == False and self.dock.checkBoxRight.isChecked() == True):
+                args['driving_side'] = str('r')
+            
         if 'checkBoxHasReverseCost' in controls:
             args['has_reverse_cost'] = str(self.dock.checkBoxHasReverseCost.isChecked()).lower()
             if args['has_reverse_cost'] == 'false':
@@ -1242,6 +1273,7 @@ class PgRoutingLayer(object):
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
         self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'roads'))
+        self.dock.lineEditPointsTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/pointsOfInterest', 'pointsOfInterest'))
         self.dock.lineEditGeometry.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
         self.dock.lineEditId.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/id', 'id'))
         self.dock.lineEditSource.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/source', 'source'))
@@ -1281,6 +1313,7 @@ class PgRoutingLayer(object):
         settings.setValue('/pgRoutingLayer/Function', self.dock.comboBoxFunction.currentText())
 
         settings.setValue('/pgRoutingLayer/sql/edge_table', self.dock.lineEditTable.text())
+        settings.setValue('/pgRoutingLayer/sql/pointsOfInterest', self.dock.lineEditPointsTable.text())
         settings.setValue('/pgRoutingLayer/sql/geometry', self.dock.lineEditGeometry.text())
 
         settings.setValue('/pgRoutingLayer/sql/id', self.dock.lineEditId.text())
