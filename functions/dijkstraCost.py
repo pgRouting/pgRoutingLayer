@@ -3,7 +3,7 @@ from builtins import str
 from qgis.PyQt.QtCore import QSizeF, QPointF
 from qgis.PyQt.QtGui import QColor, QTextDocument
 from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes, QgsAnnotation
-from qgis.gui import QgsRubberBand
+from qgis.gui import QgsRubberBand, QgsMapCanvasAnnotationItem
 import psycopg2
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
