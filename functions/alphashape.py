@@ -1,19 +1,19 @@
 from __future__ import absolute_import
 
 from builtins import str
-from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, QgsMessageLog, QgsProject
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, Qgis, QgsProject
 from qgis.gui import QgsRubberBand
 import psycopg2
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
         ''' returns Function name. '''
         return 'alphashape'
-    
+
     @classmethod
     def getControlNames(self, version):
         ''' returns control names for this function. '''
@@ -29,7 +29,7 @@ class Function(FunctionBase):
             'labelAlpha', 'lineEditAlpha',
             'checkBoxDirected', 'checkBoxHasReverseCost'
         ]
-    
+
     @classmethod
     def canExportMerged(self):
         return False
@@ -64,7 +64,7 @@ class Function(FunctionBase):
                 )
                 SELECT * FROM node$$::text)
                 """ % args
-                    
+
         # V21.+ has pgr_drivingDistance with big int
         # and pgr_alphaShape has an alpha value
         args['alpha'] = ', ' + str(args['alpha'])
@@ -90,7 +90,7 @@ class Function(FunctionBase):
                 )
                 SELECT * FROM node$$::text%(alpha)s)
                 """ % args
-                    
+
 
 
     def getExportQuery(self, args):
@@ -148,24 +148,24 @@ class Function(FunctionBase):
 
         resultAreaRubberBand = canvasItemList['area']
         trans = None
-        
+
         canvasCrs = Utils.getDestinationCrs(mapCanvas)
         layerCrs = QgsCoordinateReferenceSystem()
         Utils.createFromSrid(layerCrs, args['srid'])
         trans = QgsCoordinateTransform(layerCrs, canvasCrs,QgsProject.instance())
-        
+
         # return columns are 'x', 'y'
         for row in rows:
             x = row[0]
             y = row[1]
             if args['version'] > 2.0 and ((x is None) or (y is None)):
-                Utils.logMessage(u'Alpha shape result geometry is MultiPolygon or has holes.\nPlease click [Export] button to see complete result.', level=QgsMessageLog.WARNING)
+                Utils.logMessage(u'Alpha shape result geometry is MultiPolygon or has holes.\nPlease click [Export] button to see complete result.', level=Qgis.Warning)
                 return
             pt = QgsPoint(x, y)
             if trans:
                 pt = trans.transform(pt.x(),pt.y())
-            
+
             resultAreaRubberBand.addPoint(pt)
-    
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
