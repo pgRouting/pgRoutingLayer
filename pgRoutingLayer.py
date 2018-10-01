@@ -46,7 +46,6 @@ class PgRoutingLayer(object):
         'astar',
         'bdDijkstra',
         'bdAstar',
-        'dijkstraCost',
         'ksp',
         'trsp_vertex',
         'trsp_edge',
@@ -54,7 +53,8 @@ class PgRoutingLayer(object):
         'trsp_via_edges',
         'drivingDistance',
         'alphashape',
-        'tsp_euclid',
+        # 'dijkstraCost',
+        # 'tsp_euclid',
         # 'with_Points',
         # 'with_PointsCost'
     ]
