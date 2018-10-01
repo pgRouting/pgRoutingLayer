@@ -12,12 +12,12 @@ class Function(FunctionBase):
 
     version = 2.0
 
-    
+
     @classmethod
     def getName(self):
         ''' returns Function name. '''
         return 'ksp'
-    
+
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
@@ -26,30 +26,17 @@ class Function(FunctionBase):
         # only works for directed graph
         self.version = version
         if (self.version < 2.1):
-            return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
+            return self.commonControls + self.commonBoxes + [
                 'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
                 'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-                'labelPaths', 'lineEditPaths',
-                'checkBoxHasReverseCost'
+                'labelPaths', 'lineEditPaths'
                 ]
         else:
             # function pgr_ksp(text,bigint,bigint,integer,boolean,boolean)
-            return [
-                'labelId', 'lineEditId',
-                'labelSource', 'lineEditSource',
-                'labelTarget', 'lineEditTarget',
-                'labelCost', 'lineEditCost',
-                'labelReverseCost', 'lineEditReverseCost',
+            return self.commonControls + self.commonBoxes + [
                 'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
                 'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
                 'labelPaths', 'lineEditPaths',
-                'checkBoxDirected',
-                'checkBoxHasReverseCost',
                 'checkBoxHeapPaths'
                 ]
 
@@ -61,6 +48,7 @@ class Function(FunctionBase):
 
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_bdDijkstra '''
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if (self.version < 2.1):
             return """
                 SELECT
@@ -74,8 +62,8 @@ class Function(FunctionBase):
                     %(cost)s::float8 AS cost
                     %(reverse_cost)s
                   FROM %(edge_table)s
-                  WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
-                %(source_id)s, %(target_id)s, %(paths)s, %(has_reverse_cost)s)""" % args
+                  %(where_clause)s',
+                  %(source_id)s, %(target_id)s, %(paths)s, %(has_reverse_cost)s)""" % args
         else:
             return """
                 SELECT seq,
@@ -92,7 +80,7 @@ class Function(FunctionBase):
                     %(cost)s AS cost
                     %(reverse_cost)s
                   FROM %(edge_table)s
-                  WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+                  %(where_clause)s',
                   %(source_id)s, %(target_id)s, %(paths)s,
                   %(directed)s, %(heap_paths)s)""" % args
 
@@ -106,7 +94,7 @@ class Function(FunctionBase):
             args['result_query'] = self.getQuery(args)
 
             args['with_geom_query'] = """
-                SELECT 
+                SELECT
                   seq, _route,
                   CASE
                     WHEN result._node = %(edge_table)s.%(source)s
@@ -114,7 +102,7 @@ class Function(FunctionBase):
                     ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
                   END AS path_geom
                 FROM %(edge_table)s JOIN result
-                  ON %(edge_table)s.%(id)s = result._edge 
+                  ON %(edge_table)s.%(id)s = result._edge
                 """ % args
 
             args['one_geom_query'] = """
@@ -149,7 +137,7 @@ class Function(FunctionBase):
             args['result_query'] = self.getQuery(args)
 
             args['with_geom_query'] = """
-                SELECT 
+                SELECT
                   seq, result.path_name,
                   CASE
                     WHEN result._node = %(edge_table)s.%(source)s
@@ -157,7 +145,7 @@ class Function(FunctionBase):
                     ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
                   END AS path_geom
                 FROM %(edge_table)s JOIN result
-                  ON %(edge_table)s.%(id)s = result._edge 
+                  ON %(edge_table)s.%(id)s = result._edge
                 """ % args
 
             args['one_geom_query'] = """
@@ -183,7 +171,7 @@ class Function(FunctionBase):
                 aggregates AS ( %(aggregates_query)s )
                 SELECT row_number() over() as seq,
                     _path_id, path_name, _nodes, _edges, agg_cost,
-                    path_geom FROM aggregates JOIN one_geom 
+                    path_geom FROM aggregates JOIN one_geom
                     USING (path_name)
                     ORDER BY _path_id
                 """ % args
