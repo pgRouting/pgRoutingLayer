@@ -299,7 +299,7 @@ class PgRoutingLayer(object):
         self.dock.comboBoxFunction.clear()
 
         #for funcname, function in self.functions.items():
-        for funcname in sorted(self.functions):
+        for funcname in self.functions:
             function = self.functions[funcname]
             if (function.isSupportedVersion(self.version)):
                 self.dock.comboBoxFunction.addItem(function.getName())
