@@ -10,12 +10,12 @@ from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
         ''' returns Function name. '''
         return 'trsp(edge)'
-    
+
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
@@ -24,17 +24,17 @@ class Function(FunctionBase):
                 'labelSourcePos', 'lineEditSourcePos',
                 'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
                 'labelTargetPos', 'lineEditTargetPos',
-                'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql' ]                       
+                'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql' ]
 
-    
+
     @classmethod
     def isEdgeBase(self):
         return True
-    
+
     def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']
         resultPathRubberBand.reset(Utils.getRubberBandType(False))
-    
+
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_trsp_edge '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
@@ -46,7 +46,7 @@ class Function(FunctionBase):
               FROM %(edge_table)s
               %(where_clause)s',
               %(source_id)s, %(source_pos)s, %(target_id)s, %(target_pos)s, %(directed)s, %(has_reverse_cost)s, %(turn_restrict_sql)s)""" % args
-    
+
     def getExportQuery(self, args):
         args['result_query'] = 'result AS (' + self.getQuery(args) + ')'
 
@@ -54,14 +54,14 @@ class Function(FunctionBase):
 
         args['with_geom'] = """ with_geom AS (
                 SELECT
-                lead(_node) over(), result.*, %(edge_table)s.* 
+                lead(_node) over(), result.*, %(edge_table)s.*
                 FROM %(edge_table)s JOIN result
-                ON edge_table.id = result._edge ORDER BY result.seq)""" % args
+                ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq)""" % args
 
         args['first_row_split'] = self.getRowSplit(args, 'first')
         args['last_row_split'] = self.getRowSplit(args, 'last')
 
-        args['intermediate_rows'] = """ intermediate_rows AS (SELECT 
+        args['intermediate_rows'] = """ intermediate_rows AS (SELECT
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
                   THEN %(edge_table)s.%(geometry)s
@@ -92,14 +92,14 @@ class Function(FunctionBase):
 
         args['with_geom'] = """ with_geom AS (
                 SELECT
-                lead(_node) over(), result.*, %(edge_table)s.* 
+                lead(_node) over(), result.*, %(edge_table)s.*
                 FROM %(edge_table)s JOIN result
-                ON edge_table.id = result._edge ORDER BY result.seq)""" % args
+                ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq)""" % args
 
         args['first_row_split'] = self.getRowSplit(args, 'first')
         args['last_row_split'] = self.getRowSplit(args, 'last')
 
-        args['intermediate_rows'] = """ intermediate_rows AS (SELECT 
+        args['intermediate_rows'] = """ intermediate_rows AS (SELECT
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
                   THEN %(edge_table)s.%(geometry)s
@@ -141,7 +141,7 @@ class Function(FunctionBase):
             args['result_node_id'] = row[1]
             args['result_edge_id'] = row[2]
             args['result_cost'] = row[3]
-            
+
             if i == 0 and args['result_node_id'] == -1:
                 args['result_next_node_id'] = rows[i + 1][1]
                 query2 = """
@@ -170,13 +170,13 @@ class Function(FunctionBase):
                     SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
                         WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
                 """ % args
-            
+
             ##Utils.logMessage(query2)
             cur2.execute(query2)
             row2 = cur2.fetchone()
             ##Utils.logMessage(str(row2[0]))
             assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
-            
+
             geom = QgsGeometry().fromWkt(str(row2[0]))
             if geom.wkbType() == QgsWkbTypes.MultiLineString:
                 for line in geom.asMultiPolyline():
@@ -185,9 +185,9 @@ class Function(FunctionBase):
             elif geom.wkbType() == QgsWkbTypes.LineString:
                 for pt in geom.asPolyline():
                     resultPathRubberBand.addPoint(pt)
-            
+
             i = i + 1
-    
+
     def getRowSplit(self, args, which):
         # PRIVATE method
         # upper case for localy defined string values
@@ -214,7 +214,7 @@ class Function(FunctionBase):
                         ST_LineInterpolatePoint(%(geometry)s,  %(POSITION)s))
                 ELSE
                     ST_reverse( ST_split( ST_Snap( %(geometry)s, ST_LineInterpolatePoint(%(geometry)s, %(POSITION)s), 0.00001),
-                            ST_LineInterpolatePoint(%(geometry)s, %(POSITION)s)))    
+                            ST_LineInterpolatePoint(%(geometry)s, %(POSITION)s)))
                 END AS line_geom,
                 st_length(%(geometry)s) AS length,
                 _cost

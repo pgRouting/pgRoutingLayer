@@ -9,12 +9,12 @@ from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
         ''' returns Function name. '''
         return 'trsp(via vertices)'
-    
+
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
@@ -22,18 +22,18 @@ class Function(FunctionBase):
             'labelIds', 'lineEditIds', 'buttonSelectIds',
             'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql'
         ]
-    
+
 
     def isSupportedVersion(self, version):
         ''' checks the supported version '''
-        return version >= 2.1 
+        return version >= 2.1
 
     def prepare(self, canvasItemList):
         resultPathsRubberBands = canvasItemList['paths']
         for path in resultPathsRubberBands:
             path.reset(Utils.getRubberBandType(False))
         canvasItemList['paths'] = []
-    
+
     def getQuery(self, args):
         ''' returns the sql query in required signature format of trsp_via_vertices '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
@@ -48,14 +48,14 @@ class Function(FunctionBase):
               %(directed)s, %(has_reverse_cost)s,
               %(turn_restrict_sql)s)
             """ % args
-    
+
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
 
         query = """
             WITH
             result AS ( %(result_query)s )
-            SELECT 
+            SELECT
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
                   THEN %(edge_table)s.%(geometry)s
@@ -107,7 +107,7 @@ class Function(FunctionBase):
                 row2 = cur2.fetchone()
                 ##Utils.logMessage(str(row2[0]))
                 assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
-                
+
                 geom = QgsGeometry().fromWkt(str(row2[0]))
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():
