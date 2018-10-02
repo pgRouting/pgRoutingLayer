@@ -1,10 +1,11 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
+from __future__ import absolute_import
+
+from builtins import str
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, QgsMessageLog
+from qgis.gui import QgsRubberBand
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
-from FunctionBase import FunctionBase
+from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
