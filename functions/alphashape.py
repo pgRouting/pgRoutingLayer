@@ -1,10 +1,11 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-from qgis.gui import *
+from __future__ import absolute_import
+
+from builtins import str
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, QgsMessageLog
+from qgis.gui import QgsRubberBand
 import psycopg2
 from .. import pgRoutingLayer_utils as Utils
-from FunctionBase import FunctionBase
+from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
@@ -14,7 +15,8 @@ class Function(FunctionBase):
     
     @classmethod
     def getControlNames(self, version):
-        return [
+        self.version = version
+        return self.commonControls + self.commonBoxes + [
             'labelId', 'lineEditId',
             'labelSource', 'lineEditSource',
             'labelTarget', 'lineEditTarget',
@@ -35,6 +37,7 @@ class Function(FunctionBase):
         resultAreaRubberBand.reset(Utils.getRubberBandType(True))
 
     def getQuery(self, args):
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if args['version'] < 2.1:
             return """
                 SELECT x, y FROM pgr_alphashape($$
@@ -46,7 +49,7 @@ class Function(FunctionBase):
                         %(target)s::int4 AS target,
                         %(cost)s::float8 AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-                        WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s, %(has_reverse_cost)s)
                 ),
@@ -72,7 +75,7 @@ class Function(FunctionBase):
                         %(target)s AS target,
                         %(cost)s AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-                        WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s)
                 ),
@@ -93,13 +96,13 @@ class Function(FunctionBase):
                 SELECT 1 AS seq, ST_SetSRID(pgr_pointsAsPolygon, 0) AS path_geom FROM pgr_pointsAsPolygon($$
                 WITH
                 dd AS (
-                  SELECT seq, id1 AS _node FROM pgr_drivingDistance(''
+                  SELECT seq, id1 AS _node FROM pgr_drivingDistance('
                         SELECT %(id)s::int4 AS id,
                         %(source)s::int4 AS source,
                         %(target)s::int4 AS target,
                         %(cost)s::float8 AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-                        WHERE %(edge_table)s.%(geometry)s && %(BBOX)s'',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s, %(has_reverse_cost)s)
                 ),
@@ -116,13 +119,13 @@ class Function(FunctionBase):
                 SELECT 1 AS seq, ST_SetSRID(pgr_pointsAsPolygon, 0) AS path_geom FROM pgr_pointsAsPolygon($$
                 WITH
                 dd AS (
-                  SELECT seq, node AS _node FROM pgr_drivingDistance(''
+                  SELECT seq, node AS _node FROM pgr_drivingDistance('
                         SELECT %(id)s AS id,
                         %(source)s AS source,
                         %(target)s AS target,
                         %(cost)s AS cost%(reverse_cost)s
                         FROM %(edge_table)s
-                        WHERE %(edge_table)s.%(geometry)s && %(BBOX)s'',
+			%(where_clause)s',
                         %(source_id)s, %(distance)s,
                         %(directed)s)
                 ),
@@ -134,8 +137,6 @@ class Function(FunctionBase):
                 )
                 SELECT * FROM node$$::text)
                 """ % args
-
-
 
 
 
