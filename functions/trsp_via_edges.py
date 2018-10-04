@@ -1,33 +1,30 @@
 from __future__ import absolute_import
-#from PyQt4.QtCore import *
+from qgis.PyQt.QtCore import *
 from builtins import str
 from qgis.PyQt.QtGui import QColor
-from qgis.core import QGis, QgsGeometry
+from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'trsp(via edges)'
-    
+
     @classmethod
     def getControlNames(self, version):
-        return [
-            'labelId', 'lineEditId',
-            'labelSource', 'lineEditSource',
-            'labelTarget', 'lineEditTarget',
-            'labelCost', 'lineEditCost',
-            'labelReverseCost', 'lineEditReverseCost',
+        ''' returns control names. '''
+        return self.commonControls + self.commonBoxes + [
             'labelIds', 'lineEditIds', 'buttonSelectIds',
             'labelPcts', 'lineEditPcts',
             'checkBoxDirected', 'checkBoxHasReverseCost',
             'labelTurnRestrictSql', 'plainTextEditTurnRestrictSql'
         ]
-    
+
     @classmethod
     def isEdgeBase(self):
         return True
@@ -39,9 +36,9 @@ class Function(FunctionBase):
     @classmethod
     def canExportMerged(self):
         return True
-    
+
     def isSupportedVersion(self, version):
-        return version >= 2.1 and version < 3.0
+        return version >= 2.1
 
     def prepare(self, canvasItemList):
         resultPathsRubberBands = canvasItemList['paths']
@@ -50,16 +47,18 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
 
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of trsp_via_edges '''
+        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _path, id2 AS _node, id3 AS _edge, cost as _cost FROM pgr_trspViaEdges('
               SELECT %(id)s::int4 AS id,
                 %(source)s::int4 AS source, %(target)s::int4 AS target,
                 %(cost)s::float8 AS cost%(reverse_cost)s
               FROM %(edge_table)s
-              WHERE %(edge_table)s.%(geometry)s && %(BBOX)s',
+              %(where_clause)s',
               ARRAY[%(ids)s]::integer[], ARRAY[%(pcts)s]::float8[],
               %(directed)s, %(has_reverse_cost)s, %(turn_restrict_sql)s)""" % args
-    
+
     def getQueries(self, args):
         args['edge_data_q'] = """
         edge_data AS (
@@ -74,7 +73,7 @@ class Function(FunctionBase):
                 ST_Reverse(ST_LineSubstring(%(geometry)s, 0, fraction)) as tosource
             FROM %(edge_table)s JOIN edge_data ON (%(edge_table)s.%(id)s = edge_data.eid)
         )
-        """ % args 
+        """ % args
 
         args['result_q'] = """
         result AS (
@@ -137,13 +136,13 @@ class Function(FunctionBase):
 
     def getExportQuery(self, args):
         self.getQueries(args)
-    
+
         query = """
             WITH
             %(edge_data_q)s,
             %(result_q)s,
             %(the_rest_q)s
-            SELECT 
+            SELECT
               all_edges.*, %(edge_table)s.*
             FROM %(edge_table)s JOIN all_edges
               ON %(edge_table)s.%(id)s = all_edges._edge ORDER BY all_edges.seq
@@ -152,7 +151,7 @@ class Function(FunctionBase):
 
     def getExportMergeQuery(self, args):
         self.getQueries(args)
-    
+
         query = """
             WITH
             %(edge_data_q)s,
@@ -164,8 +163,9 @@ class Function(FunctionBase):
                 ST_makeLine(path_geom) AS path_geom from all_edges
             """ % args
         return query
-    
+
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = -1
@@ -249,22 +249,22 @@ class Function(FunctionBase):
                     SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
                         WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
                 """ % args
-            
+
             ##Utils.logMessage(query2)
             cur2.execute(query2)
             row2 = cur2.fetchone()
             ##Utils.logMessage(str(row2[0]))
             assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
-            
+
             geom = QgsGeometry().fromWkt(str(row2[0]))
-            if geom.wkbType() == QGis.WKBMultiLineString:
+            if geom.wkbType() == QgsWkbTypes.MultiLineString:
                 for line in geom.asMultiPolyline():
                     for pt in line:
                         rubberBand.addPoint(pt)
-            elif geom.wkbType() == QGis.WKBLineString:
+            elif geom.wkbType() == QgsWkbTypes.LineString:
                 for pt in geom.asPolyline():
                     rubberBand.addPoint(pt)
-            
+
             i = i + 1
 
         if rubberBand:

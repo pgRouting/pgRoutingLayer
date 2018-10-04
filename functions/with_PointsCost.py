@@ -1,63 +1,92 @@
 from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import QSizeF, QPointF
-from qgis.PyQt.QtGui import QColor
-from qgis.core import QGis, QgsGeometry
-from qgis.gui import QgsRubberBand, QgsTextAnnotationItem
+from qgis.PyQt.QtGui import QColor, QTextDocument
+from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes, QgsAnnotation
+from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
-        return 'kdijkstra(cost)'
+        ''' returns Function name. '''
+        return 'with_PointsCost'
     
-    @classmethod
-    def isSupportedVersion(self, version):
-        # Deprecated on version 2.2
-        return version >= 2.0 and version < 2.2
-
     @classmethod
     def getControlNames(self, version):
-        # version 2.0 has only one to many
-        return self.commonControls + self.commonBoxes + [
-                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                ]
+        ''' returns control names. '''
+        self.version = version
+        if self.version < 2.1:
+            # version 2.0 has only one to one
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                    'labelTargetId','labelSide','lineEditSide','lineEditEdge_id','labelFraction','lineEditFraction', 'lineEditPointsTable', 'lineEditTargetId','labelPid','lineEditPid','labelEdge_id', 'buttonSelectTargetId',
+                    'labelEdge_id','labelSide'
 
-    
+                    ]
+        else:
+            return self.commonControls + self.commonBoxes + [
+                    'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                    'labelTargetIds', 'lineEditPointsTable', 'label_pointsTable', 'lineEditTargetIds', 'buttonSelectTargetIds',
+                    'labelSide','lineEditSide','lineEditEdge_id','labelEdge_id','labelFraction','lineEditFraction','labelPid','lineEditPid',
+                    'labelDrivingSide','checkBoxLeft','checkBoxRight'
+                    ]
+
+
     @classmethod
-    def canExport(self):
-        return True
-    
+    def isSupportedVersion(self, version):
+        ''' Checks supported version '''
+        # valid starting pgr v2.1
+        return version >= 2.1
+
+
+    @classmethod
+    def canExportQuery(self):
+        return False
+
     @classmethod
     def canExportMerged(self):
         return False
-    
+
+
+
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
-            self.iface.mapCanvas().scene().removeItem(anno)
         canvasItemList['annotations'] = []
-    
+
+
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_withPointsCost '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
+        args['where_clause_with'] = self.whereClause(args['points_table'], args['geometry'], args['BBOX'])
         return """
-            SELECT seq, id1 AS source, id2 AS target, cost FROM pgr_kdijkstraCost('
-                SELECT %(id)s::int4 AS id,
-                    %(source)s::int4 AS source,
-                    %(target)s::int4 AS target,
-                    %(cost)s::float8 AS cost%(reverse_cost)s
-                    FROM %(edge_table)s
-                    %(where_clause)s',
-                %(source_id)s, array[%(target_ids)s], %(directed)s, %(has_reverse_cost)s)""" % args
-    
+            SELECT start_vid AS start_vid , end_vid AS end_vid, cost AS cost
+            FROM pgr_withPointsCost('
+              SELECT %(id)s AS id,
+                %(source)s AS source,
+                %(target)s AS target,
+                %(cost)s AS cost
+                %(reverse_cost)s
+                FROM %(edge_table)s
+                %(where_clause)s
+                ',
+                'SELECT %(pid)s AS pid,
+                %(edge_id)s AS edge_id,
+                %(fraction)s AS fraction,
+                %(side)s AS side
+                FROM %(points_table)s
+                %(where_clause_with)s',
+              array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s, '%(driving_side)s')
+            """ % args
+
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
-        args['vertex_table'] = """ 
+        args['vertex_table'] = """
             %(edge_table)s_vertices_pgr
             """ % args
 
@@ -67,12 +96,15 @@ class Function(FunctionBase):
             SELECT result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
 
             FROM result
-            JOIN  %(vertex_table)s AS a ON (source = a.id)
-            JOIN  %(vertex_table)s AS b ON (target = b.id)
+            JOIN  %(vertex_table)s AS a ON (start_vid = a.id)
+            JOIN  %(vertex_table)s AS b ON (end_vid = b.id)
             """ % args
 
 
+
+
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = -1
@@ -93,7 +125,7 @@ class Function(FunctionBase):
                 rubberBand.setWidth(4)
             if args['result_cost'] != -1:
                 query2 = """
-                    SELECT ST_AsText( ST_MakeLine( 
+                    SELECT ST_AsText( ST_MakeLine(
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_source_id)d),
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_target_id)d)
                         ))
@@ -105,19 +137,17 @@ class Function(FunctionBase):
                 assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
-                if geom.wkbType() == QGis.WKBMultiLineString:
+                if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             rubberBand.addPoint(pt)
-                elif geom.wkbType() == QGis.WKBLineString:
+                elif geom.wkbType() == QgsWkbTypes.LineString:
                     for pt in geom.asPolyline():
                         rubberBand.addPoint(pt)
 
         if rubberBand:
             resultPathsRubberBands.append(rubberBand)
             rubberBand = None
-
-
         resultNodesTextAnnotations = canvasItemList['annotations']
         Utils.setStartPoint(geomType, args)
         Utils.setEndPoint(geomType, args)
@@ -137,20 +167,20 @@ class Function(FunctionBase):
             cur2.execute(query2)
             row2 = cur2.fetchone()
             assert row2, "Invalid result geometry. (target_id:%(result_target_id)d)" % args
-            
+
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_target_id)d:%(result_cost)f" % args)
-            textAnnotation = QgsTextAnnotationItem(mapCanvas)
+            textAnnotation = QgsTextAnnotation()
             textAnnotation.setMapPosition(geom.asPoint())
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
-            textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))
+            textAnnotation.setFrameOffsetFromReferencePoint(QPointF(20, -40))
             textAnnotation.setDocument(textDocument)
-            
-            textAnnotation.update()
-            resultNodesTextAnnotations.append(textAnnotation)
-            canvasItemList['annotations'] = resultNodesTextAnnotations
 
-    
+            QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
+            resultNodesTextAnnotations.append(textAnnotation)
+
+
+
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
