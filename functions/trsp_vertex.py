@@ -1,21 +1,23 @@
 from __future__ import absolute_import
-#from PyQt4.QtCore import *
-#from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 from builtins import str
-from qgis.core import QGis, QgsGeometry
+from qgis.core import Qgis, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsRubberBand
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
     
     @classmethod
     def getName(self):
+        ''' returns Function name. '''
         return 'trsp(vertex)'
     
     @classmethod
     def getControlNames(self, version):
+        ''' returns control names. '''
         return self.commonControls + self.commonBoxes + [
                 'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId', 
                 'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
@@ -26,13 +28,15 @@ class Function(FunctionBase):
         ]
     
     def isSupportedVersion(self, version):
-        return version >= 2.0 and version < 3.0
+        ''' checks supported version. '''
+        return version >= 2.0 
 
     def prepare(self, canvasItemList):
         resultPathRubberBand = canvasItemList['path']
         resultPathRubberBand.reset(Utils.getRubberBandType(False))
     
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of trsp_vertex '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost FROM pgr_trsp('
@@ -55,6 +59,7 @@ class Function(FunctionBase):
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathRubberBand = canvasItemList['path']
         for row in rows:
             cur2 = con.cursor()
@@ -76,11 +81,11 @@ class Function(FunctionBase):
                 assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
                 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
-                if geom.wkbType() == QGis.WKBMultiLineString:
+                if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             resultPathRubberBand.addPoint(pt)
-                elif geom.wkbType() == QGis.WKBLineString:
+                elif geom.wkbType() == QgsWkbTypes.LineString:
                     for pt in geom.asPolyline():
                         resultPathRubberBand.addPoint(pt)
     

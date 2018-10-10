@@ -21,9 +21,8 @@ PgRoutingLayer currently supports the following functions:
 * bdAstar
 * bdDijkstra
 * dijkstra
+* dijkstraCost
 * drivingDistance
-* kdijkstra_cost
-* kdijkstra_path
 * ksp
 * shootingStar
 * trsp_edge

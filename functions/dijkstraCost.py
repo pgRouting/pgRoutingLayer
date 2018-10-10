@@ -1,21 +1,23 @@
 from __future__ import absolute_import
 from builtins import str
 from qgis.PyQt.QtCore import QSizeF, QPointF
-from qgis.PyQt.QtGui import QColor 
-from qgis.core import (QgsGeometry, QGis)
-from qgis.gui import (QgsRubberBand, QgsTextAnnotationItem)
+from qgis.PyQt.QtGui import QColor, QTextDocument
+from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes, QgsAnnotation
+from qgis.gui import QgsRubberBand, QgsMapCanvasAnnotationItem
 import psycopg2
-from .. import pgRoutingLayer_utils as Utils
+from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
 
     @classmethod
     def getName(self):
-        return 'pgr_dijkstraCost'
+        ''' returns Function name. '''
+        return 'dijkstraCost'
 
     @classmethod
     def isSupportedVersion(self, version):
+        ''' Checks supported version '''
         # valid starting pgr v2.1
         return version >= 2.1
 
@@ -29,15 +31,16 @@ class Function(FunctionBase):
         return False
 
 
-    
+
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
         canvasItemList['annotations'] = []
 
-    
+
     def getQuery(self, args):
+        ''' returns the sql query in required signature format of pgr_dijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT row_number() over() AS seq,
@@ -58,7 +61,7 @@ class Function(FunctionBase):
 
     def getExportQuery(self, args):
         args['result_query'] = self.getQuery(args)
-        args['vertex_table'] = """ 
+        args['vertex_table'] = """
             %(edge_table)s_vertices_pgr
             """ % args
 
@@ -76,6 +79,7 @@ class Function(FunctionBase):
 
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        ''' draw the result '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = -1
@@ -96,7 +100,7 @@ class Function(FunctionBase):
                 rubberBand.setWidth(4)
             if args['result_cost'] != -1:
                 query2 = """
-                    SELECT ST_AsText( ST_MakeLine( 
+                    SELECT ST_AsText( ST_MakeLine(
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_source_id)d),
                         (SELECT the_geom FROM  %(edge_table)s_vertices_pgr WHERE id = %(result_target_id)d)
                         ))
@@ -108,11 +112,11 @@ class Function(FunctionBase):
                 assert row2, "Invalid result geometry. (path_id:%(result_path_id)d, saource_id:%(result_source_id)d, target_id:%(result_target_id)d)" % args
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
-                if geom.wkbType() == QGis.WKBMultiLineString:
+                if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
                             rubberBand.addPoint(pt)
-                elif geom.wkbType() == QGis.WKBLineString:
+                elif geom.wkbType() == QgsWkbTypes.LineString:
                     for pt in geom.asPolyline():
                         rubberBand.addPoint(pt)
 
@@ -142,16 +146,14 @@ class Function(FunctionBase):
             geom = QgsGeometry().fromWkt(str(row2[0]))
             pt = geom.asPoint()
             textDocument = QTextDocument("%(result_target_id)d:%(result_cost)f" % args)
-            textAnnotation = QgsTextAnnotationItem(mapCanvas)
+            textAnnotation = QgsTextAnnotation()
             textAnnotation.setMapPosition(geom.asPoint())
             textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
-            textAnnotation.setOffsetFromReferencePoint(QPointF(20, -40))
+            textAnnotation.setFrameOffsetFromReferencePoint(QPointF(20, -40))
             textAnnotation.setDocument(textDocument)
 
-            textAnnotation.update()
+            QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
             resultNodesTextAnnotations.append(textAnnotation)
-
-
 
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)
