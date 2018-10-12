@@ -57,7 +57,15 @@
     
         <ul>
         
-            <li><a class="toctree-l3" href="#functions">Functions</a></li>
+            <li><a class="toctree-l3" href="#about-pgroutinglayer">About pgRoutingLayer</a></li>
+        
+            <li><a class="toctree-l3" href="#what-this-plugin-currently-does">What this plugin currently does</a></li>
+        
+            <li><a class="toctree-l3" href="#license">License</a></li>
+        
+            <li><a class="toctree-l3" href="#installation">Installation</a></li>
+        
+            <li><a class="toctree-l3" href="#links">Links:</a></li>
         
         </ul>
     
@@ -114,10 +122,42 @@
               
                 <h1 id="reveal-api-docs">Reveal API docs</h1>
 <p>Welcome to pgRoutingLayer documentation.</p>
-<h2 id="functions">Functions</h2>
+<h2 id="about-pgroutinglayer">About pgRoutingLayer</h2>
+<p>pgRoutingLayer is a plugin for QGIS that serves as a GUI for pgRouting - a popular routing solution for PostGIS databases.</p>
+<h2 id="what-this-plugin-currently-does">What this plugin currently does</h2>
+<p>PgRoutingLayer currently supports the following functions:</p>
 <ul>
-<li><a href="functions/pgr_dijkstra/">pgr_Dijkstra</a></li>
-<li><a href="functions/pgr_astar/">pgr_Astar</a></li>
+<li><a href="functions/pgr_dijkstra/">Dijkstra</a></li>
+<li><a href="functions/pgr_astar/">Astar</a></li>
+<li>bdDijkstra</li>
+<li>bdAstar</li>
+<li>KSP</li>
+<li>Trsp_vertex</li>
+<li>Trsp_edge</li>
+<li>Trsp_via_vertices</li>
+<li>Trsp_via_edges</li>
+<li>DrivingDistance</li>
+<li>Alphashape</li>
+</ul>
+<p>Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org</p>
+<h2 id="license">License</h2>
+<p>This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.</p>
+<h2 id="installation">Installation</h2>
+<p>This plugin can be installed using the QGIS Plugin Manager. You will have to enable "experimental" plugins.</p>
+<h3 id="dependencies">Dependencies</h3>
+<ul>
+<li>This plugin runs only with QGIS 3.x and Python 3.</li>
+<li>pgRouting v2.x up and running to use this plugin.</li>
+<li>Additionally, QGIS needs python-psycopg2 installed to be able to connect to the database.</li>
+</ul>
+<h2 id="links">Links:</h2>
+<ul>
+<li>project home and bug tracker: https://github.com/pgrouting/pgRoutingLayer</li>
+<li>plugin repository: http://plugins.qgis.org/plugins</li>
+<li>pgRouting project: https://pgrouting.org</li>
 </ul>
               
             </div>
@@ -167,5 +207,5 @@
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2018-10-12 09:33:49
+Build Date UTC : 2018-10-12 09:47:21
 -->
