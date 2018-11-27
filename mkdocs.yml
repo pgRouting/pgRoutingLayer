@@ -2,8 +2,8 @@ site_name: pgRoutingLayer
 nav:
 - Home: index.md
 - Introduction:
-  - Main buttons
-  - Layer naming convention
+  - Main buttons: intro/buttons.md
+  - Layer naming convention: intro/layer_naming_convention.md
 - Functions:
   - Djikstra: functions/pgr_dijkstra.md
   - Astar: functions/pgr_astar.md
