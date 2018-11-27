@@ -9,6 +9,13 @@ pgRoutingLayer is a plugin for QGIS that serves as a GUI for pgRouting - a popul
 
 ## What this plugin currently does
 
+### Introduction
+
+- [Layer Naming Convention](intro/layer_naming_convention.md)
+- [Main buttons](intro/buttons.md)
+
+### Functions
+
 PgRoutingLayer currently supports the following functions:
 
 - [Dijkstra](functions/pgr_dijkstra.md)
