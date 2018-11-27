@@ -1,7 +1,7 @@
 site_name: pgRoutingLayer
 nav:
 - Home: index.md
-- Introduction
+- Introduction:
   - Main buttons
   - Layer naming convention
 - Functions:
