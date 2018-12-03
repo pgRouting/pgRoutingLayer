@@ -23,7 +23,7 @@ PgRoutingLayer currently supports the following functions:
 - [bdDijkstra](functions/pgr_bddijkstra.md)
 - [bdAstar](functions/pgr_bdastar.md)
 - [KSP](functions/pgr_KSP.md)
-- Trsp_vertex
+- [Trsp_vertex](functions/pgr_Trsp_vertex.md)
 - Trsp_edge
 - Trsp_via_vertices
 - Trsp_via_edges
