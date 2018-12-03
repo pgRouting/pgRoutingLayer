@@ -3,13 +3,17 @@
 - Uses BBOX of the QGIS canvas to limit the resulting path(s)
 
 - Buttons:
-  - Preview: Draws in the canvas the resulting path
-  - Clear Preview: Removes from the canvas objects generated with Preview
-  - Export: Creates a one row per edge line geometry layer
-  - Export Merged: Creates a one row per path multiline geometry layer. As many rows as needed.
-- Layer name:
-```
-(< M >< U|D >) dijkstra: < source_ids > to < target_ids> BBOX(< bbox >)
-```
+  - ![Preview](../img/preview.png): Draws in the canvas the resulting path
+  - ![Clear Preview](../img/clearpreview.png): Removes from the canvas objects generated with Preview
+  - ![Export](../img/export.png): Creates a one row per edge line geometry layer
+  	- Layer name:
+	```
+	(< U|D >) bddijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
+	```
+  - ![Export Merged](../img/exportmerged.png): Creates a one row per path multiline geometry layer. As many rows as needed.
+	- Layer name:
+	```
+	(M < U|D >) bddijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
+	```
 
 ![pgr_dijkstra01](../img/pgr_dijkstra01.png)
