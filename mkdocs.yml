@@ -1,0 +1,12 @@
+site_name: pgRoutingLayer
+nav:
+- Home: index.md
+- Introduction:
+  - Main buttons: intro/buttons.md
+  - Layer naming convention: intro/layer_naming_convention.md
+- Functions:
+  - Djikstra: functions/pgr_dijkstra.md
+  - Astar: functions/pgr_astar.md
+  - bdDijkstra: functions/pgr_bddijkstra.md
+  - bdAstar: functions/pgr_bdastar.md
+theme: readthedocs
