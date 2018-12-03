@@ -1,6 +1,8 @@
 # Welcome to PgRouting Layer!
 
-A plugin for QGIS by Anita Graser, Ko Nagase and Vicky Vergara
+A plugin for QGIS created by by Anita Graser, Ko Nagase and Vicky Vergara.
+
+pgRoutingLayer is currently developed and maintained by pgRouting community.
 
 * project home and bug tracker: https://github.com/pgrouting/pgRoutingLayer
 * plugin repository: http://plugins.qgis.org/plugins
@@ -12,7 +14,7 @@ PgRouting Layer is a plugin for QGIS that serves as a GUI for pgRouting - a popu
 
 ## What this plugin currently does
 
-Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org/2.4/en/doc/index.html
+Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org
 
 PgRoutingLayer currently supports the following functions:
 
@@ -24,10 +26,11 @@ PgRoutingLayer currently supports the following functions:
 * dijkstraCost
 * drivingDistance
 * ksp
-* shootingStar
 * trsp_edge
 * trsp_vertex
-* tsp_euclid
+* trsp_via_vertices
+* trsp_via_edges
+
 
 ## License
 
