@@ -16,12 +16,12 @@ class Function(FunctionBase):
     @classmethod
     def getName(self):
         ''' returns Function name. '''
-        return 'ksp'
+        return 'pgr_KSP'
 
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
-        # function pgr_ksp(text,integer,integer,integer, boolean)
+        # function pgr_KSP(text,integer,integer,integer, boolean)
         # boolean is has_rcost
         # only works for directed graph
         self.version = version
@@ -32,7 +32,7 @@ class Function(FunctionBase):
                 'labelPaths', 'lineEditPaths'
                 ]
         else:
-            # function pgr_ksp(text,bigint,bigint,integer,boolean,boolean)
+            # function pgr_KSP(text,bigint,bigint,integer,boolean,boolean)
             return self.commonControls + self.commonBoxes + [
                 'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
                 'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
@@ -55,7 +55,7 @@ class Function(FunctionBase):
                   seq, id1 AS _route,
                   id2 AS _node, id3 AS _edge,
                   cost AS _cost
-                FROM pgr_ksp('
+                FROM pgr_KSP('
                   SELECT %(id)s::int4 AS id,
                     %(source)s::int4 AS source,
                     %(target)s::int4 AS target,
@@ -73,7 +73,7 @@ class Function(FunctionBase):
                   node AS _node,
                   edge AS _edge,
                   cost AS _cost
-                FROM pgr_ksp('
+                FROM pgr_KSP('
                   SELECT %(id)s AS id,
                     %(source)s AS source,
                     %(target)s AS target,
