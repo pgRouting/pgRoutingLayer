@@ -5,12 +5,12 @@ from .FunctionBase import FunctionBase
 class Function(FunctionBase):
 
     version = 2.0
-    
+
     @classmethod
     def getName(self):
         ''' returns Function name. '''
-        return 'dijkstra'
-    
+        return 'pgr_dijkstra'
+
 
     @classmethod
     def getControlNames(self, version):
@@ -28,7 +28,7 @@ class Function(FunctionBase):
                     'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
                     ]
 
-    
+
     def prepare(self, canvasItemList):
         if self.version < 2.1:
             resultPathRubberBand = canvasItemList['path']
@@ -39,7 +39,7 @@ class Function(FunctionBase):
                 path.reset(Utils.getRubberBandType(False))
             canvasItemList['paths'] = []
 
-    
+
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_bdDijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
