@@ -22,6 +22,7 @@
 """
 
 
+"""
 def name():
     return "pgRouting Layer"
 def description():
@@ -32,6 +33,8 @@ def icon():
     return "icon.png"
 def qgisMinimumVersion():
     return "1.7"
+"""
+
 def classFactory(iface):
     from pgRoutingLayer.pgRoutingLayer import PgRoutingLayer
     return PgRoutingLayer(iface)
