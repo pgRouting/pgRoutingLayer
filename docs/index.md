@@ -27,8 +27,8 @@ PgRoutingLayer currently supports the following functions:
 - [Trsp_edge](functions/Trsp_edge.md)
 - [Trsp_via_vertices](functions/Trsp_via_vertices.md)
 - [Trsp_via_edges](functions/Trsp_via_edges.md)
-- [DrivingDistance](functions/pgr_DrivingDistance.md)
-- Alphashape
+- [pgr_DrivingDistance](functions/pgr_DrivingDistance.md)
+- [pgr_Alphashape](functions/Alphashape.md)
 
 Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org
 
