@@ -13,7 +13,7 @@ class Function(FunctionBase):
     @classmethod
     def getName(self):
         ''' returns Function name. '''
-        return 'trsp(via vertices)'
+        return 'pgr_trspViaVertices'
 
     @classmethod
     def getControlNames(self, version):
@@ -35,7 +35,7 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
 
     def getQuery(self, args):
-        ''' returns the sql query in required signature format of trsp_via_vertices '''
+        ''' returns the sql query in required signature format of trspViaVertices '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         return """
             SELECT seq, id1 AS _path, id2 AS _node, id3 AS _edge, cost AS _cost FROM pgr_trspViaVertices('
