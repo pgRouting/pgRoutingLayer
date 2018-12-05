@@ -1,12 +1,11 @@
-# Welcome to PgRouting Layer!
+# Welcome to pgRoutingLayer
 
 A plugin for QGIS created by by Anita Graser, Ko Nagase and Vicky Vergara.
 
 pgRoutingLayer is currently developed and maintained by pgRouting community.
 
-* project home and bug tracker: https://github.com/pgrouting/pgRoutingLayer
-* plugin repository: http://plugins.qgis.org/plugins
-
+- Project home and bug tracker: [https://github.com/pgrouting/pgRoutingLayer](https://github.com/pgrouting/pgRoutingLayer)
+- Plugin repository: [https://plugins.qgis.org/plugins](https://plugins.qgis.org/plugins)
 
 ## What is the goal
 
@@ -14,23 +13,21 @@ PgRouting Layer is a plugin for QGIS that serves as a GUI for pgRouting - a popu
 
 ## What this plugin currently does
 
-Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org
+Please check the pgRouting documentation for detailed descriptons: [http://docs.pgrouting.org](http://docs.pgrouting.org)
 
-PgRoutingLayer currently supports the following functions:
+pgRoutingLayer currently supports the following functions:
 
-* alphashape
-* astar
-* bdAstar
-* bdDijkstra
-* dijkstra
-* dijkstraCost
-* drivingDistance
-* ksp
-* trsp_edge
-* trsp_vertex
-* trsp_via_vertices
-* trsp_via_edges
-
+- `pgr_alphaShape`
+- `pgr_astar`
+- `pgr_bdAstar`
+- `pgr_bdDijkstra`
+- `pgr_dijkstra`
+- `pgr_drivingDistance`
+- `pgr_KSP`
+- `pgr_trsp(edge)`
+- `pgr_trsp(vertex)`
+- `pgr_trspViaEdges`
+- `pgr_trspViaVertices`
 
 ## License
 
