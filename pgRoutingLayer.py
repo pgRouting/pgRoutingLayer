@@ -42,18 +42,18 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
-        'dijkstra',
-        'astar',
-        'bdDijkstra',
-        'bdAstar',
-        'ksp',
-        'trsp_vertex',
-        'trsp_edge',
-        'trspViaVertices',
-        'trspViaEdges',
-        'drivingDistance',
         'alphashape',
+        'astar',
+        'bdAstar',
+        'bdDijkstra',
+        'dijkstra',
         # 'dijkstraCost',
+        'drivingDistance',
+        'ksp',
+        'trsp_edge',
+        'trsp_vertex',
+        'trspViaEdges',
+        'trspViaVertices',
         # 'tsp_euclid',
         # 'with_Points',
         # 'with_PointsCost'
