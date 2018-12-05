@@ -50,7 +50,7 @@ class PgRoutingLayer:
         'trsp_vertex',
         'trsp_edge',
         'trspViaVertices',
-        'trsp_via_edges',
+        'trspViaEdges',
         'drivingDistance',
         'alphashape',
         # 'dijkstraCost',

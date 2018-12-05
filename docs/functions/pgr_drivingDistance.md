@@ -1,4 +1,4 @@
-# trspViaVertices
+# pgr_drivingDistance
 
 - Uses BBOX of the QGIS canvas to limit the resulting path(s)
 
@@ -8,12 +8,12 @@
   - ![Export](../img/export.png): Creates a one row per edge line geometry layer
   	- Layer name:
 	```
-	(< U|D >) trspViaVertices: < source_id >  to < target_id>  BBOX(< bbox >)
+	(< U|D >) pgr_drivingDistance: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
   - ![Export Merged](../img/exportmerged.png): Creates a one row per path multiline geometry layer. As many rows as needed.
 	- Layer name:
 	```
-	(M < U|D >) trspViaVertices: < source_id >  to < target_id>  BBOX(< bbox >)
+	(M < U|D >) pgr_drivingDistance: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
 
 ## TODO fix image

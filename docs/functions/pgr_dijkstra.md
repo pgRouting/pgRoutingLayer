@@ -8,12 +8,12 @@
   - ![Export](../img/export.png): Creates a one row per edge line geometry layer
   	- Layer name:
 	```
-	(< U|D >) bddijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
+	(< U|D >) pgr_dijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
   - ![Export Merged](../img/exportmerged.png): Creates a one row per path multiline geometry layer. As many rows as needed.
 	- Layer name:
 	```
-	(M < U|D >) bddijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
+	(M < U|D >) pgr_dijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
 
 ![pgr_dijkstra01](../img/pgr_dijkstra01.png)

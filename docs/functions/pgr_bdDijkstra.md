@@ -1,6 +1,4 @@
-pgr_DrivingDistance
-
-# pgr_DrivingDistance
+# pgr_bdDijkstra
 
 - Uses BBOX of the QGIS canvas to limit the resulting path(s)
 
@@ -10,13 +8,13 @@ pgr_DrivingDistance
   - ![Export](../img/export.png): Creates a one row per edge line geometry layer
   	- Layer name:
 	```
-	(< U|D >) pgr_DrivingDistance: < source_id >  to < target_id>  BBOX(< bbox >)
+	(< U|D >) pgr_bdDijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
   - ![Export Merged](../img/exportmerged.png): Creates a one row per path multiline geometry layer. As many rows as needed.
 	- Layer name:
 	```
-	(M < U|D >) pgr_DrivingDistance: < source_id >  to < target_id>  BBOX(< bbox >)
+	(M < U|D >) pgr_bdDijkstra: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
 
 ## TODO fix image
-![pgr_astar01](../img/pgr_astar01.png)
+![pgr_dijkstra01](../img/pgr_dijkstra01.png)

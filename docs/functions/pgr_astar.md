@@ -8,12 +8,13 @@
   - ![Export](../img/export.png): Creates a one row per edge line geometry layer
   	- Layer name:
 	```
-	(< U|D >) astar: < source_id >  to < target_id>  BBOX(< bbox >)
+	(< U|D >) pgr_astar: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
   - ![Export Merged](../img/exportmerged.png): Creates a one row per path multiline geometry layer. As many rows as needed.
 	- Layer name:
 	```
-	(M < U|D >) astar: < source_id >  to < target_id>  BBOX(< bbox >)
+	(M < U|D >) pgr_
+	astar: < source_id >  to < target_id>  BBOX(< bbox >)
 	```
 
 ![pgr_astar01](../img/pgr_astar01.png)
