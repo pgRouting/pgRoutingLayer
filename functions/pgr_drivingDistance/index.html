@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>bdAstar - pgRoutingLayer</title>
+  <title>pgr_drivingDistance - pgRoutingLayer</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "bdAstar";
-    var mkdocs_page_input_path = "functions/pgr_bdastar.md";
+    var mkdocs_page_name = "pgr_drivingDistance";
+    var mkdocs_page_input_path = "functions/pgr_drivingDistance.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -82,17 +82,11 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_bddijkstra/">bdDijkstra</a>
+    <a class="" href="../pgr_bddijkstra.md">bdDijkstra</a>
                 </li>
-                <li class=" current">
+                <li class="">
                     
-    <a class="current" href="./">bdAstar</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#pgr_bdastar">pgr_bdastar</a></li>
-    
-
-    </ul>
+    <a class="" href="../pgr_bdastar.md">bdAstar</a>
                 </li>
     </ul>
 	    </li>
@@ -118,12 +112,8 @@
     <li><a href="../..">Docs</a> &raquo;</li>
     
       
-        
-          <li>Functions &raquo;</li>
-        
-      
     
-    <li>bdAstar</li>
+    <li>pgr_drivingDistance</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -133,7 +123,7 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="pgr_bdastar">pgr_bdastar</h1>
+                <h1 id="pgr_drivingdistance">pgr_drivingDistance</h1>
 <ul>
 <li>
 <p>Uses BBOX of the QGIS canvas to limit the resulting path(s)</p>
@@ -141,27 +131,25 @@
 <li>
 <p>Buttons:</p>
 </li>
-<li>Preview: Draws in the canvas the resulting path</li>
-<li>Clear Preview: Removes from the canvas objects generated with Preview</li>
-<li>Export: Creates a one row per edge line geometry layer</li>
-<li>Export Merged: Creates a one row per path multiline geometry layer. As many rows as needed.</li>
-<li>Layer name:</li>
+<li><img alt="Preview" src="../../img/preview.png" />: Draws in the canvas the resulting path</li>
+<li><img alt="Clear Preview" src="../../img/clearpreview.png" />: Removes from the canvas objects generated with Preview</li>
+<li><img alt="Export" src="../../img/export.png" />: Creates a one row per edge line geometry layer<ul>
+<li>Layer name:
+<code>(&lt; U|D &gt;) pgr_drivingDistance: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
 </ul>
-<pre><code>(&lt; M &gt;&lt; U|D &gt;) bdAstar: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)
-</code></pre>
-
+</li>
+<li><img alt="Export Merged" src="../../img/exportmerged.png" />: Creates a one row per path multiline geometry layer. As many rows as needed.<ul>
+<li>Layer name:
+<code>(M &lt; U|D &gt;) pgr_drivingDistance: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="todo-fix-image">TODO fix image</h2>
 <p><img alt="pgr_astar01" src="../../img/pgr_astar01.png" /></p>
               
             </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="../pgr_bddijkstra/" class="btn btn-neutral" title="bdDijkstra"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
@@ -184,8 +172,6 @@
   <div class="rst-versions" role="note" style="cursor: pointer">
     <span class="rst-current-version" data-toggle="rst-current-version">
       
-      
-        <span><a href="../pgr_bddijkstra/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
     </span>

@@ -7,16 +7,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  <link rel="shortcut icon" href="/img/favicon.ico">
-  <title>pgRoutingLayer</title>
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>pgr_KSP - pgRoutingLayer</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="/css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
-  <script src="/js/jquery-2.1.1.min.js" defer></script>
-  <script src="/js/modernizr-2.8.3.min.js" defer></script>
+  <script>
+    // Current page data
+    var mkdocs_page_name = "pgr_KSP";
+    var mkdocs_page_input_path = "functions/pgr_KSP.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
@@ -29,9 +36,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="/." class="icon icon-home"> pgRoutingLayer</a>
+        <a href="../.." class="icon icon-home"> pgRoutingLayer</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="//search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -43,7 +50,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="/.">Home</a>
+    <a class="" href="../..">Home</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -52,11 +59,11 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="/intro/buttons/">Main buttons</a>
+    <a class="" href="../../intro/buttons/">Main buttons</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/intro/layer_naming_convention/">Layer naming convention</a>
+    <a class="" href="../../intro/layer_naming_convention/">Layer naming convention</a>
                 </li>
     </ul>
 	    </li>
@@ -67,19 +74,19 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="/functions/pgr_dijkstra/">Djikstra</a>
+    <a class="" href="../pgr_dijkstra/">Djikstra</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/functions/pgr_astar/">Astar</a>
+    <a class="" href="../pgr_astar/">Astar</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/functions/pgr_bddijkstra.md">bdDijkstra</a>
+    <a class="" href="../pgr_bddijkstra.md">bdDijkstra</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/functions/pgr_bdastar.md">bdAstar</a>
+    <a class="" href="../pgr_bdastar.md">bdAstar</a>
                 </li>
     </ul>
 	    </li>
@@ -94,7 +101,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="/.">pgRoutingLayer</a>
+        <a href="../..">pgRoutingLayer</a>
       </nav>
 
       
@@ -102,9 +109,11 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="/.">Docs</a> &raquo;</li>
+    <li><a href="../..">Docs</a> &raquo;</li>
     
+      
     
+    <li>pgr_KSP</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -114,12 +123,30 @@
           <div role="main">
             <div class="section">
               
-
-  <h1 id="404-page-not-found">404</h1>
-
-  <p><strong>Page not found</strong></p>
-
-
+                <h1 id="pgr_ksp">pgr_KSP</h1>
+<ul>
+<li>
+<p>Uses BBOX of the QGIS canvas to limit the resulting path(s)</p>
+</li>
+<li>
+<p>Buttons:</p>
+</li>
+<li><img alt="Preview" src="../../img/preview.png" />: Draws in the canvas the resulting path</li>
+<li><img alt="Clear Preview" src="../../img/clearpreview.png" />: Removes from the canvas objects generated with Preview</li>
+<li><img alt="Export" src="../../img/export.png" />: Creates a one row per edge line geometry layer<ul>
+<li>Layer name:
+<code>(&lt; U|D &gt;) pgr_KSP: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
+</ul>
+</li>
+<li><img alt="Export Merged" src="../../img/exportmerged.png" />: Creates a one row per path multiline geometry layer. As many rows as needed.<ul>
+<li>Layer name:
+<code>(M &lt; U|D &gt;) pgr_KSP: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="todo-fix-image">TODO fix image</h2>
+<p><img alt="pgr_astar01" src="../../img/pgr_astar01.png" /></p>
+              
             </div>
           </div>
           <footer>
@@ -149,9 +176,9 @@
       
     </span>
 </div>
-    <script>var base_url = '/';</script>
-    <script src="/js/theme.js" defer></script>
-      <script src="/search/main.js" defer></script>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
 
 </body>
 </html>

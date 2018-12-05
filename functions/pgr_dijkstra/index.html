@@ -88,11 +88,11 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_bddijkstra/">bdDijkstra</a>
+    <a class="" href="../pgr_bddijkstra.md">bdDijkstra</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_bdastar/">bdAstar</a>
+    <a class="" href="../pgr_bdastar.md">bdAstar</a>
                 </li>
     </ul>
 	    </li>
@@ -141,15 +141,19 @@
 <li>
 <p>Buttons:</p>
 </li>
-<li>Preview: Draws in the canvas the resulting path</li>
-<li>Clear Preview: Removes from the canvas objects generated with Preview</li>
-<li>Export: Creates a one row per edge line geometry layer</li>
-<li>Export Merged: Creates a one row per path multiline geometry layer. As many rows as needed.</li>
-<li>Layer name:</li>
+<li><img alt="Preview" src="../../img/preview.png" />: Draws in the canvas the resulting path</li>
+<li><img alt="Clear Preview" src="../../img/clearpreview.png" />: Removes from the canvas objects generated with Preview</li>
+<li><img alt="Export" src="../../img/export.png" />: Creates a one row per edge line geometry layer<ul>
+<li>Layer name:
+<code>(&lt; U|D &gt;) pgr_dijkstra: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
 </ul>
-<pre><code>(&lt; M &gt;&lt; U|D &gt;) dijkstra: &lt; source_ids &gt; to &lt; target_ids&gt; BBOX(&lt; bbox &gt;)
-</code></pre>
-
+</li>
+<li><img alt="Export Merged" src="../../img/exportmerged.png" />: Creates a one row per path multiline geometry layer. As many rows as needed.<ul>
+<li>Layer name:
+<code>(M &lt; U|D &gt;) pgr_dijkstra: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
+</ul>
+</li>
+</ul>
 <p><img alt="pgr_dijkstra01" src="../../img/pgr_dijkstra01.png" /></p>
               
             </div>
