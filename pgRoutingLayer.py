@@ -49,7 +49,7 @@ class PgRoutingLayer:
         'ksp',
         'trsp_vertex',
         'trsp_edge',
-        'trsp_via_vertices',
+        'trspViaVertices',
         'trsp_via_edges',
         'drivingDistance',
         'alphashape',

@@ -13,7 +13,7 @@ class Function(FunctionBase):
     @classmethod
     def getName(self):
         ''' returns Function name. '''
-        return 'pgr_trsp'
+        return 'pgr_trsp(vertex)'
     
     @classmethod
     def getControlNames(self, version):
