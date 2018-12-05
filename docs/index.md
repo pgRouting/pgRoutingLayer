@@ -2,7 +2,6 @@
 
 Welcome to pgRoutingLayer documentation.
 
-
 ## About pgRoutingLayer
 
 pgRoutingLayer is a plugin for QGIS that serves as a GUI for pgRouting - a popular routing solution for PostGIS databases.
@@ -16,7 +15,7 @@ pgRoutingLayer is a plugin for QGIS that serves as a GUI for pgRouting - a popul
 
 ### Functions
 
-PgRoutingLayer currently supports the following functions:
+pgRoutingLayer currently supports the following functions:
 
 - [pgr_alphaShape](functions/pgr_alphaShape.md)
 - [pgr_astar](functions/pgr_astar.md)
@@ -30,7 +29,7 @@ PgRoutingLayer currently supports the following functions:
 - [pgr_trspViaEdges](functions/pgr_trspViaEdges.md)
 - [pgr_trspViaVertices](functions/pgr_trspViaVertices.md)
 
-Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org
+Please check the pgRouting documentation for detailed descriptons: [https://docs.pgrouting.org](https://docs.pgrouting.org)
 
 ## Installation
 
@@ -44,10 +43,9 @@ This plugin can be installed using the QGIS Plugin Manager. You will have to ena
 
 ## Links
 
-- project home and bug tracker: https://github.com/pgrouting/pgRoutingLayer
-- plugin repository: http://plugins.qgis.org/plugins
-- pgRouting project: https://pgrouting.org
-
+- Project home and bug tracker: [https://github.com/pgrouting/pgRoutingLayer](https://github.com/pgrouting/pgRoutingLayer)
+- Plugin repository: [https://plugins.qgis.org/plugins](https://plugins.qgis.org/plugins)
+- pgRouting project: [https://docs.pgrouting.org](https://docs.pgrouting.org)
 
 ## License
 
