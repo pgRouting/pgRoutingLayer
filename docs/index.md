@@ -26,6 +26,7 @@ PgRoutingLayer currently supports the following functions:
 - [Trsp_vertex](functions/pgr_Trsp_vertex.md)
 - [Trsp_edge](functions/Trsp_edge.md)
 - [trspViaVertices](functions/trspViaVertices.md)
+- [Trsp_via_vertices](functions/Trsp_via_vertices.md)
 - [Trsp_via_edges](functions/Trsp_via_edges.md)
 - [pgr_DrivingDistance](functions/pgr_DrivingDistance.md)
 - [pgr_Alphashape](functions/Alphashape.md)
