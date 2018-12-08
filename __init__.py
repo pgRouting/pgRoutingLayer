@@ -21,8 +21,6 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
-
-"""
 def name():
     return "pgRouting Layer"
 def description():
@@ -33,7 +31,6 @@ def icon():
     return "icon.png"
 def qgisMinimumVersion():
     return "1.7"
-"""
 
 def classFactory(iface):
     from pgRoutingLayer.pgRoutingLayer import PgRoutingLayer
