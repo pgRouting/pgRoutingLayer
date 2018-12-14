@@ -35,6 +35,7 @@ from pgRoutingLayer import pgRoutingLayer_utils as Utils
 #import highlighter as hl
 import os
 import psycopg2
+from psycopg2 import sql
 import re
 
 conn = dbConnection.ConnectionManager()
@@ -42,17 +43,17 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
-        'dijkstra',
-        'astar',
+        #'dijkstra',
+        #'astar',
         'bdDijkstra',
-        'bdAstar',
-        'ksp',
-        'trsp_vertex',
-        'trsp_edge',
-        'trspViaVertices',
-        'trspViaEdges',
-        'drivingDistance',
-        'alphashape',
+        #'bdAstar',
+        #'ksp',
+        #'trsp_vertex',
+        #'trsp_edge',
+        #'trspViaVertices',
+        #'trspViaEdges',
+        #'drivingDistance',
+        #'alphashape',
         # 'dijkstraCost',
         # 'tsp_euclid',
         # 'with_Points',
@@ -612,11 +613,13 @@ class PgRoutingLayer:
             function.prepare(self.canvasItemList)
 
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox'])
-            query = function.getQuery(args)
+
+            #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry SRID:' + str(srid))
+            cur = con.cursor()
+            function.getQuery(args, cur, con)
+
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + query)
 
-            cur = con.cursor()
-            cur.execute(query)
             rows = cur.fetchall()
             if  len(rows) == 0:
                 QMessageBox.information(self.dock, self.dock.windowTitle(), 'No paths found in ' + self.getLayerName(args))
@@ -931,39 +934,34 @@ class PgRoutingLayer:
 
     def getArguments(self, controls):
         ''' updates the GUI field text to args '''
+
         args = {}
-        args['edge_table'] = self.dock.lineEditTable.text()
-        args['geometry'] = self.dock.lineEditGeometry.text()
+        args['edge_table'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditTable.text())))
+        args['geometry'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditGeometry.text())))
         if 'lineEditId' in controls:
-            args['id'] = self.dock.lineEditId.text()
+            args['id'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditId.text())))
 
         if 'lineEditSource' in controls:
-            args['source'] = self.dock.lineEditSource.text()
+            args['source'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditSource.text())))
 
         if 'lineEditTarget' in controls:
-            args['target'] = self.dock.lineEditTarget.text()
-
-        # if 'lineEditPointsTable' in controls:
-        #     args['points_table'] = self.dock.lineEditPointsTable.text()
-        #
-        # if 'lineEditPid' in controls:
-        #     args['pid'] = self.dock.lineEditPid.text()
-        #
-        # if 'lineEditEdge_id' in controls:
-        #     args['edge_id'] = self.dock.lineEditEdge_id.text()
-        #
-        # if 'lineEditFraction' in controls:
-        #     args['fraction'] = self.dock.lineEditFraction.text()
-        #
-        # if 'lineEditSide' in controls:
-        #     args['side'] = self.dock.lineEditSide.text()
-
+            args['target'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditTarget.text())))
 
         if 'lineEditCost' in controls:
-            args['cost'] = self.dock.lineEditCost.text()
+            args['cost'] = sql.SQL("{} AS cost").format(sql.Identifier(str(self.dock.lineEditCost.text())))
 
-        if 'lineEditReverseCost' in controls:
-            args['reverse_cost'] = self.dock.lineEditReverseCost.text()
+        if 'checkBoxHasReverseCost' in controls:
+            if not self.dock.checkBoxHasReverseCost.isChecked():
+                args['reverse_cost'] = sql.SQL(", 1 ")
+            else:
+                args['reverse_cost'] = sql.SQL(", {}::FLOAT AS reverse_cost").format(
+                        sql.Identifier(str(self.dock.lineEditReverseCost.text())))
+
+        if 'checkBoxDirected' in controls:
+            args['directed'] = sql.SQL("directed := {}::BOOLEAN").format(
+                    sql.Literal(
+                        str(self.dock.checkBoxDirected.isChecked()).lower()))
+
 
         if 'lineEditX1' in controls:
             args['x1'] = self.dock.lineEditX1.text()
@@ -996,7 +994,8 @@ class PgRoutingLayer:
             args['source_pos'] = self.dock.lineEditSourcePos.text()
 
         if 'lineEditSourceIds' in controls:
-            args['source_ids'] = self.dock.lineEditSourceIds.text()
+            args['source_ids'] = sql.SQL("string_to_array({}, ',')::BIGINT[]").format(
+                    sql.Literal(str(self.dock.lineEditSourceIds.text())))
 
         if 'lineEditTargetId' in controls:
             args['target_id'] = self.dock.lineEditTargetId.text()
@@ -1005,7 +1004,8 @@ class PgRoutingLayer:
             args['target_pos'] = self.dock.lineEditTargetPos.text()
 
         if 'lineEditTargetIds' in controls:
-            args['target_ids'] = self.dock.lineEditTargetIds.text()
+            args['target_ids'] = sql.SQL("string_to_array({}, ',')::BIGINT[]").format(
+                    sql.Literal(str(self.dock.lineEditTargetIds.text())))
 
         if 'lineEditDistance' in controls:
             args['distance'] = self.dock.lineEditDistance.text()
@@ -1016,8 +1016,6 @@ class PgRoutingLayer:
         if 'lineEditPaths' in controls:
             args['paths'] = self.dock.lineEditPaths.text()
 
-        if 'checkBoxDirected' in controls:
-            args['directed'] = str(self.dock.checkBoxDirected.isChecked()).lower()
 
         # if 'checkBoxDetails' in controls:
         #     args['details'] = str(self.dock.checkBoxDirected.isChecked()).lower()
@@ -1037,12 +1035,6 @@ class PgRoutingLayer:
         #     elif (self.dock.checkBoxLeft.isChecked() == False and self.dock.checkBoxRight.isChecked() == True):
         #         args['driving_side'] = str('r')
 
-        if 'checkBoxHasReverseCost' in controls:
-            args['has_reverse_cost'] = str(self.dock.checkBoxHasReverseCost.isChecked()).lower()
-            if args['has_reverse_cost'] == 'false':
-                args['reverse_cost'] = ' '
-            else:
-                args['reverse_cost'] = ', ' + args['reverse_cost'] + '::float8 AS reverse_cost'
 
         if 'plainTextEditTurnRestrictSql' in controls:
             args['turn_restrict_sql'] = self.dock.plainTextEditTurnRestrictSql.toPlainText()

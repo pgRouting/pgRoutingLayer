@@ -3,6 +3,7 @@ from builtins import object
 from qgis.core import (QgsMessageLog, Qgis, QgsGeometry,QgsWkbTypes)
 from qgis.gui import QgsRubberBand
 from qgis.PyQt.QtGui import QColor
+from psycopg2 import sql
 
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 
@@ -33,7 +34,7 @@ class FunctionBase(object):
     @classmethod
     def getName(self):
         return ''
-    
+
     @classmethod
     def getControlNames(self, version):
         return self.commonControls + self.commonBoxes + [
@@ -42,12 +43,12 @@ class FunctionBase(object):
         ]
 
 
-    
+
     @classmethod
     def isEdgeBase(self):
         ''' checks if EdgeBase is set. '''
         return self.exportEdgeBase
-    
+
     @classmethod
     def canExport(self):
         ''' checks if exportButton is set '''
@@ -67,25 +68,25 @@ class FunctionBase(object):
     def whereClause(self, table, geometry, bbox):
         ''' returns where clause for sql parameterising '''
         if bbox == ' ':
-            return ' '
+            return sql.SQL('WHERE true ')
         else:
-            return 'WHERE {0}.{1} {2}'.format(table, geometry, bbox)
+            return sql.SQL('WHERE {0}.{1} {2}').format(table, geometry, bbox)
 
     def prepare(self, canvasItemList):
         pass
-    
+
     def getQuery(self, args):
         return ''
-    
+
     def getExportQuery(self, args):
         return ''
 
     def getExportMergeQuery(self, args):
         return 'NOT AVAILABLE'
-    
+
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         pass
-    
+
     def getJoinResultWithEdgeTable(self, args):
         '''returns a query which joins edge_table with result based on edge.id'''
         args['result_query'] = self.getQuery(args)
@@ -93,7 +94,7 @@ class FunctionBase(object):
         query = """
             WITH
             result AS ( %(result_query)s )
-            SELECT 
+            SELECT
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
                   THEN %(edge_table)s.%(geometry)s
@@ -111,14 +112,14 @@ class FunctionBase(object):
         args['result_query'] = self.getQuery(args)
 
         args['with_geom_query'] = """
-            SELECT 
+            SELECT
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
                   THEN %(edge_table)s.%(geometry)s
                 ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
               END AS path_geom
             FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge 
+              ON %(edge_table)s.%(id)s = result._edge
             """ % args
 
         args['one_geom_query'] = """
@@ -140,7 +141,7 @@ class FunctionBase(object):
             aggregates AS ( %(aggregates_query)s )
             SELECT row_number() over() as seq,
             _nodes, _edges, agg_cost, path_geom
-            FROM aggregates, one_geom 
+            FROM aggregates, one_geom
             """ % args
         return query
 
@@ -150,7 +151,7 @@ class FunctionBase(object):
         args['result_query'] = self.getQuery(args)
 
         args['with_geom_query'] = """
-            SELECT 
+            SELECT
               seq, result.path_name,
               CASE
                 WHEN result._node = %(edge_table)s.%(source)s
@@ -158,7 +159,7 @@ class FunctionBase(object):
                 ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
               END AS path_geom
             FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge 
+              ON %(edge_table)s.%(id)s = result._edge
             """ % args
 
         args['one_geom_query'] = """
@@ -199,8 +200,8 @@ class FunctionBase(object):
         for row in rows:
             cur2 = con.cursor()
             args['result_path_id'] = str(row[3]) + "," + str(row[4])
-            args['result_node_id'] = row[5]
-            args['result_edge_id'] = row[6]
+            args['result_node_id'] = sql.SQL(str(row[5]))
+            args['result_edge_id'] = sql.SQL(str(row[6]))
             args['result_cost'] = row[7]
             if args['result_path_id'] != cur_path_id:
                 cur_path_id = args['result_path_id']
@@ -212,19 +213,24 @@ class FunctionBase(object):
                 rubberBand.setColor(QColor(255, 0, 0, 128))
                 rubberBand.setWidth(4)
 
-            if args['result_edge_id'] != -1:
-                query2 = """
-                    SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
-                        WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
+            if row[6] != -1:
+                query2 = sql.SQL("""
+                    SELECT ST_AsText({transform_s}{geometry}{transform_e})
+                    FROM {edge_table}
+                    WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
+
                     UNION
-                    SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
-                        WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
-                    """ % args
+
+                    SELECT ST_AsText({transform_s}ST_Reverse({geometry}{transform_e}))
+                    FROM {edge_table}
+                    WHERE {target} = {result_node_id} AND {id} = {result_edge_id}
+                    """).format(**args).as_string(con)
+
                 ##Utils.logMessage(query2)
                 cur2.execute(query2)
                 row2 = cur2.fetchone()
                 ##Utils.logMessage(str(row2[0]))
-                assert row2, "Invalid result geometry. (path_id:%(result_path_id)s, node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
+                assert row2, "Invalid result geometry. " + query2
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:

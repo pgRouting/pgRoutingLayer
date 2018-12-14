@@ -3,6 +3,7 @@ from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QVariant, QSettings
 #from PyQt4.QtGui import *
 import psycopg2
+from psycopg2 import sql
 import sip
 
 
@@ -13,18 +14,18 @@ def getSridAndGeomType(con, table, geometry):
     args['table'] = table
     args['geometry'] = geometry
     cur = con.cursor()
-    cur.execute("""
-        SELECT ST_SRID(%(geometry)s), ST_GeometryType(%(geometry)s)
-            FROM %(table)s
+    cur.execute(sql.SQL("""
+        SELECT ST_SRID({geometry}), ST_GeometryType({geometry})
+            FROM {table}
             LIMIT 1
-    """ % args)
+        """).format(**args).as_string(con))
     row = cur.fetchone()
     return row[0], row[1]
 
 
 def setStartPoint(geomType, args):
     ''' records startpoint of geometry and stores in args dictionary. '''
-    
+
     if geomType == 'ST_MultiLineString':
         args['startpoint'] = "ST_StartPoint(ST_GeometryN(%(geometry)s, 1))" % args
     elif geomType == 'ST_LineString':
@@ -32,7 +33,7 @@ def setStartPoint(geomType, args):
 
 def setEndPoint(geomType, args):
     ''' records endpoint and stores in args. '''
-    
+
     if geomType == 'ST_MultiLineString':
         args['endpoint'] = "ST_EndPoint(ST_GeometryN(%(geometry)s, 1))" % args
     elif geomType == 'ST_LineString':
@@ -41,11 +42,11 @@ def setEndPoint(geomType, args):
 def setTransformQuotes(args, srid, canvas_srid):
     ''' Sets transformQuotes '''
     if srid > 0 and canvas_srid > 0:
-        args['transform_s'] = "ST_Transform("
-        args['transform_e'] = ", %(canvas_srid)d)" % args
+        args['transform_s'] = sql.SQL("ST_Transform(")
+        args['transform_e'] = sql.SQL(", {canvas_srid}").format(args)
     else:
-        args['transform_s'] = ""
-        args['transform_e'] = ""
+        args['transform_s'] = sql.SQL("")
+        args['transform_e'] = sql.SQL("")
 
 def isSIPv2():
     '''Checks the version of SIP '''

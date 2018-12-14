@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
+import psycopg2
+from psycopg2 import sql
 
 class Function(FunctionBase):
 
@@ -37,11 +39,11 @@ class Function(FunctionBase):
             canvasItemList['paths'] = []
 
 
-    def getQuery(self, args):
+    def getQuery(self, args, cur, conn):
         ''' returns the sql query in required signature format of pgr_bdDijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         if self.version < 2.4:
-            return """
+            cur.execute("""
                 SELECT seq, id1 AS _node, id2 AS _edge, cost AS _cost
                 FROM pgr_bdDijkstra('
                     SELECT %(id)s::int4 AS id,
@@ -52,9 +54,9 @@ class Function(FunctionBase):
                     FROM %(edge_table)s
                     %(where_clause)s',
                     %(source_id)s::int4, %(target_id)s::int4, %(directed)s, %(has_reverse_cost)s)
-            """ % args
+                """, (args))
         elif self.version == 2.4:
-            return """
+            cur.execute("""
                 SELECT seq, node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
                 FROM pgr_bdDijkstra('
                     SELECT %(id)s AS id,
@@ -65,22 +67,27 @@ class Function(FunctionBase):
                     FROM %(edge_table)s
                     %(where_clause)s',
                     %(source_id)s::int4, %(target_id)s::int4, %(directed)s, %(has_reverse_cost)s)
-            """ % args
+                """, (args))
         else:
-            return """
+            args['innerQuery'] = sql.SQL("""
+                SELECT {id} AS id,
+                        {source} AS source,
+                        {target} AS target,
+                        {cost}
+                        {reverse_cost}
+                    FROM {edge_table}
+                    {where_clause}
+                """.replace("\\n", r"\n")).format(**args)
+
+            cur.execute(sql.SQL("""
                 SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
                     path_seq AS _path_seq, start_vid AS _start_vid, end_vid AS _end_vid,
                     node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
                 FROM pgr_bdDijkstra('
-                    SELECT %(id)s AS id,
-                        %(source)s AS source,
-                        %(target)s AS target,
-                        %(cost)s AS cost
-                        %(reverse_cost)s
-                    FROM %(edge_table)s
-                    %(where_clause)s',
-                    array[%(source_ids)s]::BIGINT[], array[%(target_ids)s]::BIGINT[], %(directed)s)
-                """ % args
+                    {innerQuery}
+                    ',
+                    {source_ids}, {target_ids}, {directed})
+                """).format(**args).as_string(conn))
 
     def getExportQuery(self, args):
         return self.getJoinResultWithEdgeTable(args)
