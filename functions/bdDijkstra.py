@@ -28,7 +28,7 @@ class Function(FunctionBase):
 
 
     @classmethod
-    def getQuery(self, args, cur, conn):
+    def getQuery(self, args, cur, con):
         ''' returns the sql query in required signature format of pgr_bdDijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         args['innerQuery'] = sql.SQL("""
