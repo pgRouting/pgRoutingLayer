@@ -725,7 +725,7 @@ class Connection(DbConn.Connection):
             if x is not None:
                 srtext = x.group()
             return srtext
-        except DbError as e:
+        except DbError:
             return "Unknown"
 
     def insert_table_row(self, table, values, schema=None, cursor=None):
@@ -810,9 +810,11 @@ class Connection(DbConn.Connection):
         identifier = str(identifier) # make sure it's python unicode string
         return u'"%s"' % identifier.replace('"', '""')
 
+    @classmethod
     def _quote_str(self, txt):
         """ make the string safe - replace ' with '' """
-        txt = str(txt) # make sure it's python unicode string
+        # make sure it's python unicode string
+        txt = str(txt)
         return txt.replace("'", "''")
 
     def _table_name(self, schema, table):
