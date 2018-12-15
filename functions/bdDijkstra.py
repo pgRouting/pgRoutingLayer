@@ -49,7 +49,7 @@ class Function(FunctionBase):
                 {innerQuery}
                 ',
                 {source_ids}, {target_ids}, {directed})
-            """).format(**args).as_string(conn))
+            """).format(**args).as_string(con))
 
     def getExportQuery(self, args):
         return self.getJoinResultWithEdgeTable(args)
