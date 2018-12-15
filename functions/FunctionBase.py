@@ -79,8 +79,9 @@ class FunctionBase(object):
     def getQuery(self, args, cur, con):
         pass
 
+    @classmethod
     def getExportQuery(self, args, cur, con):
-        return ''
+        pass
 
     def getExportMergeQuery(self, args):
         return 'NOT AVAILABLE'

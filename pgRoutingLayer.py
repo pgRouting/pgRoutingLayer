@@ -685,13 +685,13 @@ class PgRoutingLayer:
                   'versions are different')
 
 
-            srid, geomType = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])
+            srid = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])[1]
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox'])
 
             #get the EXPORT query
             msgQuery = function.getExportQuery(args, cursor, con)
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:\n' + msgQuery)
-            Utils.logMessage('Export:\n' + msgQuery.as_string(con))
+            #Utils.logMessage('Export:\n' + msgQuery.as_string(con))
 
             query = self.cleanQuery(msgQuery.as_string(con))
 
