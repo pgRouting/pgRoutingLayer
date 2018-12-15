@@ -44,8 +44,6 @@ class FunctionBase(object):
             'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
         ]
 
-
-
     @classmethod
     def isEdgeBase(self):
         ''' checks if EdgeBase is set. '''
@@ -78,7 +76,7 @@ class FunctionBase(object):
         pass
 
     @classmethod
-    def getQuery(self, args, cur, conn):
+    def getQuery(self, args, cur, con):
         pass
 
     def getExportQuery(self, args):
