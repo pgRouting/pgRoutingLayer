@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
-import psycopg2
 from psycopg2 import sql
 
 class Function(FunctionBase):

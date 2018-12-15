@@ -77,7 +77,7 @@ class FunctionBase(object):
     def prepare(self, canvasItemList):
         pass
 
-    def getQuery(self, args):
+    def getQuery(self, args, cur, con):
         return ''
 
     def getExportQuery(self, args):
@@ -232,7 +232,6 @@ class FunctionBase(object):
                 cur2.execute(query2)
                 row2 = cur2.fetchone()
                 ##Utils.logMessage(str(row2[0]))
-                assert row2, "Invalid result geometry. " + query2
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
