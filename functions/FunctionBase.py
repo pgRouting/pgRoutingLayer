@@ -10,6 +10,8 @@ from pgRoutingLayer import pgRoutingLayer_utils as Utils
 
 class FunctionBase(object):
 
+    minPGRversion = 2.1
+
     # the mayority of the functions have this values
     exportButton = True
     exportMergeButton = True
@@ -61,8 +63,8 @@ class FunctionBase(object):
 
     @classmethod
     def isSupportedVersion(self, version):
-        ''' returns true if version is between 2 and 3.0 '''
-        return version >= 2.0 and version < 3.0
+        ''' returns true if version is greater than minPGRversio '''
+        return version >= self.minPGRversion
 
     @classmethod
     def whereClause(self, table, geometry, bbox):
