@@ -785,7 +785,6 @@ class PgRoutingLayer:
             db = self.actionsDb[dbname].connect()
 
             con = db.con
-            cursor = con.cursor()
 
             version = Utils.getPgrVersion(con)
             args['version'] = version
