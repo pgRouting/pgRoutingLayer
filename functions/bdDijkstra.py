@@ -30,17 +30,6 @@ class Function(FunctionBase):
     @classmethod
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_bdDijkstra '''
-        args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
-        args['innerQuery'] = sql.SQL("""
-            SELECT {id} AS id,
-                    {source} AS source,
-                    {target} AS target,
-                    {cost}
-                    {reverse_cost}
-                FROM {edge_table}
-                {where_clause}
-            """.replace("\\n", r"\n")).format(**args)
-
         return sql.SQL("""
             SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
                 path_seq AS _path_seq, start_vid AS _start_vid, end_vid AS _end_vid,

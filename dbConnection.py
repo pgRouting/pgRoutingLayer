@@ -9,8 +9,6 @@ from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QAction
 
 
-from pgRoutingLayer import pgRoutingLayer_utils as Utils
-
 class ConnectionManager(object):
 
     SUPPORTED_CONNECTORS = ['postgis']
@@ -21,13 +19,12 @@ class ConnectionManager(object):
         conntypes = ConnectionManager.SUPPORTED_CONNECTORS
         for c in conntypes:
             try:
-                connector = self.getConnection( c )
+                self.getConnection( c )
             except ImportError as e:
                 module = e.args[0][ len("No module named "): ]
                 ConnectionManager.SUPPORTED_CONNECTORS.remove( c )
                 ConnectionManager.MISSED_CONNECTORS.append( (c, module) )
 
-        return len(ConnectionManager.SUPPORTED_CONNECTORS) > 0
 
     @classmethod
     def getConnection(self, conntype, uri=None):
