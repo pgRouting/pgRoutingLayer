@@ -78,7 +78,7 @@ class FunctionBase(object):
         pass
 
     @classmethod
-    def getQuery(self, args, cur, con):
+    def getQuery(self, args, cur, conn):
         pass
 
     def getExportQuery(self, args):
