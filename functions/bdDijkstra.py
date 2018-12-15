@@ -41,7 +41,7 @@ class Function(FunctionBase):
                 {where_clause}
             """.replace("\\n", r"\n")).format(**args)
 
-        cur.execute(sql.SQL("""
+        return sql.SQL("""
             SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
                 path_seq AS _path_seq, start_vid AS _start_vid, end_vid AS _end_vid,
                 node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
@@ -49,10 +49,10 @@ class Function(FunctionBase):
                 {innerQuery}
                 ',
                 {source_ids}, {target_ids}, {directed})
-            """).format(**args).as_string(con))
+            """).format(**args)
 
-    def getExportQuery(self, args):
-        return self.getJoinResultWithEdgeTable(args)
+    def getExportQuery(self, args, cur, con):
+        return self.getJoinResultWithEdgeTable(args, cur, con)
 
     def getExportMergeQuery(self, args):
         return self.getExportManySourceManyTargetMergeQuery(args)

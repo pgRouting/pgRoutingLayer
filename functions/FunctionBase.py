@@ -79,7 +79,7 @@ class FunctionBase(object):
     def getQuery(self, args, cur, con):
         pass
 
-    def getExportQuery(self, args):
+    def getExportQuery(self, args, cur, con):
         return ''
 
     def getExportMergeQuery(self, args):
@@ -88,23 +88,23 @@ class FunctionBase(object):
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         pass
 
-    def getJoinResultWithEdgeTable(self, args):
+    def getJoinResultWithEdgeTable(self, args, cur, con):
         '''returns a query which joins edge_table with result based on edge.id'''
-        args['result_query'] = self.getQuery(args)
+        args['result_query'] = self.getQuery(args, cur, con)
 
-        query = """
+        query = sql.SQL("""
             WITH
-            result AS ( %(result_query)s )
+            result AS ( {result_query} )
             SELECT
               CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
+                WHEN result._node = {edge_table}.{source}
+                  THEN {edge_table}.{geometry}
+                ELSE ST_Reverse({edge_table}.{geometry})
               END AS path_geom,
-              result.*, %(edge_table)s.*
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq
-            """ % args
+              result.*, {edge_table}.*
+            FROM {edge_table} JOIN result
+              ON {edge_table}.{id} = result._edge ORDER BY result.seq
+            """).format(**args)
         return query
 
 

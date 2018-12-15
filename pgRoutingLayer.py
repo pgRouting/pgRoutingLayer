@@ -616,13 +616,14 @@ class PgRoutingLayer:
 
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry SRID:' + str(srid))
             cur = con.cursor()
-            function.getQuery(args, cur, con)
+            cur.execute(function.getQuery(args, cur, con).as_string(con))
 
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + query)
 
             rows = cur.fetchall()
             if  len(rows) == 0:
-                QMessageBox.information(self.dock, self.dock.windowTitle(), 'No paths found in ' + self.getLayerName(args))
+                QMessageBox.information(self.dock, self.dock.windowTitle(), 'No paths found in ' +
+                        self.getLayerName(args, con))
 
             args['srid'] = srid
             args['canvas_srid'] = Utils.getCanvasSrid(Utils.getDestinationCrs(self.iface.mapCanvas()))
@@ -674,6 +675,7 @@ class PgRoutingLayer:
             db = self.actionsDb[dbname].connect()
 
             con = db.con
+            cursor = con.cursor()
 
             version = Utils.getPgrVersion(con)
 
@@ -683,20 +685,20 @@ class PgRoutingLayer:
                   'versions are different')
 
 
-            srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
+            srid, geomType = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox'])
 
             #get the EXPORT query
-            msgQuery = function.getExportQuery(args)
+            msgQuery = function.getExportQuery(args, cursor, con)
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:\n' + msgQuery)
-            Utils.logMessage('Export:\n' + msgQuery)
+            Utils.logMessage('Export:\n' + msgQuery.as_string(con))
 
-            query = self.cleanQuery(msgQuery)
+            query = self.cleanQuery(msgQuery.as_string(con))
 
             uri = db.getURI()
             uri.setDataSource("", "(" + query + ")", "path_geom", "", "seq")
 
-            layerName = self.getLayerName(args)
+            layerName = self.getLayerName(args, con)
 
             vl = self.iface.addVectorLayer(uri.uri(), layerName, db.getProviderName())
             if not vl:
@@ -800,7 +802,7 @@ class PgRoutingLayer:
             uri.setDataSource("", "(" + query + ")", "path_geom", "", "seq")
 
             # add vector layer to map
-            layerName = self.getLayerName(args, 'M')
+            layerName = self.getLayerName(args, con, 'M')
 
             vl = self.iface.addVectorLayer(uri.uri(), layerName, db.getProviderName())
             if not vl:
@@ -833,7 +835,7 @@ class PgRoutingLayer:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
                         'server closed the connection unexpectedly')
 
-    def getLayerName(self, args, letter=''):
+    def getLayerName(self, args, con, letter=''):
         ''' returns the layer Name '''
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
 
@@ -852,7 +854,7 @@ class PgRoutingLayer:
         elif 'ids' in args:
             layerName += "{" + args['ids'] + "}"
         else:
-            layerName +=  "[" + args['source_ids'] + "]"
+            layerName +=  "[" + args['source_ids'].as_string(con) + "]"
 
         if 'ids' in args:
             layerName += " "
@@ -863,7 +865,7 @@ class PgRoutingLayer:
             if 'target_id' in args:
                 layerName += args['target_id']
             else:
-                layerName += "[" + args['target_ids'] + "]"
+                layerName += "[" + args['target_ids'].as_string(con) + "]"
 
         if 'paths' in args:
             layerName +=  " -  K = " + args['paths']
