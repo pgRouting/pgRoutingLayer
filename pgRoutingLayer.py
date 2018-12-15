@@ -616,7 +616,7 @@ class PgRoutingLayer:
 
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry SRID:' + str(srid))
             cur = con.cursor()
-            cur.execute(function.getQuery(args, cur, con).as_string(con))
+            cur.execute(function.getQuery(args).as_string(con))
 
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + query)
 
@@ -685,11 +685,11 @@ class PgRoutingLayer:
                   'versions are different')
 
 
-            srid = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])[1]
+            srid = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])[0]
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox'])
 
             #get the EXPORT query
-            msgQuery = function.getExportQuery(args, cursor, con)
+            msgQuery = function.getExportQuery(args)
             #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:\n' + msgQuery)
             #Utils.logMessage('Export:\n' + msgQuery.as_string(con))
 
@@ -785,18 +785,19 @@ class PgRoutingLayer:
             db = self.actionsDb[dbname].connect()
 
             con = db.con
+            cursor = con.cursor()
 
             version = Utils.getPgrVersion(con)
             args['version'] = version
 
-            srid, geomType = Utils.getSridAndGeomType(con, '%(edge_table)s' % args, '%(geometry)s' % args)
+            srid = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])[0]
             args['BBOX'], args['printBBOX'] = self.getBBOX(srid, args['use_bbox'])
 
             # get the exportMerge query
             msgQuery = function.getExportMergeQuery(args)
-            Utils.logMessage('Export merged:\n' + msgQuery)
+            Utils.logMessage('Export merged:\n' + msgQuery.as_string(con))
 
-            query = self.cleanQuery(msgQuery)
+            query = self.cleanQuery(msgQuery.as_string(con))
 
             uri = db.getURI()
             uri.setDataSource("", "(" + query + ")", "path_geom", "", "seq")

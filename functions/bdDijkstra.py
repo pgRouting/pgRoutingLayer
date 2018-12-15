@@ -28,7 +28,7 @@ class Function(FunctionBase):
 
 
     @classmethod
-    def getQuery(self, args, cur, con):
+    def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_bdDijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
         args['innerQuery'] = sql.SQL("""
@@ -51,8 +51,8 @@ class Function(FunctionBase):
                 {source_ids}, {target_ids}, {directed})
             """).format(**args)
 
-    def getExportQuery(self, args, cur, con):
-        return self.getJoinResultWithEdgeTable(args, cur, con)
+    def getExportQuery(self, args):
+        return self.getJoinResultWithEdgeTable(args)
 
     def getExportMergeQuery(self, args):
         return self.getExportManySourceManyTargetMergeQuery(args)

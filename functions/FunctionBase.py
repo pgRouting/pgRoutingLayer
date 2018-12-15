@@ -68,30 +68,31 @@ class FunctionBase(object):
     def whereClause(self, table, geometry, bbox):
         ''' returns where clause for sql parameterising '''
         if bbox == ' ':
-            return sql.SQL('WHERE true ')
+            return sql.SQL(' WHERE true ')
         else:
-            return sql.SQL('WHERE {0}.{1} {2}').format(table, geometry, bbox)
+            return sql.SQL(' WHERE {0}.{1} {2}').format(table, geometry, bbox)
 
     def prepare(self, canvasItemList):
         pass
 
     @classmethod
-    def getQuery(self, args, cur, con):
+    def getQuery(self, args):
         pass
 
     @classmethod
-    def getExportQuery(self, args, cur, con):
+    def getExportQuery(self, args):
         pass
 
+    @classmethod
     def getExportMergeQuery(self, args):
-        return 'NOT AVAILABLE'
+        pass
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         pass
 
-    def getJoinResultWithEdgeTable(self, args, cur, con):
+    def getJoinResultWithEdgeTable(self, args):
         '''returns a query which joins edge_table with result based on edge.id'''
-        args['result_query'] = self.getQuery(args, cur, con)
+        args['result_query'] = self.getQuery(args)
 
         query = sql.SQL("""
             WITH
@@ -150,47 +151,45 @@ class FunctionBase(object):
 
     def getExportManySourceManyTargetMergeQuery(self, args):
         ''' returns merge query for many source and many target '''
-        args['result_query'] = self.getQuery(args)
+        queries =  {}
+        queries['result_query'] = self.getQuery(args)
 
-        args['with_geom_query'] = """
+        queries['geom_query'] = sql.SQL("""
             SELECT
               seq, result.path_name,
               CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
+                WHEN result._node = {edge_table}.{source}
+                  THEN {edge_table}.{geometry}
+                ELSE ST_Reverse({edge_table}.{geometry})
               END AS path_geom
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge
-            """ % args
+            FROM {edge_table} JOIN result
+              ON {edge_table}.{id} = result._edge
+            """).format(**args)
 
-        args['one_geom_query'] = """
-            SELECT path_name, ST_LineMerge(ST_Union(path_geom)) AS path_geom
-            FROM with_geom
-            GROUP BY path_name
-            ORDER BY path_name
-            """ % args
-
-        args['aggregates_query'] = """
+        query = sql.SQL("""WITH
+            result AS ( {result_query} ),
+            with_geom AS ( {geom_query} ),
+            one_geom AS (
+                SELECT path_name, ST_LineMerge(ST_Union(path_geom)) AS path_geom
+                FROM with_geom
+                GROUP BY path_name
+                ORDER BY path_name
+            ),
+            aggregates AS (
                 SELECT
                     path_name, _start_vid, _end_vid,
                     SUM(_cost) AS agg_cost,
                     array_agg(_node ORDER BY _path_seq) AS _nodes,
                     array_agg(_edge ORDER BY _path_seq) AS _edges
-                    FROM result
+                FROM result
                 GROUP BY path_name, _start_vid, _end_vid
-                ORDER BY _start_vid, _end_vid"""
-
-        query = """WITH
-            result AS ( %(result_query)s ),
-            with_geom AS ( %(with_geom_query)s ),
-            one_geom AS ( %(one_geom_query)s ),
-            aggregates AS ( %(aggregates_query)s )
+                ORDER BY _start_vid, _end_vid
+            )
             SELECT row_number() over() as seq,
                 path_name, _start_vid, _end_vid, agg_cost, _nodes, _edges,
                 path_geom AS path_geom FROM aggregates JOIN one_geom
                 USING (path_name)
-            """ % args
+            """).format(**queries)
         return query
 
 
