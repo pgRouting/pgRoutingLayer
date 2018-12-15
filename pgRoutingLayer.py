@@ -43,7 +43,7 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
-        #'dijkstra',
+        'dijkstra',
         #'astar',
         'bdDijkstra',
         #'bdAstar',
@@ -675,7 +675,6 @@ class PgRoutingLayer:
             db = self.actionsDb[dbname].connect()
 
             con = db.con
-            cursor = con.cursor()
 
             version = Utils.getPgrVersion(con)
 
