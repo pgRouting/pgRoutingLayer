@@ -27,6 +27,7 @@ class Function(FunctionBase):
         canvasItemList['paths'] = []
 
 
+    @classmethod
     def getQuery(self, args, cur, conn):
         ''' returns the sql query in required signature format of pgr_bdDijkstra '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])

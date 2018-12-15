@@ -77,8 +77,9 @@ class FunctionBase(object):
     def prepare(self, canvasItemList):
         pass
 
+    @classmethod
     def getQuery(self, args, cur, con):
-        return ''
+        pass
 
     def getExportQuery(self, args):
         return ''
