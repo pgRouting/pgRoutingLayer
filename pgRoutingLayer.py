@@ -973,33 +973,6 @@ class PgRoutingLayer:
 
         args = {}
         args = self.get_innerQuery(con)
-        """
-        args['edge_table'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditTable.text())))
-        args['geometry'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditGeometry.text())))
-        if 'lineEditId' in controls:
-            args['id'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditId.text())))
-
-        if 'lineEditSource' in controls:
-            args['source'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditSource.text())))
-
-        if 'lineEditTarget' in controls:
-            args['target'] = sql.SQL("{}").format(sql.Identifier(str(self.dock.lineEditTarget.text())))
-
-        if 'lineEditCost' in controls:
-            args['cost'] = sql.SQL("{} AS cost").format(sql.Identifier(str(self.dock.lineEditCost.text())))
-
-        if 'checkBoxHasReverseCost' in controls:
-            if not self.dock.checkBoxHasReverseCost.isChecked():
-                args['reverse_cost'] = sql.SQL(", 1 ")
-            else:
-                args['reverse_cost'] = sql.SQL(", {}::FLOAT AS reverse_cost").format(
-                        sql.Identifier(str(self.dock.lineEditReverseCost.text())))
-
-        if 'checkBoxDirected' in controls:
-            args['directed'] = sql.SQL("directed := {}::BOOLEAN").format(
-                    sql.Literal(
-                        str(self.dock.checkBoxDirected.isChecked()).lower()))
-        """
 
         if 'lineEditX1' in controls:
             args['x1'] = self.dock.lineEditX1.text()
