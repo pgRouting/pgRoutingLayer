@@ -24,6 +24,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from psycopg2 import sql
 
+# dont know why its not reading this function
+def get_source(args):
+    return sql.SQL("""
+        SELECT {source},
+            ST_Distance(
+                {startpoint},
+                ST_GeomFromText('POINT({x} {y})', {srid})
+            ) AS dist,
+            ST_AsText({transform_s}{startpoint}{transform_e})
+            FROM {edge_table}
+            WHERE ST_SetSRID('BOX3D({minx} {miny}, {maxx} {maxy})'::BOX3D, {srid})
+                && {geometry} ORDER BY dist ASC LIMIT 1
+        """).format(**args)
 
 def get_innerQuery(args):
     return sql.SQL("""
@@ -51,15 +64,3 @@ def get_innerQueryXY(args):
             {where_clause}
         """.replace("\\n", r"\n")).format(**args)
 
-def get_nearestSource
-    return sql.SQL("""
-        SELECT {source},
-            ST_Distance(
-                {startpoint},
-                ST_GeomFromText('POINT({x} {y})', {srid})
-            ) AS dist,
-            ST_AsText({transform_s}{startpoint)s%(transform_e})
-            FROM {edge_table}
-            WHERE ST_SetSRID('BOX3D({minx} {miny}, {maxx} {maxy})'::BOX3D, {srid})
-                && {geometry} ORDER BY dist ASC LIMIT 1
-        """.format(**args)

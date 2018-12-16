@@ -22,27 +22,46 @@ def getSridAndGeomType(con, table, geometry):
     row = cur.fetchone()
     return row[0], row[1]
 
-def setStartPoint(geomType, args):
+# TODO illegal geometry case
+def setStartPoint(geomType, geometry, srid, canvas_srid):
     ''' records startpoint of geometry and stores in args dictionary. '''
+    if srid == 0:
+        if geomType == 'ST_LineString':
+            return sql.SQL("ST_StartPoint(ST_SetSRID({}, {}))").format(geometry, canvas_srid)
+    else:
+        if geomType == 'ST_LineString':
+            return sql.SQL("ST_StartPoint(ST_Transform({}, {}))").format(geometry, canvas_srid)
 
-    if geomType == 'ST_MultiLineString':
-        args['startpoint'] = "ST_StartPoint(ST_GeometryN(%(geometry)s, 1))" % args
-    elif geomType == 'ST_LineString':
-        args['startpoint'] = "ST_StartPoint(%(geometry)s)" % args
+def setEndPoint(geomType, geometry, srid, canvas_srid):
+    ''' records startpoint of geometry and stores in args dictionary. '''
+    if srid == 0:
+        if geomType == 'ST_MultiLineString':
+            # TODO consider this as illegal case?
+            return sql.SQL("ST_EndPoint(ST_GeometryN({}, 1))").format(geometry)
+        elif geomType == 'ST_LineString':
+            return sql.SQL("ST_EndPoint(ST_SetSRID({}, {}))").format(geometry, canvas_srid)
+    else:
+        if geomType == 'ST_MultiLineString':
+            return sql.SQL("ST_EndPoint(ST_GeometryN({}, 1))").format(geometry)
+        elif geomType == 'ST_LineString':
+            return sql.SQL("ST_EndPoint(ST_Transform({}, {}))").format(geometry, canvas_srid)
 
-def setEndPoint(geomType, args):
-    ''' records endpoint and stores in args. '''
-
-    if geomType == 'ST_MultiLineString':
-        args['endpoint'] = "ST_EndPoint(ST_GeometryN(%(geometry)s, 1))" % args
-    elif geomType == 'ST_LineString':
-        args['endpoint'] = "ST_EndPoint(%(geometry)s)" % args
+def getTransformedGeom(srid, canvas_srid, geometry):
+    '''
+    gets transformed geometry to canvas srid
+    srid - normal value
+    canvas_srid, geometry - composed values
+    '''
+    if srid == 0:
+        return sql.SQL("ST_SetSRID({}, {})").format(geometry, canvas_srid)
+    else:
+        return sql.SQL("ST_transform({}, {})").format(geometry, canvas_srid)
 
 def setTransformQuotes(args, srid, canvas_srid):
     ''' Sets transformQuotes '''
     if srid > 0 and canvas_srid > 0:
         args['transform_s'] = sql.SQL("ST_Transform(")
-        args['transform_e'] = sql.SQL(", {canvas_srid}").format(args)
+        args['transform_e'] = sql.SQL(", {}").format(sql.Literal(canvas_srid))
     else:
         args['transform_s'] = sql.SQL("")
         args['transform_e'] = sql.SQL("")

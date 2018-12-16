@@ -735,8 +735,11 @@ class PgRoutingLayer:
         bbox['prefix'] = sql.SQL("")
         bbox['suffix'] = sql.SQL("")
         if srid != canvasSrid:
-            bbox['prefix'] = sql.SQL("ST_Transform(")
-            bbox['suffix'] = sql.SQL(", {}").format(sql.Literal(srid))
+            if srid == 0:
+                bbox['prefix'] = sql.SQL("ST_SetSRID(")
+            else:
+                bbox['prefix'] = sql.SQL("ST_Transform(")
+            bbox['suffix'] = sql.SQL(", {})").format(sql.Literal(srid))
         xMin = self.iface.mapCanvas().extent().xMinimum()
         yMin = self.iface.mapCanvas().extent().yMinimum()
         xMax = self.iface.mapCanvas().extent().xMaximum()
@@ -750,10 +753,10 @@ class PgRoutingLayer:
         text += "," + str(round(xMax,2))
         text += " " + str(round(yMax,2)) + ")"
         return sql.SQL("""
-           && {prefix} ST_MakeEnvelope(
+           ST_MakeEnvelope(
               {xMin}, {yMin},
               {xMax}, {yMax}, {srid}
-              ){suffix}
+              )
         """).format(**bbox), text
 
 
@@ -948,6 +951,7 @@ class PgRoutingLayer:
                     str(self.dock.checkBoxDirected.isChecked()).lower()))
 
         args['srid'], args['geomType'] = Utils.getSridAndGeomType(conn, args['edge_table'], args['geometry'])
+        args['dbsrid'] = sql.Literal(args['srid'])
         if self.dock.checkBoxUseBBOX.isChecked():
             args['BBOX'], args['printBBOX'] = self.getBBOX(args['srid'])
             args['where_clause'] = sql.SQL(' WHERE {0}.{1} {2}').format(
@@ -1105,95 +1109,53 @@ class PgRoutingLayer:
             rect = trans.transform(rect)
 
             args['canvas_srid'] = Utils.getCanvasSrid(canvasCrs)
-            args['x'] = pt.x()
-            args['y'] = pt.y()
-            args['minx'] = rect.xMinimum()
-            args['miny'] = rect.yMinimum()
-            args['maxx'] = rect.xMaximum()
-            args['maxy'] = rect.yMaximum()
+            args['dbcanvas_srid'] = sql.Literal(args['canvas_srid'])
+            args['x'] = sql.Literal(pt.x())
+            args['y'] = sql.Literal(pt.y())
+            args['minx'] = sql.Literal(rect.xMinimum())
+            args['miny'] = sql.Literal(rect.yMinimum())
+            args['maxx'] = sql.Literal(rect.xMaximum())
+            args['maxy'] = sql.Literal(rect.yMaximum())
+            #TODO use the rectangle limits to get the BBOX
+            args['SBBOX'] = self.getBBOX(args['srid'])[0]
 
-            Utils.setStartPoint(geomType, args)
-            Utils.setEndPoint(geomType, args)
-            #Utils.setTransformQuotes(args)
-            Utils.setTransformQuotes(args, args['srid'], args['canvas_srid'])
+            args['geom_t'] = Utils.getTransformedGeom(args['srid'], args['dbcanvas_srid'], args['geometry'])
+
 
             # Getting nearest source
-            query1 = """
-            SELECT %(source)s,
-                ST_Distance(
-                    %(startpoint)s,
-                    ST_GeomFromText('POINT(%(x)f %(y)f)', %(srid)d)
-                ) AS dist,
-                ST_AsText(%(transform_s)s%(startpoint)s%(transform_e)s)
-                FROM %(edge_table)s
-                WHERE ST_SetSRID('BOX3D(%(minx)f %(miny)f, %(maxx)f %(maxy)f)'::BOX3D, %(srid)d)
-                    && %(geometry)s ORDER BY dist ASC LIMIT 1""" % args
+            query = sql.SQL("""
+            WITH
+            near_source AS(SELECT {source},
+                    ST_Distance(
+                        ST_StartPoint({geom_t}),
+                        ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
+                    ) AS dist,
+                    ST_AsText(ST_StartPoint({geom_t})) AS point
+                    FROM {edge_table}
+                    WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
+            ),
+            near_target AS(SELECT {target},
+                    ST_Distance(
+                        ST_EndPoint({geom_t}),
+                        ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
+                    ) AS dist,
+                    ST_AsText(ST_EndPoint({geom_t}))
+                    FROM {edge_table}
+                    WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
+            ),
+            the_union AS (
+                SELECT * FROM near_source UNION SELECT * FROM near_target
+            )
+            SELECT {source}, dist, point
+            FROM the_union
+            ORDER BY dist ASC LIMIT 1
+            """).format(**args)
 
-            ##Utils.logMessage(query1)
+            #QMessageBox.information(self.dock, self.dock.windowTitle(), query.as_string(con))
             cur1 = con.cursor()
-            cur1.execute(query1)
+            cur1.execute(query)
             row1 = cur1.fetchone()
-            d1 = None
-            source = None
-            wkt1 = None
-            if row1:
-                d1 = row1[1]
-                source = row1[0]
-                wkt1 = row1[2]
-
-            # Getting nearest target
-            query2 = """
-            SELECT %(target)s,
-                ST_Distance(
-                    %(endpoint)s,
-                    ST_GeomFromText('POINT(%(x)f %(y)f)', %(srid)d)
-                ) AS dist,
-                ST_AsText(%(transform_s)s%(endpoint)s%(transform_e)s)
-                FROM %(edge_table)s
-                WHERE ST_SetSRID('BOX3D(%(minx)f %(miny)f, %(maxx)f %(maxy)f)'::BOX3D, %(srid)d)
-                    && %(geometry)s ORDER BY dist ASC LIMIT 1""" % args
-
-            ##Utils.logMessage(query2)
-            cur2 = con.cursor()
-            cur2.execute(query2)
-            row2 = cur2.fetchone()
-            d2 = None
-            target = None
-            wkt2 = None
-            if row2:
-                d2 = row2[1]
-                target = row2[0]
-                wkt2 = row2[2]
-
-            # Checking what is nearer - source or target
-            d = None
-            node = None
-            wkt = None
-            if d1 and (not d2):
-                node = source
-                d = d1
-                wkt = wkt1
-            elif (not d1) and d2:
-                node = target
-                d = d2
-                wkt = wkt2
-            elif d1 and d2:
-                if d1 < d2:
-                    node = source
-                    d = d1
-                    wkt = wkt1
-                else:
-                    node = target
-                    d = d2
-                    wkt = wkt2
-
-            ##Utils.logMessage(str(d))
-            if (d == None) or (d > distance):
-                node = None
-                wkt = None
-                return False, None, None
-
-            return True, node, wkt
+            return True, row1[0], row1[2]
 
         except psycopg2.DatabaseError as e:
             QApplication.restoreOverrideCursor()
