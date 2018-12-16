@@ -22,7 +22,6 @@ def getSridAndGeomType(con, table, geometry):
     row = cur.fetchone()
     return row[0], row[1]
 
-
 def setStartPoint(geomType, args):
     ''' records startpoint of geometry and stores in args dictionary. '''
 

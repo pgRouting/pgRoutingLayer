@@ -32,6 +32,7 @@ from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
 from qgis.utils import iface
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
+from pgRoutingLayer.utilities import query_utils as Queries
 #import highlighter as hl
 import os
 import psycopg2
@@ -44,8 +45,8 @@ class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'dijkstra',
-        #'astar',
-        'bdDijkstra',
+        'astar',
+        #'bdDijkstra',
         #'bdAstar',
         #'ksp',
         #'trsp_vertex',
@@ -927,7 +928,7 @@ class PgRoutingLayer:
                 if selectButton.isChecked():
                     selectButton.click()
 
-    def get_innerQuery(self, con):
+    def get_innerQueryArguments(self, controls, conn):
         args = {}
         args['edge_table'] = sql.Identifier(str(self.dock.lineEditTable.text()))
         args['geometry'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
@@ -946,7 +947,7 @@ class PgRoutingLayer:
                 sql.Literal(
                     str(self.dock.checkBoxDirected.isChecked()).lower()))
 
-        args['srid'], args['geomType'] = Utils.getSridAndGeomType(con, args['edge_table'], args['geometry'])
+        args['srid'], args['geomType'] = Utils.getSridAndGeomType(conn, args['edge_table'], args['geometry'])
         if self.dock.checkBoxUseBBOX.isChecked():
             args['BBOX'], args['printBBOX'] = self.getBBOX(args['srid'])
             args['where_clause'] = sql.SQL(' WHERE {0}.{1} {2}').format(
@@ -956,35 +957,36 @@ class PgRoutingLayer:
             args['printBBOX'] = ' '
             args['where_clause'] = sql.SQL(' WHERE true ')
 
-        args['innerQuery'] = sql.SQL("""
-            SELECT {id} AS id,
-                    {source} AS source,
-                    {target} AS target,
-                    {cost}::FLOAT AS cost,
-                    {reverse_cost}::FLOAT AS reverse_cost
-                FROM {edge_table}
-                {where_clause}
-            """.replace("\\n", r"\n")).format(**args)
+        if 'lineEditX1' in controls:
+            args['x1'] = sql.Identifier(self.dock.lineEditX1.text())
+            args['y1'] = sql.Identifier(self.dock.lineEditY1.text())
+            args['x2'] = sql.Identifier(self.dock.lineEditX2.text())
+            args['y2'] = sql.Identifier(self.dock.lineEditY2.text())
+
+        return args
+
+    def get_innerQuery(self, controls, conn):
+        args = {}
+        args = self.get_innerQueryArguments(controls, conn)
+
+        if not 'lineEditX1' in controls:
+            args['innerQuery'] = Queries.get_innerQuery(args)
+        else:
+            args['innerQuery'] = Queries.get_innerQueryXY(args)
+
         return args
 
 
-    def getArguments(self, controls, con):
+    def getArguments(self, controls, conn):
         ''' updates the GUI field text to args '''
 
         args = {}
-        args = self.get_innerQuery(con)
+        args = self.get_innerQuery(controls, conn)
 
         if 'lineEditX1' in controls:
-            args['x1'] = self.dock.lineEditX1.text()
+            # TODO capture heuristic, factor, epsilon in the GUI
+            QMessageBox.information(self.dock, self.dock.windowTitle(), 'TODO: capture heuristic, factor, epsilon')
 
-        if 'lineEditY1' in controls:
-            args['y1'] = self.dock.lineEditY1.text()
-
-        if 'lineEditX2' in controls:
-            args['x2'] = self.dock.lineEditX2.text()
-
-        if 'lineEditY2' in controls:
-            args['y2'] = self.dock.lineEditY2.text()
 
         if 'lineEditRule' in controls:
             args['rule'] = self.dock.lineEditRule.text()
