@@ -373,7 +373,7 @@ class PgRoutingLayer:
     def setIds(self, pt):
         ''' Sets the ids on mapCanvas with color '''
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-        args = self.getBaseArguments()
+        args = self.getArguments()
         mapCanvas = self.iface.mapCanvas()
         if not function.isEdgeBase():
             result, id, wkt = self.findNearestNode(args, pt)
@@ -436,7 +436,7 @@ class PgRoutingLayer:
     def setSourceId(self, pt):
         ''' Sets the source id by finding nearest node and displays in mapCanvas with color '''
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-        args = self.getBaseArguments()
+        args = self.getArguments()
         if not function.isEdgeBase():
             result, id, wkt = self.findNearestNode(args, pt)
             if result:
@@ -480,7 +480,7 @@ class PgRoutingLayer:
 
     def setSourceIds(self, pt):
         ''' Sets the source id by finding nearest node and displays in mapCanvas with color '''
-        args = self.getBaseArguments()
+        args = self.getArguments()
         result, id, wkt = self.findNearestNode(args, pt)
         if result:
             ids = self.dock.lineEditSourceIds.text()
@@ -512,7 +512,7 @@ class PgRoutingLayer:
     def setTargetId(self, pt):
         ''' Sets the target id by finding nearest node and displays in mapCanvas with color '''
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-        args = self.getBaseArguments()
+        args = self.getArguments()
         if not function.isEdgeBase():
             result, id, wkt = self.findNearestNode(args, pt)
             if result:
@@ -555,7 +555,7 @@ class PgRoutingLayer:
 
     def setTargetIds(self, pt):
         ''' Sets the target ids by finding nearest node and displays in mapCanvas with color '''
-        args = self.getBaseArguments()
+        args = self.getArguments()
         result, id, wkt = self.findNearestNode(args, pt)
         if result:
             ids = self.dock.lineEditTargetIds.text()
@@ -1082,28 +1082,6 @@ class PgRoutingLayer:
 
         if 'plainTextEditTurnRestrictSql' in controls:
             args['turn_restrict_sql'] = self.dock.plainTextEditTurnRestrictSql.toPlainText()
-
-        return args
-
-    def getBaseArguments(self):
-        ''' updates base arguments from GUI to args '''
-        args = {}
-        args['edge_table'] = self.dock.lineEditTable.text()
-        args['geometry'] = self.dock.lineEditGeometry.text()
-        args['id'] = self.dock.lineEditId.text()
-        args['source'] = self.dock.lineEditSource.text()
-        args['target'] = self.dock.lineEditTarget.text()
-
-        empties = []
-        for key in list(args.keys()):
-            if not args[key]:
-                empties.append(key)
-
-        if len(empties) > 0:
-            QApplication.restoreOverrideCursor()
-            QMessageBox.warning(self.dock, self.dock.windowTitle(),
-                'Following argument is not specified.\n' + ','.join(empties))
-            return None
 
         return args
 
