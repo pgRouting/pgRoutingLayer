@@ -590,7 +590,7 @@ class PgRoutingLayer:
             con = db.con
 
             function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-            args = self.getArguments(function.getControlNames(self.version), con)
+            args = self.getArguments()
 
             empties = []
             for key in list(args.keys()):
@@ -658,7 +658,7 @@ class PgRoutingLayer:
             con = db.con
 
             function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-            args = self.getArguments(function.getControlNames(self.version), con)
+            args = self.getArguments()
 
             empties = []
             for key in list(args.keys()):
@@ -768,7 +768,7 @@ class PgRoutingLayer:
             con = db.con
 
             function = self.functions[str(self.dock.comboBoxFunction.currentText())]
-            args = self.getArguments(function.getControlNames(self.version), con)
+            args = self.getArguments()
 
             empties = []
             for key in list(args.keys()):
@@ -976,8 +976,39 @@ class PgRoutingLayer:
 
         return args
 
+    def getArguments(self):
+        ''' updates the GUI field text to args '''
+        db = None
+        try:
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
 
-    def getArguments(self, controls, conn):
+            function = self.functions[str(self.dock.comboBoxFunction.currentText())]
+            return self._getArguments(function.getControlNames(self.version), db.con)
+
+        except psycopg2.DatabaseError as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
+
+        except SystemError as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
+
+        except AssertionError as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.warning(self.dock, self.dock.windowTitle(), '%s' % e)
+
+        finally:
+            QApplication.restoreOverrideCursor()
+            if db and db.con:
+                try:
+                    db.con.close()
+                except:
+                    QMessageBox.critical(self.dock, self.dock.windowTitle(),
+                        'server closed the connection unexpectedly')
+
+
+    def _getArguments(self, controls, conn):
         ''' updates the GUI field text to args '''
 
         args = {}
