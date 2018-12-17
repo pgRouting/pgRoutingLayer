@@ -433,13 +433,6 @@ class Connection(DbConn.Connection):
         self._exec_sql(c, sql)
         return c.fetchone()[0]
 
-    """
-    def list_tables(self):
-        c = self.con.cursor()
-        c.execute("SELECT relname FROM pg_class WHERE relname !~ '^(pg_|sql_)' AND relkind = 'r'")
-        return c.fetchall()
-    """
-
     def add_geometry_column(self, table, geom_type, schema=None, geom_column='the_geom', srid=-1, dim=2):
 
         # use schema if explicitly specified

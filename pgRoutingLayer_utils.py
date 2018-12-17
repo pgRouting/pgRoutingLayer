@@ -1,8 +1,5 @@
 from qgis.core import QgsMessageLog, Qgis, QgsWkbTypes
-from qgis.gui import QgsMapCanvas
-from qgis.PyQt.QtCore import QVariant, QSettings
-#from PyQt4.QtGui import *
-import psycopg2
+from qgis.PyQt.QtCore import QVariant
 from psycopg2 import sql
 import sip
 
@@ -67,44 +64,26 @@ def isQGISv1():
 
 def getDestinationCrs(mapCanvas):
     ''' returns Coordinate Reference ID of map/overlaid layers. '''
-    if isQGISv1():
-        return mapCanvas.mapRenderer().destinationSrs()
-    else:
-        if Qgis.QGIS_VERSION_INT < 20400:
-            return mapCanvas.mapRenderer().destinationCrs()
-        else:
-            return mapCanvas.mapSettings().destinationCrs()
+        return mapCanvas.mapSettings().destinationCrs()
 
 def getCanvasSrid(crs):
     ''' Returns SRID based on QGIS version. '''
-    if isQGISv1():
-        return crs.epsg()
-    else:
-        return crs.postgisSrid()
+    return crs.postgisSrid()
 
 def createFromSrid(crs, srid):
     ''' Creates EPSG crs for QGIS version 1 or Creates Spatial reference system based of SRID for QGIS version 2. '''
-    if isQGISv1():
-        return crs.createFromEpsg(srid)
-    else:
-        return crs.createFromSrid(srid)
+    return crs.createFromSrid(srid)
 
 def getRubberBandType(isPolygon):
     ''' returns RubberBandType as polygon or lineString '''
-    if isQGISv1():
-        return isPolygon
+    if isPolygon:
+        return QgsWkbTypes.PolygonGeometry
     else:
-        if isPolygon:
-            return QgsWkbTypes.PolygonGeometry
-        else:
-            return QgsWkbTypes.LineGeometry
+        return QgsWkbTypes.LineGeometry
 
 def refreshMapCanvas(mapCanvas):
     '''  refreshes the mapCanvas , RubberBand is cleared. '''
-    if Qgis.QGIS_VERSION_INT < 20400:
-        return mapCanvas.clear()
-    else:
-        return mapCanvas.refresh()
+    return mapCanvas.refresh()
 
 def logMessage(message, level=Qgis.Info):
     QgsMessageLog.logMessage(message, 'pgRouting Layer', level)

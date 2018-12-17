@@ -1,6 +1,6 @@
 from builtins import str
 from builtins import object
-from qgis.core import (Qgis, QgsGeometry,QgsWkbTypes)
+from qgis.core import (QgsGeometry, QgsWkbTypes)
 from qgis.gui import QgsRubberBand
 from qgis.PyQt.QtGui import QColor
 from psycopg2 import sql

@@ -22,9 +22,8 @@
 from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import str
-from builtins import object
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt, QObject, pyqtSignal, QRegExp, QSettings
+from qgis.PyQt.QtCore import Qt, QObject, QRegExp, QSettings
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit, QMessageBox
 from qgis.core import QgsMessageLog,Qgis,QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsGeometry,QgsWkbTypes
@@ -132,8 +131,7 @@ class PgRoutingLayer:
         resultAreaRubberBand = QgsRubberBand(self.iface.mapCanvas(), Utils.getRubberBandType(True))
         resultAreaRubberBand.setColor(Qt.magenta)
         resultAreaRubberBand.setWidth(2)
-        if not Utils.isQGISv1():
-            resultAreaRubberBand.setBrushStyle(Qt.Dense4Pattern)
+        resultAreaRubberBand.setBrushStyle(Qt.Dense4Pattern)
         self.canvasItemList['area'] = resultAreaRubberBand
 
     def initGui(self):
