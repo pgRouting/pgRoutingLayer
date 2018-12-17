@@ -9,7 +9,7 @@ class Function(FunctionBase):
     @classmethod
     def getName(self):
         ''' returns Function name. '''
-        return 'bdAstar'
+        return 'pgr_bdAstar'
 
     @classmethod
     def getControlNames(self, version):

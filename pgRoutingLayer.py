@@ -39,21 +39,21 @@ import re
 
 conn = dbConnection.ConnectionManager()
 
-class PgRoutingLayer(object):
+class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
-        'dijkstra',
-        'astar',
-        'bdDijkstra',
-        'bdAstar',
-        'ksp',
-        'trsp_vertex',
-        'trsp_edge',
-        'trsp_via_vertices',
-        'trsp_via_edges',
-        'drivingDistance',
         'alphashape',
+        'astar',
+        'bdAstar',
+        'bdDijkstra',
+        'dijkstra',
         # 'dijkstraCost',
+        'drivingDistance',
+        'ksp',
+        'trsp_edge',
+        'trsp_vertex',
+        'trspViaEdges',
+        'trspViaVertices',
         # 'tsp_euclid',
         # 'with_Points',
         # 'with_PointsCost'
@@ -1277,7 +1277,7 @@ class PgRoutingLayer(object):
         if idx >= 0:
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
-        self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'roads'))
+        self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'edge_table'))
         # self.dock.lineEditPointsTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/pointsOfInterest', 'pointsOfInterest'))
         self.dock.lineEditGeometry.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
         self.dock.lineEditId.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/id', 'id'))

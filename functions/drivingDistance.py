@@ -13,7 +13,7 @@ class Function(FunctionBase):
     @classmethod
     def getName(self):
         ''' returns Function name. '''
-        return 'drivingDistance'
+        return 'pgr_drivingDistance'
     
     @classmethod
     def getControlNames(self, version):
