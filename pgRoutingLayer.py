@@ -32,8 +32,6 @@ from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
 from qgis.utils import iface
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
-from pgRoutingLayer.utilities import query_utils as PgRqueries
-#import highlighter as hl
 import os
 import psycopg2
 from psycopg2 import sql
