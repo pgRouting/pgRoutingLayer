@@ -23,7 +23,7 @@ from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import str
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt, QObject, QRegExp, QSettings
+from qgis.PyQt.QtCore import Qt, QRegExp, QSettings
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit, QMessageBox
 from qgis.core import QgsMessageLog,Qgis,QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsGeometry,QgsWkbTypes
@@ -42,10 +42,10 @@ class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'dijkstra',
-        'astar',
+        #'astar',
         #'bdDijkstra',
         #'bdAstar',
-        #'ksp',
+        'ksp',
         #'trsp_vertex',
         #'trsp_edge',
         #'trspViaVertices',
@@ -1031,8 +1031,14 @@ class PgRoutingLayer:
         if 'lineEditPcts' in controls:
             args['pcts'] = self.dock.lineEditPcts.text()
 
+        # Used in pgr_KSP
         if 'lineEditSourceId' in controls:
-            args['source_id'] = self.dock.lineEditSourceId.text()
+            args['source_id'] = sql.Literal(self.dock.lineEditSourceId.text())
+            args['target_id'] = sql.Literal(self.dock.lineEditTargetId.text())
+
+        # Used in pgr_KSP
+        if 'lineEditPaths' in controls:
+            args['Kpaths'] = sql.Literal(self.dock.lineEditPaths.text())
 
         if 'lineEditSourcePos' in controls:
             args['source_pos'] = self.dock.lineEditSourcePos.text()
@@ -1041,8 +1047,6 @@ class PgRoutingLayer:
             args['source_ids'] = sql.SQL("string_to_array({}, ',')::BIGINT[]").format(
                     sql.Literal(str(self.dock.lineEditSourceIds.text())))
 
-        if 'lineEditTargetId' in controls:
-            args['target_id'] = self.dock.lineEditTargetId.text()
 
         if 'lineEditTargetPos' in controls:
             args['target_pos'] = self.dock.lineEditTargetPos.text()
@@ -1057,15 +1061,11 @@ class PgRoutingLayer:
         if 'lineEditAlpha' in controls:
             args['alpha'] = self.dock.lineEditAlpha.text()
 
-        if 'lineEditPaths' in controls:
-            args['paths'] = self.dock.lineEditPaths.text()
 
-
-        # if 'checkBoxDetails' in controls:
-        #     args['details'] = str(self.dock.checkBoxDirected.isChecked()).lower()
 
         if 'checkBoxHeapPaths' in controls:
-            args['heap_paths'] = str(self.dock.checkBoxHeapPaths.isChecked()).lower()
+            args['heap_paths'] = sql.SQL("heap_paths := {}::BOOLEAN").format(
+                sql.Literal(str(self.dock.checkBoxHeapPaths.isChecked()).lower()))
 
         if 'checkBoxUseBBOX' in controls:
             args['use_bbox'] = str(self.dock.checkBoxUseBBOX.isChecked()).lower()

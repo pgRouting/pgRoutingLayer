@@ -89,24 +89,20 @@ def logMessage(message, level=Qgis.Info):
 
 def getNodeQuery(args, geomType):
     ''' returns a sql query to get nodes from a geometry. '''
-    setStartPoint(geomType, args)
-    setEndPoint(geomType, args)
-    return """
+    return sql.SQL("""
         WITH node AS (
-            SELECT id::int4,
-                ST_X(%(geometry)s) AS x,
-                ST_Y(%(geometry)s) AS y,
-                %(geometry)s
-                FROM (
-                    SELECT %(source)s::int4 AS id,
-                        %(startpoint)s AS %(geometry)s
-                        FROM %(edge_table)s
+            SELECT {id},
+                ST_X({geometry}) AS x,
+                ST_Y({geometry}) AS y,
+                {geometry}
+            FROM (
+                SELECT {source} AS id, ST_StartPoint({geom_t}) AS _geom
+                FROM {edge_table}
                     UNION
-                    SELECT %(target)s::int4 AS id,
-                        %(endpoint)s AS %(geometry)s
-                        FROM %(edge_table)s
+                SELECT {target}, ST_EndPoint({geom_t})
+                FROM {edge_table}
                 ) AS node
-        )""" % args
+       )""").format(**args)
 
 def getPgrVersion(con):
     ''' returns version of PostgreSQL database. '''
