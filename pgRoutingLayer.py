@@ -32,7 +32,7 @@ from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
 from qgis.utils import iface
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
-from pgRoutingLayer.utilities import query_utils as Queries
+from pgRoutingLayer.utilities import query_utils as PgRqueries
 #import highlighter as hl
 import os
 import psycopg2
@@ -974,9 +974,9 @@ class PgRoutingLayer:
         args = self.get_innerQueryArguments(controls, conn)
 
         if not 'lineEditX1' in controls:
-            args['innerQuery'] = Queries.get_innerQuery(args)
+            args['innerQuery'] = Utils.get_innerQuery(args)
         else:
-            args['innerQuery'] = Queries.get_innerQueryXY(args)
+            args['innerQuery'] = Utils.get_innerQueryXY(args)
 
         return args
 
@@ -1112,50 +1112,15 @@ class PgRoutingLayer:
             args['dbcanvas_srid'] = sql.Literal(args['canvas_srid'])
             args['x'] = sql.Literal(pt.x())
             args['y'] = sql.Literal(pt.y())
-            args['minx'] = sql.Literal(rect.xMinimum())
-            args['miny'] = sql.Literal(rect.yMinimum())
-            args['maxx'] = sql.Literal(rect.xMaximum())
-            args['maxy'] = sql.Literal(rect.yMaximum())
-            #TODO use the rectangle limits to get the BBOX
             args['SBBOX'] = self.getBBOX(args['srid'])[0]
-
             args['geom_t'] = Utils.getTransformedGeom(args['srid'], args['dbcanvas_srid'], args['geometry'])
 
 
-            # Getting nearest source
-            query = sql.SQL("""
-            WITH
-            near_source AS(SELECT {source},
-                    ST_Distance(
-                        ST_StartPoint({geom_t}),
-                        ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
-                    ) AS dist,
-                    ST_AsText(ST_StartPoint({geom_t})) AS point
-                    FROM {edge_table}
-                    WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
-            ),
-            near_target AS(SELECT {target},
-                    ST_Distance(
-                        ST_EndPoint({geom_t}),
-                        ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
-                    ) AS dist,
-                    ST_AsText(ST_EndPoint({geom_t}))
-                    FROM {edge_table}
-                    WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
-            ),
-            the_union AS (
-                SELECT * FROM near_source UNION SELECT * FROM near_target
-            )
-            SELECT {source}, dist, point
-            FROM the_union
-            ORDER BY dist ASC LIMIT 1
-            """).format(**args)
-
-            #QMessageBox.information(self.dock, self.dock.windowTitle(), query.as_string(con))
-            cur1 = con.cursor()
-            cur1.execute(query)
-            row1 = cur1.fetchone()
-            return True, row1[0], row1[2]
+            #QMessageBox.information(self.dock, self.dock.windowTitle(), Utils.get_closestVertexInfo(args).as_string(con))
+            cur = con.cursor()
+            cur.execute( Utils.get_closestVertexInfo(args).as_string(con) )
+            row = cur.fetchone()
+            return True, row[0], row[2]
 
         except psycopg2.DatabaseError as e:
             QApplication.restoreOverrideCursor()

@@ -22,29 +22,6 @@ def getSridAndGeomType(con, table, geometry):
     row = cur.fetchone()
     return row[0], row[1]
 
-# TODO illegal geometry case
-def setStartPoint(geomType, geometry, srid, canvas_srid):
-    ''' records startpoint of geometry and stores in args dictionary. '''
-    if srid == 0:
-        if geomType == 'ST_LineString':
-            return sql.SQL("ST_StartPoint(ST_SetSRID({}, {}))").format(geometry, canvas_srid)
-    else:
-        if geomType == 'ST_LineString':
-            return sql.SQL("ST_StartPoint(ST_Transform({}, {}))").format(geometry, canvas_srid)
-
-def setEndPoint(geomType, geometry, srid, canvas_srid):
-    ''' records startpoint of geometry and stores in args dictionary. '''
-    if srid == 0:
-        if geomType == 'ST_MultiLineString':
-            # TODO consider this as illegal case?
-            return sql.SQL("ST_EndPoint(ST_GeometryN({}, 1))").format(geometry)
-        elif geomType == 'ST_LineString':
-            return sql.SQL("ST_EndPoint(ST_SetSRID({}, {}))").format(geometry, canvas_srid)
-    else:
-        if geomType == 'ST_MultiLineString':
-            return sql.SQL("ST_EndPoint(ST_GeometryN({}, 1))").format(geometry)
-        elif geomType == 'ST_LineString':
-            return sql.SQL("ST_EndPoint(ST_Transform({}, {}))").format(geometry, canvas_srid)
 
 def getTransformedGeom(srid, canvas_srid, geometry):
     '''
@@ -169,3 +146,58 @@ def getPgrVersion(con):
         return 0
     except SystemError as e:
         return 0
+
+def get_innerQuery(args):
+    return sql.SQL("""
+        SELECT {id} AS id,
+                {source} AS source,
+                {target} AS target,
+                {cost}::FLOAT AS cost,
+                {reverse_cost}::FLOAT AS reverse_cost
+            FROM {edge_table}
+            {where_clause}
+        """.replace("\\n", r"\n")).format(**args)
+
+def get_innerQueryXY(args):
+    return sql.SQL("""
+        SELECT {id} AS id,
+                {source} AS source,
+                {target} AS target,
+                {cost}::FLOAT AS cost,
+                {reverse_cost}::FLOAT AS reverse_cost,
+                {x1}::FLOAT AS x1,
+                {y1}::FLOAT AS y1,
+                {x2}::FLOAT AS x2,
+                {y2}::FLOAT AS y2
+            FROM {edge_table}
+            {where_clause}
+        """.replace("\\n", r"\n")).format(**args)
+
+def get_closestVertexInfo(args):
+    return  sql.SQL("""
+        WITH
+        near_source AS(SELECT {source},
+                ST_Distance(
+                    ST_StartPoint({geom_t}),
+                    ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
+                ) AS dist,
+                ST_AsText(ST_StartPoint({geom_t})) AS point
+                FROM {edge_table}
+                WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
+        ),
+        near_target AS(SELECT {target},
+                ST_Distance(
+                    ST_EndPoint({geom_t}),
+                    ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
+                ) AS dist,
+                ST_AsText(ST_EndPoint({geom_t}))
+                FROM {edge_table}
+                WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
+        ),
+        the_union AS (
+            SELECT * FROM near_source UNION SELECT * FROM near_target
+        )
+        SELECT {source}, dist, point
+        FROM the_union
+        ORDER BY dist ASC LIMIT 1
+        """).format(**args)
