@@ -1,5 +1,8 @@
 from qgis.core import QgsMessageLog, Qgis, QgsWkbTypes
-from qgis.PyQt.QtCore import QVariant
+from qgis.gui import QgsMapCanvas
+from qgis.PyQt.QtCore import QVariant, QSettings
+#from PyQt4.QtGui import *
+import psycopg2
 from psycopg2 import sql
 import sip
 
@@ -58,13 +61,9 @@ def getBoolValue(settings, key, value):
     else:
         return settings.value(key, QVariant(value)).toBool()
 
-def isQGISv1():
-    ''' returns True if QGis has version l.9 or less, otherwise False. '''
-    return Qgis.QGIS_VERSION_INT < 10900
-
 def getDestinationCrs(mapCanvas):
     ''' returns Coordinate Reference ID of map/overlaid layers. '''
-        return mapCanvas.mapSettings().destinationCrs()
+    return mapCanvas.mapSettings().destinationCrs()
 
 def getCanvasSrid(crs):
     ''' Returns SRID based on QGIS version. '''
