@@ -11,20 +11,11 @@ from .FunctionBase import FunctionBase
 class CostBase(FunctionBase):
 
     @classmethod
-    def getName(self):
-        ''' returns Function name. '''
-        return 'pgr_dijkstraCost'
-
-    @classmethod
     def isSupportedVersion(self, version):
         ''' Checks supported version '''
         # valid starting pgr v2.1
         return version >= 2.1
 
-
-    @classmethod
-    def canExportQuery(self):
-        return False
 
     @classmethod
     def canExportMerged(self):

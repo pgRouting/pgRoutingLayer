@@ -42,9 +42,9 @@ class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'pgr_dijkstra',
-        #'pgr_aStar',
-        #'pgr_bdDijkstra',
-        #'pgr_bdAstar',
+        'pgr_aStar',
+        'pgr_bdDijkstra',
+        'pgr_bdAstar',
         #'ksp',
         #'trsp_vertex',
         #'trsp_edge',
@@ -53,6 +53,9 @@ class PgRoutingLayer:
         #'drivingDistance',
         #'alphashape',
         'pgr_dijkstraCost',
+        'pgr_bdDijkstraCost',
+        'pgr_aStarCost',
+        'pgr_bdAstarCost',
         # 'tsp_euclid',
         # 'with_Points',
         # 'with_PointsCost'
@@ -1016,7 +1019,7 @@ class PgRoutingLayer:
         function = str(self.dock.comboBoxFunction.currentText()).lower()
         args['function'] = sql.Identifier(str(function))
 
-        if function == 'pgr_dijkstracost':
+        if function in ['pgr_astarcost', 'pgr_dijkstracost', 'pgr_bdastarcost', 'pgr_bddijkstracost']:
             # TODO: capture vewrtices table, geometry of vertices table
             args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
             args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
