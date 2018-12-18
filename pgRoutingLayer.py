@@ -42,9 +42,9 @@ class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'pgr_dijkstra',
-        'pgr_aStar',
-        'pgr_bdDijkstra',
-        'pgr_bdAstar',
+        #'pgr_aStar',
+        #'pgr_bdDijkstra',
+        #'pgr_bdAstar',
         #'ksp',
         #'trsp_vertex',
         #'trsp_edge',
@@ -52,7 +52,7 @@ class PgRoutingLayer:
         #'trspViaEdges',
         #'drivingDistance',
         #'alphashape',
-        # 'dijkstraCost',
+        'dijkstraCost',
         # 'tsp_euclid',
         # 'with_Points',
         # 'with_PointsCost'
@@ -1013,7 +1013,16 @@ class PgRoutingLayer:
 
         args = {}
         args = self.get_innerQuery(controls, conn)
-        args['function'] = sql.Identifier(str(self.dock.comboBoxFunction.currentText()).lower())
+        function = str(self.dock.comboBoxFunction.currentText()).lower()
+        args['function'] = sql.Identifier(str(function))
+
+        if function == 'pgr_dijkstracost':
+            # TODO: capture vewrtices table, geometry of vertices table
+            args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
+            args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
+            QMessageBox.information(self.dock, self.dock.windowTitle(),
+                'TODO: capture vewrtices table, geometry of vertices table,
+                       Instead of labeling the endpoint, lable the edges')
 
 
         if 'lineEditX1' in controls:

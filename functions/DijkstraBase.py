@@ -34,7 +34,7 @@ class DijkstraBase(FunctionBase):
             SELECT seq, '(' || start_vid || ',' || end_vid || ')' AS path_name,
                 path_seq AS _path_seq, start_vid AS _start_vid, end_vid AS _end_vid,
                 node AS _node, edge AS _edge, cost AS _cost, lead(agg_cost) over() AS _agg_cost
-            FROM pgr_dijkstra('
+            FROM {function}('
                 {innerQuery}
                 ',
                 {source_ids}, {target_ids}, {directed})

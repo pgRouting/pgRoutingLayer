@@ -1,8 +1,9 @@
 from builtins import str
 from builtins import object
-from qgis.core import (QgsGeometry, QgsWkbTypes)
-from qgis.gui import QgsRubberBand
-from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import QSizeF, QPointF
+from qgis.core import (QgsGeometry, QgsWkbTypes, QgsTextAnnotation)
+from qgis.PyQt.QtGui import QColor, QTextDocument
+from qgis.gui import QgsRubberBand, QgsMapCanvasAnnotationItem
 from psycopg2 import sql
 
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
@@ -277,8 +278,79 @@ class FunctionBase(object):
                         for pt in geom.asPolyline():
                             resultPathRubberBand.addPoint(pt)
 
+    def drawCostPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        resultPathsRubberBands = canvasItemList['paths']
+        rubberBand = None
+        cur_path_id = -1
+        for row in rows:
+            cur2 = con.cursor()
+            args['result_path_id'] = row[0]
+            args['result_source_id'] = sql.Literal(row[1])
+            args['result_target_id'] = sql.Literal(row[2])
+            args['result_cost'] = row[3]
+            if args['result_path_id'] != cur_path_id:
+                cur_path_id = args['result_path_id']
+                if rubberBand:
+                    resultPathsRubberBands.append(rubberBand)
+                    rubberBand = None
 
+                rubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
+                rubberBand.setColor(QColor(255, 0, 0, 128))
+                rubberBand.setWidth(4)
+            if args['result_cost'] != -1:
+                query2 = sql.SQL("""
+                    SELECT ST_AsText( ST_MakeLine(
+                        (SELECT {geometry_vt} FROM  {vertex_table} WHERE id = {result_source_id}),
+                        (SELECT {geometry_vt} FROM  {vertex_table} WHERE id = {result_target_id})
+                        ))
+                    """).format(**args)
+                ##Utils.logMessage(query2)
+                cur2.execute(query2)
+                row2 = cur2.fetchone()
+                ##Utils.logMessage(str(row2[0]))
 
+                geom = QgsGeometry().fromWkt(str(row2[0]))
+                if geom.wkbType() == QgsWkbTypes.MultiLineString:
+                    for line in geom.asMultiPolyline():
+                        for pt in line:
+                            rubberBand.addPoint(pt)
+                elif geom.wkbType() == QgsWkbTypes.LineString:
+                    for pt in geom.asPolyline():
+                        rubberBand.addPoint(pt)
+
+        # TODO label the edge instead of labeling the target points
+        if rubberBand:
+            resultPathsRubberBands.append(rubberBand)
+            rubberBand = None
+        resultNodesTextAnnotations = canvasItemList['annotations']
+        for row in rows:
+            cur2 = con.cursor()
+            args['result_seq'] = row[0]
+            args['result_source_id'] = sql.Literal(row[1])
+            result_target_id = row[2]
+            args['result_target_id'] = sql.Literal(result_target_id)
+            result_cost = row[3]
+            query2 = sql.SQL("""
+                SELECT ST_AsText( ST_startPoint({geometry}) ) FROM {edge_table}
+                    WHERE {source} = {result_target_id}
+                UNION
+                SELECT ST_AsText( ST_endPoint( {geometry} ) ) FROM {edge_table}
+                    WHERE {target} = {result_target_id}
+                """).format(**args)
+            cur2.execute(query2)
+            row2 = cur2.fetchone()
+
+            geom = QgsGeometry().fromWkt(str(row2[0]))
+            pt = geom.asPoint()
+            textDocument = QTextDocument("{0!s}:{1}".format(result_target_id, result_cost))
+            textAnnotation = QgsTextAnnotation()
+            textAnnotation.setMapPosition(geom.asPoint())
+            textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
+            textAnnotation.setFrameOffsetFromReferencePoint(QPointF(20, -40))
+            textAnnotation.setDocument(textDocument)
+
+            QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
+            resultNodesTextAnnotations.append(textAnnotation)
 
 
 
