@@ -42,9 +42,9 @@ class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
         'pgr_dijkstra',
-        #'astar',
+        'pgr_aStar',
         'pgr_bdDijkstra',
-        #'bdAstar',
+        'pgr_bdAstar',
         #'ksp',
         #'trsp_vertex',
         #'trsp_edge',
