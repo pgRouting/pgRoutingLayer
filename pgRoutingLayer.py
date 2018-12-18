@@ -52,7 +52,7 @@ class PgRoutingLayer:
         #'trspViaEdges',
         #'drivingDistance',
         #'alphashape',
-        'dijkstraCost',
+        'pgr_dijkstraCost',
         # 'tsp_euclid',
         # 'with_Points',
         # 'with_PointsCost'
@@ -1021,8 +1021,7 @@ class PgRoutingLayer:
             args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
             args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
             QMessageBox.information(self.dock, self.dock.windowTitle(),
-                'TODO: capture vewrtices table, geometry of vertices table,
-                       Instead of labeling the endpoint, lable the edges')
+                'TODO: capture vewrtices table, geometry of vertices table, labeil the edges')
 
 
         if 'lineEditX1' in controls:

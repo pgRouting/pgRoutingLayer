@@ -8,7 +8,7 @@ from psycopg2 import sql
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
-class Function(FunctionBase):
+class CostBase(FunctionBase):
 
     @classmethod
     def getName(self):
