@@ -41,11 +41,11 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
-        'dijkstra',
+        'pgr_dijkstra',
         #'astar',
-        #'bdDijkstra',
+        'pgr_bdDijkstra',
         #'bdAstar',
-        'ksp',
+        #'ksp',
         #'trsp_vertex',
         #'trsp_edge',
         #'trspViaVertices',
@@ -1013,6 +1013,8 @@ class PgRoutingLayer:
 
         args = {}
         args = self.get_innerQuery(controls, conn)
+        args['function'] = sql.Identifier(str(self.dock.comboBoxFunction.currentText()).lower())
+
 
         if 'lineEditX1' in controls:
             # TODO capture heuristic, factor, epsilon in the GUI
