@@ -6,3 +6,4 @@ py-env
 resources.py
 build
 *.swp
+.directory

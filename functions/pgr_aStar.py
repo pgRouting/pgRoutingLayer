@@ -10,7 +10,7 @@ class Function(AstarBase):
     @classmethod
     def getName(self):
         ''' returns Function name. '''
-        return 'pgr_astar'
+        return 'pgr_aStar'
 
     def __init__(self, ui):
         AstarBase.__init__(self, ui)

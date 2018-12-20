@@ -23,11 +23,11 @@ from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from builtins import str
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt, QRegExp, QSettings
+from qgis.PyQt.QtCore import Qt, QRegExp, QSettings, QUrl
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit, QMessageBox
 from qgis.core import QgsMessageLog,Qgis,QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsGeometry,QgsWkbTypes
-from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint
+from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint, QgisInterface
 from pgRoutingLayer import dbConnection
 from qgis.utils import iface
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
@@ -35,6 +35,7 @@ import os
 import psycopg2
 from psycopg2 import sql
 import re
+from PyQt5.QtGui import QDesktopServices
 
 conn = dbConnection.ConnectionManager()
 
@@ -147,7 +148,7 @@ class PgRoutingLayer:
         #load the form
         path = os.path.dirname(os.path.abspath(__file__))
         self.dock = uic.loadUi(os.path.join(path, "ui_pgRoutingLayer.ui"))
-        self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock)
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dock)
 
         self.idsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
         self.sourceIdEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
@@ -175,6 +176,9 @@ class PgRoutingLayer:
 
         self.dock.buttonSelectTargetId.clicked.connect(self.selectTargetId)
         self.targetIdEmitPoint.canvasClicked.connect(self.setTargetId)
+
+        # Function help
+        self.dock.buttonFunctionHelp.clicked.connect(self.openHelp)
 
         # More than one source id can be selected in some functions/version
         self.dock.buttonSelectSourceIds.clicked.connect(self.selectSourceIds)
@@ -1024,7 +1028,7 @@ class PgRoutingLayer:
             args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
             args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
             QMessageBox.information(self.dock, self.dock.windowTitle(),
-                'TODO: capture vewrtices table, geometry of vertices table, labeil the edges')
+                'TODO: capture vewrtices table, geometry of vertices table, label the edges')
 
 
         if 'lineEditX1' in controls:
@@ -1295,3 +1299,24 @@ class PgRoutingLayer:
         settings.setValue('/pgRoutingLayer/heap_paths', self.dock.checkBoxHeapPaths.isChecked())
         settings.setValue('/pgRoutingLayer/has_reverse_cost', self.dock.checkBoxHasReverseCost.isChecked())
         settings.setValue('/pgRoutingLayer/turn_restrict_sql', self.dock.plainTextEditTurnRestrictSql.toPlainText())
+
+    def openHelp(self, checked):
+        function = str(self.dock.comboBoxFunction.currentText())
+        db = None
+        try:
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
+            con = db.con
+            version = Utils.getPgrVersion(con)
+        except psycopg2.DatabaseError as e:
+            #database didn't have pgrouting
+            return 0
+        except SystemError as e:
+            return 0
+        url = QUrl('https://docs.pgrouting.org/'+str(version)+'/en/' + function+'.html')
+        try:
+            QDesktopServices.openUrl(url)
+        except:
+            QMessageBox.information(self.dock, self.dock.windowTitle(),
+                "Network error: No connection. \n Please check your network connection.")
+            return
