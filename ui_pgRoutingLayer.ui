@@ -35,7 +35,7 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="2">
+      <item row="0" column="0">
        <widget class="QToolButton" name="buttonReloadConnections">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -58,20 +58,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelConnections">
-        <property name="locale">
-         <locale language="English" country="UnitedStates"/>
-        </property>
-        <property name="text">
-         <string>Database</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::AutoText</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
+      <item row="0" column="2">
        <widget class="QComboBox" name="comboConnections">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -84,7 +71,20 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
+       <widget class="QLabel" name="labelConnections">
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="text">
+         <string>Database</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
        <widget class="QComboBox" name="comboBoxFunction">
         <property name="enabled">
          <bool>true</bool>
@@ -109,7 +109,29 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="1" column="1">
+       <widget class="QLabel" name="labelFunction">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap>icons/pgr_fn.svg</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QToolButton" name="buttonFunctionHelp">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -129,28 +151,6 @@
         <property name="icon">
          <iconset>
           <normaloff>icons/about.png</normaloff>icons/about.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="labelFunction">
-        <property name="maximumSize">
-         <size>
-          <width>50</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="locale">
-         <locale language="English" country="UnitedStates"/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>icons/pgr_fn.svg</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -1188,7 +1188,6 @@ _sql</string>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>comboConnections</tabstop>
   <tabstop>lineEditTable</tabstop>
   <tabstop>lineEditGeometry</tabstop>
   <tabstop>scrollAreaSqlColumns</tabstop>
