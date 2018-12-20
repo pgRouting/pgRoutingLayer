@@ -1,7 +1,5 @@
 from __future__ import absolute_import
-from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .AstarBase import AstarBase
-from psycopg2 import sql
 
 class Function(AstarBase):
 
