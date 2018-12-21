@@ -9,12 +9,12 @@ from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
-    
+
     @classmethod
     def getName(self):
         ''' returns Function name. '''
         return 'pgr_drivingDistance'
-    
+
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
@@ -35,7 +35,7 @@ class Function(FunctionBase):
         for marker in resultNodesVertexMarkers:
             marker.setVisible(False)
         canvasItemList['markers'] = []
-    
+
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_drivingDistance '''
         args['where_clause'] = self.whereClause(args['edge_table'], args['geometry'], args['BBOX'])
@@ -86,7 +86,7 @@ class Function(FunctionBase):
             result AS ( %(result_query)s ),
             with_geom AS ( %(with_geom_query)s )
             SELECT with_geom.*
-            FROM with_geom 
+            FROM with_geom
             ORDER BY seq
             """ % args
         return msgQuery
