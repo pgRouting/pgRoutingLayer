@@ -26,8 +26,9 @@ from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QRegExp, QSettings, QUrl
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit, QMessageBox
-from qgis.core import QgsMessageLog,Qgis,QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsProject, QgsGeometry,QgsWkbTypes
-from qgis.gui import QgsVertexMarker,QgsRubberBand,QgsMapToolEmitPoint, QgisInterface
+from qgis.core import QgsMessageLog, Qgis, QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
+from qgis.gui import QgsVertexMarker, QgsRubberBand, QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
 from qgis.utils import iface
 from pgRoutingLayer import pgRoutingLayer_utils as Utils

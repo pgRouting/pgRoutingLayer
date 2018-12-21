@@ -1,10 +1,5 @@
 from __future__ import absolute_import
-from qgis.PyQt.QtCore import QSizeF
-from qgis.PyQt.QtGui import QColor, QTextDocument
-from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes, QgsAnnotation
-from qgis.gui import QgsRubberBand
 from psycopg2 import sql
-from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class CostBase(FunctionBase):

@@ -5,13 +5,6 @@ from psycopg2 import sql
 
 class DijkstraBase(FunctionBase):
 
-    minPGRversion = 2.1
-
-    @classmethod
-    def getName(self):
-        ''' returns Function name. '''
-        return 'pgr_dijkstra'
-
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
@@ -47,7 +40,6 @@ class DijkstraBase(FunctionBase):
         return self.getExportManySourceManyTargetMergeQuery(args)
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
-        ''' draw the result '''
         self.drawManyPaths(rows, con, args, geomType, canvasItemList, mapCanvas)
 
     def __init__(self, ui):

@@ -278,6 +278,7 @@ class FunctionBase(object):
                         for pt in geom.asPolyline():
                             resultPathRubberBand.addPoint(pt)
 
+    @classmethod
     def drawCostPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
