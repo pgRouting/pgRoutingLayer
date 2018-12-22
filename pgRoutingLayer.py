@@ -931,7 +931,7 @@ class PgRoutingLayer:
                 if selectButton.isChecked():
                     selectButton.click()
 
-    def get_innerQueryArguments(self, controls, conn):
+    def get_innerQueryArguments(self, controls):
         args = {}
         args['edge_table'] = sql.Identifier(str(self.dock.lineEditTable.text()))
         args['geometry'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
@@ -946,11 +946,17 @@ class PgRoutingLayer:
             args['reverse_cost'] = sql.SQL("{}").format(
                     sql.Identifier(str(self.dock.lineEditReverseCost.text())))
 
-        args['directed'] = sql.SQL("directed := {}::BOOLEAN").format(
-                sql.Literal(
-                    str(self.dock.checkBoxDirected.isChecked()).lower()))
+        if 'lineEditX1' in controls:
+            args['x1'] = sql.Identifier(self.dock.lineEditX1.text())
+            args['y1'] = sql.Identifier(self.dock.lineEditY1.text())
+            args['x2'] = sql.Identifier(self.dock.lineEditX2.text())
+            args['y2'] = sql.Identifier(self.dock.lineEditY2.text())
 
-        args['srid'], args['geomType'] = Utils.getSridAndGeomType(conn, args['edge_table'], args['geometry'])
+        return args
+
+    def get_whereClause(self, edge_table, geometry, conn):
+        args = {}
+        args['srid'], args['geomType'] = Utils.getSridAndGeomType(conn, edge_table, geometry)
         args['dbsrid'] = sql.Literal(args['srid'])
         if self.dock.checkBoxUseBBOX.isChecked():
             args['BBOX'], args['printBBOX'] = self.getBBOX(args['srid'])
@@ -961,17 +967,13 @@ class PgRoutingLayer:
             args['printBBOX'] = ' '
             args['where_clause'] = sql.SQL(' WHERE true ')
 
-        if 'lineEditX1' in controls:
-            args['x1'] = sql.Identifier(self.dock.lineEditX1.text())
-            args['y1'] = sql.Identifier(self.dock.lineEditY1.text())
-            args['x2'] = sql.Identifier(self.dock.lineEditX2.text())
-            args['y2'] = sql.Identifier(self.dock.lineEditY2.text())
-
         return args
+
 
     def get_innerQuery(self, controls, conn):
         args = {}
-        args = self.get_innerQueryArguments(controls, conn)
+        args = self.get_innerQueryArguments(controls)
+        args.update(self.get_whereClause(args['edge_table'], args['geometry'], conn))
 
         if not 'lineEditX1' in controls:
             args['innerQuery'] = PgrQ.getEdgesQuery(args)
@@ -1075,16 +1077,13 @@ class PgRoutingLayer:
         if 'lineEditAlpha' in controls:
             args['alpha'] = self.dock.lineEditAlpha.text()
 
-
+        args['directed'] = sql.SQL("directed := {}::BOOLEAN").format(
+                sql.Literal(
+                    str(self.dock.checkBoxDirected.isChecked()).lower()))
 
         if 'checkBoxHeapPaths' in controls:
             args['heap_paths'] = sql.SQL("heap_paths := {}::BOOLEAN").format(
                 sql.Literal(str(self.dock.checkBoxHeapPaths.isChecked()).lower()))
-
-        if 'checkBoxUseBBOX' in controls:
-            args['use_bbox'] = str(self.dock.checkBoxUseBBOX.isChecked()).lower()
-        else:
-             args['use_bbox'] = 'false'
 
         # if 'labelDrivingSide' in controls:
         #     args['driving_side'] = str('b')
@@ -1092,10 +1091,6 @@ class PgRoutingLayer:
         #         args['driving_side'] = str('l')
         #     elif (self.dock.checkBoxLeft.isChecked() == False and self.dock.checkBoxRight.isChecked() == True):
         #         args['driving_side'] = str('r')
-
-
-        if 'plainTextEditTurnRestrictSql' in controls:
-            args['turn_restrict_sql'] = self.dock.plainTextEditTurnRestrictSql.toPlainText()
 
         return args
 
@@ -1253,7 +1248,6 @@ class PgRoutingLayer:
         self.dock.checkBoxDirected.setChecked(Utils.getBoolValue(settings, '/pgRoutingLayer/directed', False))
         self.dock.checkBoxHeapPaths.setChecked(Utils.getBoolValue(settings, '/pgRoutingLayer/heap_paths', False))
         self.dock.checkBoxHasReverseCost.setChecked(Utils.getBoolValue(settings, '/pgRoutingLayer/has_reverse_cost', False))
-        self.dock.plainTextEditTurnRestrictSql.setPlainText(Utils.getStringValue(settings, '/pgRoutingLayer/turn_restrict_sql', 'null'))
 
     def saveSettings(self):
         settings = QSettings()
@@ -1295,7 +1289,6 @@ class PgRoutingLayer:
         settings.setValue('/pgRoutingLayer/directed', self.dock.checkBoxDirected.isChecked())
         settings.setValue('/pgRoutingLayer/heap_paths', self.dock.checkBoxHeapPaths.isChecked())
         settings.setValue('/pgRoutingLayer/has_reverse_cost', self.dock.checkBoxHasReverseCost.isChecked())
-        settings.setValue('/pgRoutingLayer/turn_restrict_sql', self.dock.plainTextEditTurnRestrictSql.toPlainText())
 
     def openHelp(self, checked):
         function = str(self.dock.comboBoxFunction.currentText())
