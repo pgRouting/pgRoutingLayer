@@ -16,8 +16,6 @@ System information functions:
 http://www.postgresql.org/docs/8.0/static/functions-info.html
 """
 from __future__ import print_function
-from builtins import str
-from builtins import map
 from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtGui import QIcon
@@ -799,6 +797,7 @@ class Connection(DbConn.Connection):
         #    self.con.rollback()
         #    raise
 
+    @classmethod
     def _quote(self, identifier):
         identifier = str(identifier) # make sure it's python unicode string
         return u'"%s"' % identifier.replace('"', '""')

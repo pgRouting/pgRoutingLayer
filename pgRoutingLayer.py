@@ -21,17 +21,17 @@
 """
 from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
-from builtins import str
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QRegExp, QSettings, QUrl
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit, QMessageBox
-from qgis.core import QgsMessageLog, Qgis, QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import QgsMessageLog, QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsVertexMarker, QgsRubberBand, QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
 from qgis.utils import iface
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
+from pgRoutingLayer.utilities import pgr_queries as PgrQ
 import os
 import psycopg2
 from psycopg2 import sql
@@ -48,10 +48,6 @@ class PgRoutingLayer:
         'pgr_bdDijkstra',
         'pgr_bdAstar',
         #'ksp',
-        #'trsp_vertex',
-        #'trsp_edge',
-        #'trspViaVertices',
-        #'trspViaEdges',
         #'drivingDistance',
         #'alphashape',
         'pgr_dijkstraCost',
@@ -560,13 +556,13 @@ class PgRoutingLayer:
     def setTargetIds(self, pt):
         ''' Sets the target ids by finding nearest node and displays in mapCanvas with color '''
         args = self.getArguments()
-        result, id, wkt = self.findNearestNode(args, pt)
+        result, targetId, wkt = self.findNearestNode(args, pt)
         if result:
             ids = self.dock.lineEditTargetIds.text()
             if not ids:
-                self.dock.lineEditTargetIds.setText(str(id))
+                self.dock.lineEditTargetIds.setText(str(targetId))
             else:
-                self.dock.lineEditTargetIds.setText(ids + "," + str(id))
+                self.dock.lineEditTargetIds.setText(ids + "," + str(targetId))
             geom = QgsGeometry().fromWkt(wkt)
             mapCanvas = self.iface.mapCanvas()
             vertexMarker = QgsVertexMarker(mapCanvas)
@@ -978,9 +974,9 @@ class PgRoutingLayer:
         args = self.get_innerQueryArguments(controls, conn)
 
         if not 'lineEditX1' in controls:
-            args['innerQuery'] = Utils.get_innerQuery(args)
+            args['innerQuery'] = PgrQ.getEdgesQuery(args)
         else:
-            args['innerQuery'] = Utils.get_innerQueryXY(args)
+            args['innerQuery'] = PgrQ.getEdgesQueryXY(args)
 
         return args
 
