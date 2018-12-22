@@ -1,9 +1,8 @@
 from __future__ import absolute_import
 from qgis.PyQt.QtCore import QPointF, QSizeF
 from qgis.PyQt.QtGui import QTextDocument
-from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes
+from qgis.core import QgsGeometry, QgsTextAnnotation, QgsWkbTypes
 from qgis.gui import *
-import psycopg2
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 

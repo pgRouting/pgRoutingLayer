@@ -24,13 +24,12 @@ from __future__ import absolute_import
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QRegExp, QSettings, QUrl
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea, QMessageBox
+from qgis.PyQt.QtWidgets import QAction, QApplication, QMessageBox
 #from qgis.core import QgsMessageLog
 from qgis.core import QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsVertexMarker, QgsRubberBand, QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
-from qgis.utils import iface
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from pgRoutingLayer.utilities import pgr_queries as PgrQ
 import os
@@ -438,17 +437,17 @@ class PgRoutingLayer:
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
         args = self.getArguments()
         if not function.isEdgeBase():
-            result, id, wkt = self.findNearestNode(args, pt)
+            result, source_id, wkt = self.findNearestNode(args, pt)
             if result:
-                self.dock.lineEditSourceId.setText(str(id))
+                self.dock.lineEditSourceId.setText(str(source_id))
                 geom = QgsGeometry().fromWkt(wkt)
                 self.sourceIdVertexMarker.setCenter(geom.asPoint())
                 self.sourceIdVertexMarker.setVisible(True)
                 self.dock.buttonSelectSourceId.click()
         else:
-            result, id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
+            result, source_id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
             if result:
-                self.dock.lineEditSourceId.setText(str(id))
+                self.dock.lineEditSourceId.setText(str(source_id))
                 geom = QgsGeometry().fromWkt(wkt)
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():

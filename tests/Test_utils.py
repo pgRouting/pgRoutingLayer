@@ -49,7 +49,7 @@ class TestUtils(unittest.TestCase):
 
 
     def test_getDestinationCrs(self):
-        app = QApplication(sys.argv)
+        QApplication(sys.argv)
         # create a map canvas widget
         canvas = QgsMapCanvas()
         canvas.setCanvasColor(QColor('white'))
