@@ -514,9 +514,9 @@ class PgRoutingLayer:
         function = self.functions[str(self.dock.comboBoxFunction.currentText())]
         args = self.getArguments()
         if not function.isEdgeBase():
-            result, id, wkt = self.findNearestNode(args, pt)
+            result, target_id, wkt = self.findNearestNode(args, pt)
             if result:
-                self.dock.lineEditTargetId.setText(str(id))
+                self.dock.lineEditTargetId.setText(str(target_id))
                 geom = QgsGeometry().fromWkt(wkt)
                 self.targetIdVertexMarker.setCenter(geom.asPoint())
                 self.targetIdVertexMarker.setVisible(True)
@@ -524,7 +524,7 @@ class PgRoutingLayer:
         else:
             result, id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
             if result:
-                self.dock.lineEditTargetId.setText(str(id))
+                self.dock.lineEditTargetId.setText(str(target_id))
                 geom = QgsGeometry().fromWkt(wkt)
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():
@@ -715,7 +715,9 @@ class PgRoutingLayer:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
                         'server closed the connection unexpectedly')
 
-    def cleanQuery(self, msgQuery):
+
+    @classmethod
+    def cleanQuery(cls, msgQuery):
         ''' Cleans the query '''
         query = msgQuery.replace('\n', ' ')
         query = re.sub(r'\s+', ' ', query)
@@ -1023,11 +1025,11 @@ class PgRoutingLayer:
         args['function'] = sql.Identifier(str(function))
 
         if function in ['pgr_astarcost', 'pgr_dijkstracost', 'pgr_bdastarcost', 'pgr_bddijkstracost']:
-            # TODO: capture vewrtices table, geometry of vertices table
+            # TODO: capture vertices table, geometry of vertices table
             args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
             args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
             QMessageBox.information(self.dock, self.dock.windowTitle(),
-                'TODO: capture vewrtices table, geometry of vertices table, label the edges')
+                'TODO: capture vertices table, geometry of vertices table, label the edges')
 
 
         if 'lineEditX1' in controls:

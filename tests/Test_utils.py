@@ -49,7 +49,7 @@ class TestUtils(unittest.TestCase):
         setting.setValue('/pgRoutingLayer/Database', 99)
         self.assertTrue(utils.getBoolValue(setting,'/pgRoutingLayer/Database', 99))
 
-    
+
     def test_getDestinationCrs(self):
         app = QApplication(sys.argv)
         # create a map canvas widget
@@ -95,46 +95,10 @@ class TestUtils(unittest.TestCase):
                         ST_EndPoint(ST_GeometryN(test_geom, 1)) AS test_geom
                         FROM test_Table
                 ) AS node
-        )""" 
+        )"""
         self.maxDiff = None
         geomType = 'ST_MultiLineString'
         self.assertMultiLineEqual(utils.getNodeQuery(args,geomType),expected_sql)
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
-
-
-
-
-    
-
-
-        
-
-    
-
-    
-        
-
-    
-
-        
-
-        
-        
-
-
-
-        
-
-    
-
-        
-        
-
-    

@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-from builtins import str
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import *
 from qgis.core import QgsGeometry, QgsPointXY

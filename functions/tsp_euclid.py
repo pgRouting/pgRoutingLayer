@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-from builtins import str
 from qgis.PyQt.QtCore import QPointF, QSizeF
 from qgis.PyQt.QtGui import QTextDocument
 from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes
