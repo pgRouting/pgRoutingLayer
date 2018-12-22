@@ -1,11 +1,4 @@
 from __future__ import absolute_import
-from builtins import str
-from qgis.PyQt.QtCore import QSizeF, QPointF
-from qgis.PyQt.QtGui import QColor, QTextDocument
-from qgis.core import QgsGeometry, Qgis, QgsTextAnnotation, QgsWkbTypes, QgsAnnotation
-from qgis.gui import QgsRubberBand
-import psycopg2
-from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):
@@ -14,7 +7,7 @@ class Function(FunctionBase):
     def getName(self):
         ''' returns Function name. '''
         return 'with_Points'
-    
+
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
