@@ -161,8 +161,6 @@ class TableTrigger(object):
     TypeUpdate   = (1 << 4)
     TypeTruncate = (1 << 5)
 
-    pass
-
 class TableRule(object):
     pass
 
