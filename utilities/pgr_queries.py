@@ -1,10 +1,5 @@
 from psycopg2 import sql
 
-"""
-For pgRouting queries
-"""
-
-
 def getNodeQuery(args, geomType):
     ''' returns a sql query to get nodes from a geometry. '''
     return sql.SQL("""

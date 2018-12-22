@@ -24,7 +24,7 @@ from __future__ import absolute_import
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QRegExp, QSettings, QUrl
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea,QPlainTextEdit, QMessageBox
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea, QMessageBox
 from qgis.core import QgsMessageLog, QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsVertexMarker, QgsRubberBand, QgsMapToolEmitPoint
@@ -252,7 +252,6 @@ class PgRoutingLayer:
             try:
                 db = self.actionsDb[dbname].connect()
                 con = db.con
-                version = Utils.getPgrVersion(con)
                 if (Utils.getPgrVersion(con) != 0):
                     self.dock.comboConnections.addItem(dbname)
 
@@ -522,7 +521,7 @@ class PgRoutingLayer:
                 self.targetIdVertexMarker.setVisible(True)
                 self.dock.buttonSelectTargetId.click()
         else:
-            result, id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
+            result, target_id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
             if result:
                 self.dock.lineEditTargetId.setText(str(target_id))
                 geom = QgsGeometry().fromWkt(wkt)

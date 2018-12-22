@@ -1,6 +1,5 @@
 from qgis.core import QgsMessageLog, Qgis, QgsWkbTypes
-from qgis.gui import QgsMapCanvas
-from qgis.PyQt.QtCore import QVariant, QSettings
+from qgis.PyQt.QtCore import QVariant
 import psycopg2
 from psycopg2 import sql
 import sip
@@ -98,8 +97,8 @@ def getPgrVersion(con):
         if versions[1]:
             version += '.' + versions[1]
         return float(version)
-    except psycopg2.DatabaseError as e:
+    except psycopg2.DatabaseError:
         #database didn't have pgrouting
         return 0
-    except SystemError as e:
+    except SystemError:
         return 0

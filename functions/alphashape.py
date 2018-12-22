@@ -1,8 +1,6 @@
 from __future__ import absolute_import
 
 from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPoint, Qgis, QgsProject
-from qgis.gui import QgsRubberBand
-import psycopg2
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
