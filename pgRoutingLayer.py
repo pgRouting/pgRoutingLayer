@@ -933,6 +933,9 @@ class PgRoutingLayer:
 
     def get_innerQueryArguments(self, controls):
         args = {}
+        # TODO captrure the schema
+        QMessageBox.information(self.dock, self.dock.windowTitle(),
+           'TODO: capture the schema')
         args['edge_table'] = sql.Identifier(str(self.dock.lineEditTable.text()))
         args['geometry'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
         args['id'] = sql.Identifier(str(self.dock.lineEditId.text()))
