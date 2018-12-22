@@ -44,7 +44,7 @@ def getEdgesQueryXY(args):
         """.replace("\\n", r"\n")).format(**args)
 
 
-def getNodeQuery(args):
+def get_closestVertexInfo(args):
     return  sql.SQL("""
         WITH
         near_source AS(SELECT {source},

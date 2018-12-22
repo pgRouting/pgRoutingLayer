@@ -25,7 +25,8 @@ from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QRegExp, QSettings, QUrl
 from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
 from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication, QLabel, QLineEdit, QPushButton, QWidget,QGridLayout,QToolButton,QVBoxLayout,QHBoxLayout,QSplitter,QGroupBox,QScrollArea, QMessageBox
-from qgis.core import QgsMessageLog, QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+#from qgis.core import QgsMessageLog
+from qgis.core import QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsVertexMarker, QgsRubberBand, QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
@@ -1122,7 +1123,7 @@ class PgRoutingLayer:
 
             #QMessageBox.information(self.dock, self.dock.windowTitle(), Utils.get_closestVertexInfo(args).as_string(con))
             cur = con.cursor()
-            cur.execute( Utils.get_closestVertexInfo(args).as_string(con) )
+            cur.execute( PgrQ.get_closestVertexInfo(args).as_string(con) )
             row = cur.fetchone()
             return True, row[0], row[2]
 
