@@ -1,5 +1,3 @@
-from builtins import str
-from builtins import object
 from qgis.PyQt.QtCore import QSizeF, QPointF
 from qgis.core import (QgsGeometry, QgsWkbTypes, QgsTextAnnotation)
 from qgis.PyQt.QtGui import QColor, QTextDocument
@@ -194,6 +192,7 @@ class FunctionBase(object):
         return query
 
 
+    @classmethod
     def drawManyPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draws multi line string on the mapCanvas. '''
         resultPathsRubberBands = canvasItemList['paths']
@@ -246,7 +245,7 @@ class FunctionBase(object):
             resultPathsRubberBands.append(rubberBand)
             rubberBand = None
 
-
+    @classmethod
     def drawOnePath(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draws  line string on the mapCanvas. '''
         resultPathRubberBand = canvasItemList['path']
