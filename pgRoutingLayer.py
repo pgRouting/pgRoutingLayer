@@ -481,13 +481,13 @@ class PgRoutingLayer:
     def setSourceIds(self, pt):
         ''' Sets the source id by finding nearest node and displays in mapCanvas with color '''
         args = self.getArguments()
-        result, id, wkt = self.findNearestNode(args, pt)
+        result, source_id, wkt = self.findNearestNode(args, pt)
         if result:
             ids = self.dock.lineEditSourceIds.text()
             if not ids:
-                self.dock.lineEditSourceIds.setText(str(id))
+                self.dock.lineEditSourceIds.setText(str(source_id))
             else:
-                self.dock.lineEditSourceIds.setText(ids + "," + str(id))
+                self.dock.lineEditSourceIds.setText(ids + "," + str(source_id))
             geom = QgsGeometry().fromWkt(wkt)
             mapCanvas = self.iface.mapCanvas()
             vertexMarker = QgsVertexMarker(mapCanvas)
@@ -607,7 +607,7 @@ class PgRoutingLayer:
             args['version'] = version
 
             if (function.getName() == 'tsp(euclid)'):
-                args['node_query'] = Utils.getNodeQuery(args, geomType)
+                args['node_query'] = PgrQ.getNodeQuery(args)
 
             function.prepare(self.canvasItemList)
 
@@ -682,7 +682,6 @@ class PgRoutingLayer:
 
             #get the EXPORT query
             msgQuery = function.getExportQuery(args)
-            #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:\n' + msgQuery)
             #Utils.logMessage('Export:\n' + msgQuery.as_string(con))
 
             query = self.cleanQuery(msgQuery.as_string(con))
@@ -694,9 +693,8 @@ class PgRoutingLayer:
 
             vl = self.iface.addVectorLayer(uri.uri(), layerName, db.getProviderName())
             if not vl:
-                QMessageBox.information(self.dock, self.dock.windowTitle(), 'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
-                #QMessageBox.information(self.dock, self.dock.windowTitle(), 'pgRouting Query:' + function.getQuery(args))
-                #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + msgQuery)
+                QMessageBox.information(self.dock, self.dock.windowTitle(),
+                        'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
 
         except psycopg2.DatabaseError as e:
             QApplication.restoreOverrideCursor()
@@ -1300,10 +1298,10 @@ class PgRoutingLayer:
             db = self.actionsDb[dbname].connect()
             con = db.con
             version = Utils.getPgrVersion(con)
-        except psycopg2.DatabaseError as e:
+        except psycopg2.DatabaseError:
             #database didn't have pgrouting
             return 0
-        except SystemError as e:
+        except SystemError:
             return 0
         url = QUrl('https://docs.pgrouting.org/'+str(version)+'/en/' + function+'.html')
         try:

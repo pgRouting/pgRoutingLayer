@@ -97,7 +97,8 @@ class QgisInterface(QObject):
         """Remove layers from the canvas before they get deleted."""
         self.canvas.setLayerSet([])
 
-    def newProject(self):
+    @classmethod
+    def newProject(cls):
         """Create new project."""
         # noinspection PyArgumentList
         QgsMapLayerRegistry.instance().removeAllMapLayers()

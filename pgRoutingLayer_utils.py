@@ -1,7 +1,6 @@
 from qgis.core import QgsMessageLog, Qgis, QgsWkbTypes
 from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QVariant, QSettings
-#from PyQt4.QtGui import *
 import psycopg2
 from psycopg2 import sql
 import sip

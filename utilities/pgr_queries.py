@@ -1,8 +1,4 @@
-from qgis.core import QgsMessageLog, Qgis, QgsWkbTypes
-from qgis.PyQt.QtCore import QVariant
-import psycopg2
 from psycopg2 import sql
-import sip
 
 """
 For pgRouting queries
@@ -52,6 +48,8 @@ def getEdgesQueryXY(args):
             {where_clause}
         """.replace("\\n", r"\n")).format(**args)
 
+
+def getNodeQuery(args):
     return  sql.SQL("""
         WITH
         near_source AS(SELECT {source},
