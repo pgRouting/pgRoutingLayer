@@ -20,6 +20,8 @@ from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QInputDialog
+from psycopg2 import sql
+
 
 
 
@@ -187,8 +189,7 @@ class Connection(DbConn.Connection):
 
     def check_spatial(self):
         """ check whether postgis_version is present in catalog """
-        c = self.con.cursor()
-        self._exec_sql(c, "SELECT COUNT(*) FROM pg_proc WHERE proname = 'postgis_version'")
+        c = self._exec_sql(sql.SQL("SELECT COUNT(*) FROM pg_proc WHERE proname = 'postgis_version'"))
         return (c.fetchone()[0] > 0)
 
     def get_spatial_info(self):
@@ -201,13 +202,16 @@ class Connection(DbConn.Connection):
             - whether uses stats
         """
         c = self.con.cursor()
-        self._exec_sql(c, "SELECT postgis_lib_version(), postgis_scripts_installed(), postgis_scripts_released(), postgis_geos_version(), postgis_proj_version(), postgis_uses_stats()")
+        self._exec_sql(c, sql.SQL("""
+            SELECT postgis_lib_version(), postgis_scripts_installed(), postgis_scripts_released(),
+                postgis_geos_version(), postgis_proj_version(), postgis_uses_stats()"""))
         return c.fetchone()
 
     def check_geometry_columns_table(self):
 
-        c = self.con.cursor()
-        self._exec_sql(c, "SELECT relname FROM pg_class WHERE relname = 'geometry_columns' AND pg_class.relkind IN ('v', 'r')")
+        c = self._exec_sql(sql.SQL("""
+            SELECT relname FROM pg_class
+            WHERE relname = 'geometry_columns' AND pg_class.relkind IN ('v', 'r')"""))
         self.has_geometry_columns = (len(c.fetchall()) != 0)
 
         if not self.has_geometry_columns:
@@ -259,73 +263,24 @@ class Connection(DbConn.Connection):
         return attrs
 
 
-    def get_database_privileges(self):
-        """ db privileges: (can create schemas, can create temp. tables) """
-        sql = "SELECT has_database_privilege('%(d)s', 'CREATE'), has_database_privilege('%(d)s', 'TEMP')" % { 'd' : self._quote_str(self.dbname) }
-        c = self.con.cursor()
-        self._exec_sql(c, sql)
-        return c.fetchone()
-
     def get_table_privileges(self, table, schema=None):
         """ table privileges: (select, insert, update, delete) """
-        t = self._table_name(schema, table)
-        sql = """SELECT has_table_privilege('%(t)s', 'SELECT'), has_table_privilege('%(t)s', 'INSERT'),
-                        has_table_privilege('%(t)s', 'UPDATE'), has_table_privilege('%(t)s', 'DELETE')""" % { 't': self._quote_str(t) }
-        c = self.con.cursor()
-        self._exec_sql(c, sql)
+        s, t = self._table_name(schema, table)
+        c = self._exec_sql(sql.SQL("""SELECT has_table_privilege('{0}{1}','SELECT'),
+                        has_table_privilege('{0}{1}', 'INSERT'),
+                        has_table_privilege('{0}{1}', 'UPDATE'),
+                        has_table_privilege('{0}{1}', 'DELETE')""").format( s, t ))
         return c.fetchone()
 
-    def vacuum_analyze(self, table, schema=None):
-        """ run vacuum analyze on a table """
-        t = self._table_name(schema, table)
-        # vacuum analyze must be run outside transaction block - we have to change isolation level
-        self.con.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-        c = self.con.cursor()
-        self._exec_sql(c, "VACUUM ANALYZE %s" % t)
-        self.con.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
-    def sr_info_for_srid(self, srid):
-        if not self.has_spatial:
-            return "Unknown"
-
+    def _exec_sql(self, query):
         try:
-            c = self.con.cursor()
-            self._exec_sql(c, "SELECT srtext FROM spatial_ref_sys WHERE srid = '%d'" % srid)
-            sr = c.fetchone()
-            if sr is None:
-                return "Unknown"
-            srtext = sr[0]
-            # try to extract just SR name (should be qouted in double quotes)
-            x = re.search('"([^"]+)"', srtext)
-            if x is not None:
-                srtext = x.group()
-            return srtext
-        except DbError:
-            return "Unknown"
-
-
-    def _exec_sql(self, cursor, sql):
-        try:
-            cursor.execute(sql)
+            cursor = self.con.cursor()
+            cursor.execute(query.as_string(self.con))
+            return cursor
         except psycopg2.Error as e:
             # do the rollback to avoid a "current transaction aborted, commands ignored" errors
             self.con.rollback()
             raise DbError(e)
-
-    def _exec_sql_and_commit(self, sql):
-        """ tries to execute and commit some action, on error it rolls back the change """
-        #try:
-        c = self.con.cursor()
-        self._exec_sql(c, sql)
-        self.con.commit()
-        #except DbError, e:
-        #    self.con.rollback()
-        #    raise
-
-    @classmethod
-    def _quote(self, identifier):
-        identifier = str(identifier) # make sure it's python unicode string
-        return u'"%s"' % identifier.replace('"', '""')
 
     @classmethod
     def _quote_str(self, txt):
@@ -336,6 +291,6 @@ class Connection(DbConn.Connection):
 
     def _table_name(self, schema, table):
         if not schema:
-            return self._quote(table)
+            return sql.SQL(""), sql.Identifier(table)
         else:
-            return u"%s.%s" % (self._quote(schema), self._quote(table))
+            return sql.SQL("{}.").format(sql.Identifier(squema)), sql.Identifier(table)
