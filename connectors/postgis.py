@@ -31,8 +31,6 @@ import psycopg2.extensions # for isolation levels
 from .. import dbConnection as DbConn
 from .. import pgRoutingLayer_utils as Utils
 
-import re
-
 # use unicode!
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 
@@ -153,12 +151,12 @@ class Connection(DbConn.Connection):
         self.passwd = uri.password()
 
         try:
-            self.con = psycopg2.connect(self.con_info(), connect_timeout=10)
+            self.con = psycopg2.connect(self.connection_info(), connect_timeout=10)
         except psycopg2.OperationalError as e:
             raise DbError(e)
 
         if not self.dbname:
-            self.dbname = self.get_dbname()
+            self.dbname = self.current_database()
 
         self.has_spatial = self.check_spatial()
 
@@ -167,7 +165,10 @@ class Connection(DbConn.Connection):
         # a counter to ensure that the cursor will be unique
         self.last_cursor_id = 0
 
-    def con_info(self):
+    def connection_info(self):
+        """
+            connection information in form of a string
+        """
         con_str = ''
         if self.service: con_str += "service='%s' "  % self.service
         if self.host:    con_str += "host='%s' "     % self.host
@@ -177,14 +178,18 @@ class Connection(DbConn.Connection):
         if self.passwd:  con_str += "password='%s' " % self.passwd
         return con_str
 
-    def get_dbname(self):
-        c = self.con.cursor()
-        self._exec_sql(c, "SELECT current_database()")
+    def current_database(self):
+        """
+            current_database()
+        """
+        c = self._exec_sql(sql.SQL( "SELECT current_database()"))
         return c.fetchone()[0]
 
-    def get_info(self):
-        c = self.con.cursor()
-        self._exec_sql(c, "SELECT version()")
+    def version(self):
+        """
+            version()
+        """
+        c = self._exec_sql(sql.SQL("SELECT version())")
         return c.fetchone()[0]
 
     def check_spatial(self):
@@ -201,17 +206,16 @@ class Connection(DbConn.Connection):
             - proj version
             - whether uses stats
         """
-        c = self.con.cursor()
-        self._exec_sql(c, sql.SQL("""
+        c = self._exec_sql(sql.SQL("""
             SELECT postgis_lib_version(), postgis_scripts_installed(), postgis_scripts_released(),
                 postgis_geos_version(), postgis_proj_version(), postgis_uses_stats()"""))
         return c.fetchone()
 
     def check_geometry_columns_table(self):
-
         c = self._exec_sql(sql.SQL("""
             SELECT relname FROM pg_class
             WHERE relname = 'geometry_columns' AND pg_class.relkind IN ('v', 'r')"""))
+
         self.has_geometry_columns = (len(c.fetchall()) != 0)
 
         if not self.has_geometry_columns:
@@ -225,20 +229,24 @@ class Connection(DbConn.Connection):
     def list_schemas(self):
         """
             get list of schemas in tuples: (oid, name, owner, perms)
+            Not including schemas starting with pg_ or the information_schema
         """
-        c = self.con.cursor()
-        sql = "SELECT oid, nspname, pg_get_userbyid(nspowner), nspacl FROM pg_namespace WHERE nspname !~ '^pg_' AND nspname != 'information_schema'"
-        self._exec_sql(c, sql)
+        c = self._exec_sql( sql.SQL("""
+            SELECT oid, nspname, pg_get_userbyid(nspowner), nspacl
+            FROM pg_namespace
+            WHERE nspname !~ '^pg_' AND nspname != 'information_schema'""")
 
         schema_cmp = lambda x,y: -1 if x[1] < y[1] else 1
 
         return sorted(c.fetchall(), cmp=schema_cmp)
 
     def get_table_fields(self, table, schema=None):
-        """ return list of columns in table """
-        c = self.con.cursor()
-        schema_where = " AND nspname='%s' " % self._quote_str(schema) if schema is not None else ""
-        sql = """SELECT a.attnum AS ordinal_position,
+        """
+            return list of columns in table
+        """
+        schema_where = sql.SQL(" AND nspname={} ").format(sql.Literal) if schema is not None else ""
+        c = self._exec_sql( sql.SQL("""
+            SELECT a.attnum AS ordinal_position,
                 a.attname AS column_name,
                 t.typname AS data_type,
                 a.attlen AS char_max_len,
@@ -252,11 +260,10 @@ class Connection(DbConn.Connection):
             JOIN pg_namespace nsp ON c.relnamespace = nsp.oid
             LEFT JOIN pg_attrdef adef ON adef.adrelid = a.attrelid AND adef.adnum = a.attnum
             WHERE
-              c.relname = '%s' %s AND
+              c.relname = {0} {1} AND
                 a.attnum > 0
-            ORDER BY a.attnum""" % (self._quote_str(table), schema_where)
+            ORDER BY a.attnum""").format( sql.Literal(table), schema_where ) )
 
-        self._exec_sql(c, sql)
         attrs = []
         for row in c.fetchall():
             attrs.append(TableAttribute(row))
@@ -265,7 +272,7 @@ class Connection(DbConn.Connection):
 
     def get_table_privileges(self, table, schema=None):
         """ table privileges: (select, insert, update, delete) """
-        s, t = self._table_name(schema, table)
+        s, t = Utils.tableName(schema, table)
         c = self._exec_sql(sql.SQL("""SELECT has_table_privilege('{0}{1}','SELECT'),
                         has_table_privilege('{0}{1}', 'INSERT'),
                         has_table_privilege('{0}{1}', 'UPDATE'),
@@ -281,16 +288,3 @@ class Connection(DbConn.Connection):
             # do the rollback to avoid a "current transaction aborted, commands ignored" errors
             self.con.rollback()
             raise DbError(e)
-
-    @classmethod
-    def _quote_str(self, txt):
-        """ make the string safe - replace ' with '' """
-        # make sure it's python unicode string
-        txt = str(txt)
-        return txt.replace("'", "''")
-
-    def _table_name(self, schema, table):
-        if not schema:
-            return sql.SQL(""), sql.Identifier(table)
-        else:
-            return sql.SQL("{}.").format(sql.Identifier(squema)), sql.Identifier(table)

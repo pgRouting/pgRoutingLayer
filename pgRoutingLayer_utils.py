@@ -102,3 +102,9 @@ def getPgrVersion(con):
         return 0
     except SystemError:
         return 0
+
+def tableName(schema, table):
+    if not schema:
+        return sql.SQL(""), sql.Identifier(table)
+    else:
+        return sql.SQL("{}.").format(sql.Identifier(squema)), sql.Identifier(table)
