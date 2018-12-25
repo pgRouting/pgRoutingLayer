@@ -25,12 +25,6 @@ class Function(FunctionBase):
             'checkBoxHeapPaths'
             ]
 
-    def prepare(self, canvasItemList):
-        resultPathsRubberBands = canvasItemList['paths']
-        for path in resultPathsRubberBands:
-            path.reset(Utils.getRubberBandType(False))
-        canvasItemList['paths'] = []
-
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_KSP '''
         return sql.SQL("""
@@ -54,7 +48,7 @@ class Function(FunctionBase):
         return sql.SQL("""WITH
             result AS ( {result_query} ),
             with_geom AS (
-                SELECTseq, result.path_name,
+                SELECT seq, result.path_name,
                 CASE
                     WHEN result._node = et.{source}
                       THEN et.{geometry}

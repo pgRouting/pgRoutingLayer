@@ -612,8 +612,8 @@ class PgRoutingLayer:
             cur = con.cursor()
             cur.execute(function.getQuery(args).as_string(con))
 
-            QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' +
-                    function.getQuery(args).as_string(con))
+            #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' +
+            #        function.getQuery(args).as_string(con))
 
             rows = cur.fetchall()
             if  len(rows) == 0:
