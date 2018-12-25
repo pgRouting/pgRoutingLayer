@@ -85,17 +85,15 @@ class Function(FunctionBase):
         ''' draw the result '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
-        cur_route_id = -1
+        cur_path_id = None
         for row in rows:
             cur2 = con.cursor()
-
-            args['result_route_id'] = row[2]
+            result_path_id = str(row[2])
             args['result_node_id'] = sql.Literal(row[4])
             args['result_edge_id'] = sql.Literal(row[5])
             args['result_cost'] = row[6]
-
-            if args['result_route_id'] != cur_route_id:
-                cur_route_id = args['result_route_id']
+            if result_path_id != cur_path_id:
+                cur_path_id = result_path_id
                 if rubberBand:
                     resultPathsRubberBands.append(rubberBand)
                     rubberBand = None
@@ -106,16 +104,20 @@ class Function(FunctionBase):
 
             if row[5] != -1:
                 query2 = sql.SQL("""
-                    SELECT ST_AsText({geometry}) FROM {edge_table}
-                        WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
+                    SELECT ST_AsText({transform_s}{geometry}{transform_e})
+                    FROM {edge_table}
+                    WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
+
                     UNION
-                    SELECT ST_AsText({geometry}) FROM {edge_table}
-                        WHERE {target} = {result_node_id} AND {id} = {result_edge_id}
-                    """).format(**args)
-                Utils.logMessage(query2.as_string(con))
+
+                    SELECT ST_AsText({transform_s}ST_Reverse({geometry}{transform_e}))
+                    FROM {edge_table}
+                    WHERE {target} = {result_node_id} AND {id} = {result_edge_id}
+                    """).format(**args).as_string(con)
+
                 cur2.execute(query2)
                 row2 = cur2.fetchone()
-                ##Utils.logMessage(str(row2[0]))
+
                 geom = QgsGeometry().fromWkt(str(row2[0]))
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():

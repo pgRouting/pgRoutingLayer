@@ -684,6 +684,36 @@
                   <property name="spacing">
                    <number>3</number>
                   </property>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="labelSourceId">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                    <property name="text">
+                     <string>From Vid</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QLineEdit" name="lineEditTargetPos">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="10" column="0">
+                   <widget class="QLabel" name="labelPaths">
+                    <property name="text">
+                     <string>K</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="1" column="2">
                    <widget class="QToolButton" name="buttonSelectTargetIds">
                     <property name="sizePolicy">
@@ -710,52 +740,8 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="labelIds">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                    <property name="text">
-                     <string>ids</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="1">
-                   <widget class="QLineEdit" name="lineEditTargetPos">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="10" column="0">
-                   <widget class="QLabel" name="labelPaths">
-                    <property name="text">
-                     <string>paths</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="10" column="1">
                    <widget class="QLineEdit" name="lineEditPaths"/>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="labelTargetId">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                    <property name="text">
-                     <string>target_id</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1">
-                   <widget class="QLineEdit" name="lineEditTargetId">
-                    <property name="toolTip">
-                     <string>id of the end node</string>
-                    </property>
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                   </widget>
                   </item>
                   <item row="2" column="1">
                    <widget class="QLineEdit" name="lineEditSourceId">
@@ -806,42 +792,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="2">
-                   <widget class="QToolButton" name="buttonSelectTargetId">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>22</width>
-                      <height>22</height>
-                     </size>
-                    </property>
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset>
-                      <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1">
-                   <widget class="QLineEdit" name="lineEditSourcePos">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="8" column="1">
                    <widget class="QLineEdit" name="lineEditDistance">
                     <property name="maximumSize">
@@ -852,16 +802,6 @@
                     </property>
                     <property name="locale">
                      <locale language="English" country="UnitedStates"/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="labelSourcePos">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                    <property name="text">
-                     <string>source_pos</string>
                     </property>
                    </widget>
                   </item>
@@ -961,45 +901,6 @@ _sql</string>
                   <item row="0" column="1">
                    <widget class="QLineEdit" name="lineEditSourceIds"/>
                   </item>
-                  <item row="3" column="1">
-                   <widget class="QLineEdit" name="lineEditIds">
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="2">
-                   <widget class="QToolButton" name="buttonSelectIds">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>22</width>
-                      <height>22</height>
-                     </size>
-                    </property>
-                    <property name="locale">
-                     <locale language="English" country="UnitedStates"/>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset>
-                      <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                    <property name="toolButtonStyle">
-                     <enum>Qt::ToolButtonIconOnly</enum>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="0" column="0">
                    <widget class="QLabel" name="labelSourceIds">
                     <property name="text">
@@ -1050,13 +951,121 @@ _sql</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="labelSourceId">
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="lineEditTargetId">
+                    <property name="toolTip">
+                     <string>id of the end node</string>
+                    </property>
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="2">
+                   <widget class="QToolButton" name="buttonSelectTargetId">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>22</width>
+                      <height>22</height>
+                     </size>
+                    </property>
                     <property name="locale">
                      <locale language="English" country="UnitedStates"/>
                     </property>
                     <property name="text">
-                     <string>source_id</string>
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset>
+                      <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="labelTargetId">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                    <property name="text">
+                     <string>To Vid</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="labelSourcePos">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                    <property name="text">
+                     <string>source_pos</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="labelIds">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                    <property name="text">
+                     <string>ids</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="2">
+                   <widget class="QToolButton" name="buttonSelectIds">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>22</width>
+                      <height>22</height>
+                     </size>
+                    </property>
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset>
+                      <normaloff>icons/add.png</normaloff>icons/add.png</iconset>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="toolButtonStyle">
+                     <enum>Qt::ToolButtonIconOnly</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QLineEdit" name="lineEditIds">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QLineEdit" name="lineEditSourcePos">
+                    <property name="locale">
+                     <locale language="English" country="UnitedStates"/>
                     </property>
                    </widget>
                   </item>

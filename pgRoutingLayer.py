@@ -47,7 +47,7 @@ class PgRoutingLayer:
         'pgr_aStar',
         'pgr_bdDijkstra',
         'pgr_bdAstar',
-        #'ksp',
+        'pgr_KSP',
         #'drivingDistance',
         #'alphashape',
         'pgr_dijkstraCost',
@@ -375,13 +375,13 @@ class PgRoutingLayer:
         args = self.getArguments()
         mapCanvas = self.iface.mapCanvas()
         if not function.isEdgeBase():
-            result, id, wkt = self.findNearestNode(args, pt)
+            result, the_id, wkt = self.findNearestNode(args, pt)
             if result:
                 ids = self.dock.lineEditIds.text()
                 if not ids:
-                    self.dock.lineEditIds.setText(str(id))
+                    self.dock.lineEditIds.setText(str(the_id))
                 else:
-                    self.dock.lineEditIds.setText(ids + "," + str(id))
+                    self.dock.lineEditIds.setText(ids + "," + str(the_id))
                 geom = QgsGeometry().fromWkt(wkt)
                 vertexMarker = QgsVertexMarker(mapCanvas)
                 vertexMarker.setColor(Qt.green)
@@ -395,7 +395,7 @@ class PgRoutingLayer:
                 if not ids:
                     self.dock.lineEditIds.setText(str(id))
                 else:
-                    self.dock.lineEditIds.setText(ids + "," + str(id))
+                    self.dock.lineEditIds.setText(ids + "," + str(the_id))
                 geom = QgsGeometry().fromWkt(wkt)
                 idRubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
                 idRubberBand.setColor(Qt.yellow)
@@ -609,12 +609,11 @@ class PgRoutingLayer:
                 args['node_query'] = PgrQ.getNodeQuery(args)
 
             function.prepare(self.canvasItemList)
-
-
             cur = con.cursor()
             cur.execute(function.getQuery(args).as_string(con))
 
-            #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' + query)
+            QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' +
+                    function.getQuery(args).as_string(con))
 
             rows = cur.fetchall()
             if  len(rows) == 0:
@@ -846,7 +845,7 @@ class PgRoutingLayer:
 
 
         if 'source_id' in args:
-            layerName +=  args['source_id']
+            layerName +=  args['source_id'].as_string(con)
         elif 'ids' in args:
             layerName += "{" + args['ids'] + "}"
         else:
@@ -859,7 +858,7 @@ class PgRoutingLayer:
         else:
             layerName += " to "
             if 'target_id' in args:
-                layerName += args['target_id']
+                layerName += args['target_id'].as_string(con)
             else:
                 layerName += "[" + args['target_ids'].as_string(con) + "]"
 
@@ -933,8 +932,7 @@ class PgRoutingLayer:
     def get_innerQueryArguments(self, controls):
         args = {}
         # TODO captrure the schema
-        QMessageBox.information(self.dock, self.dock.windowTitle(),
-           'TODO: capture the schema')
+        #QMessageBox.information(self.dock, self.dock.windowTitle(), 'TODO: capture the schema')
         args['edge_table'] = sql.Identifier(str(self.dock.lineEditTable.text()))
         args['geometry'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
         args['id'] = sql.Identifier(str(self.dock.lineEditId.text()))

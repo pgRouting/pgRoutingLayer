@@ -197,15 +197,15 @@ class FunctionBase(object):
         ''' draws multi line string on the mapCanvas. '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
-        cur_path_id = str(-1) + "," + str(-1)
+        cur_path_id = None
         for row in rows:
             cur2 = con.cursor()
-            args['result_path_id'] = str(row[3]) + "," + str(row[4])
-            args['result_node_id'] = sql.SQL(str(row[5]))
-            args['result_edge_id'] = sql.SQL(str(row[6]))
+            result_path_id = str(row[2])
+            args['result_node_id'] = sql.Literal(row[5])
+            args['result_edge_id'] = sql.Literal(row[6])
             args['result_cost'] = row[7]
-            if args['result_path_id'] != cur_path_id:
-                cur_path_id = args['result_path_id']
+            if result_path_id != cur_path_id:
+                cur_path_id = result_path_id
                 if rubberBand:
                     resultPathsRubberBands.append(rubberBand)
                     rubberBand = None
@@ -227,10 +227,8 @@ class FunctionBase(object):
                     WHERE {target} = {result_node_id} AND {id} = {result_edge_id}
                     """).format(**args).as_string(con)
 
-                ##Utils.logMessage(query2)
                 cur2.execute(query2)
                 row2 = cur2.fetchone()
-                ##Utils.logMessage(str(row2[0]))
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:

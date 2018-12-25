@@ -189,7 +189,7 @@ class Connection(DbConn.Connection):
         """
             version()
         """
-        c = self._exec_sql(sql.SQL("SELECT version())")
+        c = self._exec_sql(sql.SQL("SELECT version())"))
         return c.fetchone()[0]
 
     def check_spatial(self):
@@ -234,7 +234,7 @@ class Connection(DbConn.Connection):
         c = self._exec_sql( sql.SQL("""
             SELECT oid, nspname, pg_get_userbyid(nspowner), nspacl
             FROM pg_namespace
-            WHERE nspname !~ '^pg_' AND nspname != 'information_schema'""")
+            WHERE nspname !~ '^pg_' AND nspname != 'information_schema'"""))
 
         schema_cmp = lambda x,y: -1 if x[1] < y[1] else 1
 
