@@ -40,7 +40,8 @@ class DijkstraBase(FunctionBase):
         return self.getExportManySourceManyTargetMergeQuery(args)
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
-        self.drawManyPaths(rows, con, args, geomType, canvasItemList, mapCanvas)
+        columns = [2, 5, 6]
+        self.drawManyPaths(rows, columns, con, args, geomType, canvasItemList, mapCanvas)
 
     def __init__(self, ui):
         FunctionBase.__init__(self, ui)

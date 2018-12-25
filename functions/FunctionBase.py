@@ -193,17 +193,19 @@ class FunctionBase(object):
 
 
     @classmethod
-    def drawManyPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
-        ''' draws multi line string on the mapCanvas. '''
+    def drawManyPaths(self, rows, columns, con, args, geomType, canvasItemList, mapCanvas):
+        '''
+            draws multi line string on the mapCanvas.
+        '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = None
         for row in rows:
             cur2 = con.cursor()
-            result_path_id = str(row[2])
-            args['result_node_id'] = sql.Literal(row[5])
-            args['result_edge_id'] = sql.Literal(row[6])
-            args['result_cost'] = row[7]
+            result_path_id = str(row[ columns[0] ])
+            args['result_node_id'] = sql.Literal(row[ columns[1] ])
+            args['result_edge_id'] = sql.Literal(row[ columns[2] ])
+
             if result_path_id != cur_path_id:
                 cur_path_id = result_path_id
                 if rubberBand:
@@ -214,7 +216,7 @@ class FunctionBase(object):
                 rubberBand.setColor(QColor(255, 0, 0, 128))
                 rubberBand.setWidth(4)
 
-            if row[6] != -1:
+            if row[ columns[2] ] != -1:
                 query2 = sql.SQL("""
                     SELECT ST_AsText({transform_s}{geometry}{transform_e})
                     FROM {edge_table}
