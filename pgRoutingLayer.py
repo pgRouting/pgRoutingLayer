@@ -641,7 +641,7 @@ class PgRoutingLayer:
             if db and db.con:
                 try:
                     db.con.close()
-                except:
+                except Exception:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
                         'server closed the connection unexpectedly')
 
@@ -707,7 +707,7 @@ class PgRoutingLayer:
             if db and db.con:
                 try:
                     db.con.close()
-                except:
+                except Exception:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
                         'server closed the connection unexpectedly')
 
@@ -826,7 +826,7 @@ class PgRoutingLayer:
             if db and db.con:
                 try:
                     db.con.close()
-                except:
+                except Exception:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
                         'server closed the connection unexpectedly')
 
