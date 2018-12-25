@@ -1103,40 +1103,27 @@ class PgRoutingLayer:
         distance = self.iface.mapCanvas().getCoordinateTransform().mapUnitsPerPixel() * self.FIND_RADIUS
         rect = QgsRectangle(pt.x() - distance, pt.y() - distance, pt.x() + distance, pt.y() + distance)
         canvasCrs = Utils.getDestinationCrs(self.iface.mapCanvas())
-        db = None
-        try:
-            dbname = str(self.dock.comboConnections.currentText())
-            db = self.actionsDb[dbname].connect()
+        layerCrs = QgsCoordinateReferenceSystem()
+        Utils.createFromSrid(layerCrs, args['srid'])
+        trans = QgsCoordinateTransform(canvasCrs, layerCrs, QgsProject.instance())
+        pt = trans.transform(pt)
+        rect = trans.transform(rect)
 
-            con = db.con
-            layerCrs = QgsCoordinateReferenceSystem()
-            Utils.createFromSrid(layerCrs, args['srid'])
-            trans = QgsCoordinateTransform(canvasCrs, layerCrs, QgsProject.instance())
-            pt = trans.transform(pt)
-            rect = trans.transform(rect)
-
-            args['canvas_srid'] = Utils.getCanvasSrid(canvasCrs)
-            args['dbcanvas_srid'] = sql.Literal(args['canvas_srid'])
-            args['x'] = sql.Literal(pt.x())
-            args['y'] = sql.Literal(pt.y())
-            args['SBBOX'] = self.getBBOX(args['srid'])[0]
-            args['geom_t'] = Utils.getTransformedGeom(args['srid'], args['dbcanvas_srid'], args['geometry'])
+        args['canvas_srid'] = Utils.getCanvasSrid(canvasCrs)
+        args['dbcanvas_srid'] = sql.Literal(args['canvas_srid'])
+        args['x'] = sql.Literal(pt.x())
+        args['y'] = sql.Literal(pt.y())
+        args['SBBOX'] = self.getBBOX(args['srid'])[0]
+        args['geom_t'] = Utils.getTransformedGeom(args['srid'], args['dbcanvas_srid'], args['geometry'])
 
 
-            #QMessageBox.information(self.dock, self.dock.windowTitle(), Utils.get_closestVertexInfo(args).as_string(con))
-            cur = con.cursor()
-            cur.execute( PgrQ.get_closestVertexInfo(args).as_string(con) )
+        db, cur = self._exec_sql( PgrQ.get_closestVertexInfo(args) )
+        if cur:
             row = cur.fetchone()
+            db.con.close()
             return True, row[0], row[2]
-
-        except psycopg2.DatabaseError as e:
-            QApplication.restoreOverrideCursor()
-            QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
+        else:
             return False, None, None
-
-        finally:
-            if db and db.con:
-                db.con.close()
 
     # emulate "matching.sql" - "find_nearest_link_within_distance"
     def findNearestLink(self, args, pt):
@@ -1144,68 +1131,32 @@ class PgRoutingLayer:
         distance = self.iface.mapCanvas().getCoordinateTransform().mapUnitsPerPixel() * self.FIND_RADIUS
         rect = QgsRectangle(pt.x() - distance, pt.y() - distance, pt.x() + distance, pt.y() + distance)
         canvasCrs = Utils.getDestinationCrs(self.iface.mapCanvas())
-        db = None
-        try:
-            dbname = str(self.dock.comboConnections.currentText())
-            db = self.actionsDb[dbname].connect()
 
-            con = db.con
-            cur = con.cursor()
+        layerCrs = QgsCoordinateReferenceSystem()
+        Utils.createFromSrid(layerCrs, args['srid'])
+        trans = QgsCoordinateTransform(canvasCrs, layerCrs, QgsProject.instance())
+        pt = trans.transform(pt)
+        rect = trans.transform(rect)
 
-            layerCrs = QgsCoordinateReferenceSystem()
-            Utils.createFromSrid(layerCrs, args['srid'])
-            trans = QgsCoordinateTransform(canvasCrs, layerCrs, QgsProject.instance())
-            pt = trans.transform(pt)
-            rect = trans.transform(rect)
+        args['canvas_srid'] = Utils.getCanvasSrid(canvasCrs)
+        args['x'] = pt.x()
+        args['y'] = pt.y()
+        args['minx'] = rect.xMinimum()
+        args['miny'] = rect.yMinimum()
+        args['maxx'] = rect.xMaximum()
+        args['maxy'] = rect.yMaximum()
+        args['decimal_places'] = self.FRACTION_DECIMAL_PLACES
 
-            args['canvas_srid'] = Utils.getCanvasSrid(canvasCrs)
-            args['x'] = pt.x()
-            args['y'] = pt.y()
-            args['minx'] = rect.xMinimum()
-            args['miny'] = rect.yMinimum()
-            args['maxx'] = rect.xMaximum()
-            args['maxy'] = rect.yMaximum()
-            args['decimal_places'] = self.FRACTION_DECIMAL_PLACES
+        Utils.setTransformQuotes(args, args['srid'], args['canvas_srid'])
 
-            #Utils.setTransformQuotes(args)
-            Utils.setTransformQuotes(args, args['srid'], args['canvas_srid'])
-
-            # Searching for a link within the distance
-            query = """
-            WITH point AS (
-                SELECT ST_GeomFromText('POINT(%(x)f %(y)f)', %(srid)d) AS geom
-            )
-            SELECT %(id)s,
-                ST_Distance(%(geometry)s, point.geom) AS dist,
-                ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) AS wkt,
-                ROUND(ST_Line_Locate_Point(%(geometry)s, point.geom)::numeric, %(decimal_places)d) AS pos,
-                ST_AsText(%(transform_s)sST_Line_Interpolate_point(%(geometry)s,
-                    ROUND(ST_Line_Locate_Point(%(geometry)s, point.geom)::numeric, %(decimal_places)d))%(transform_e)s) AS pointWkt
-                FROM %(edge_table)s, point
-                WHERE ST_SetSRID('BOX3D(%(minx)f %(miny)f, %(maxx)f %(maxy)f)'::BOX3D, %(srid)d)
-                    && %(geometry)s ORDER BY dist ASC LIMIT 1""" % args
-
-            ##Utils.logMessage(query)
-            cur = con.cursor()
-            cur.execute(query)
+        db, cur = self._exec_sql( PgrQ.get_closestEdgeInfo(args) )
+        if cur:
             row = cur.fetchone()
-            if not row:
-                return False, None, None
-            link = row[0]
-            wkt = row[2]
-            pos = row[3]
-            pointWkt = row[4]
+            db.con.close()
+            return True, row[0], row[2], row[3], [4]
+        else:
+            return False, None, None, None, None
 
-            return True, link, wkt, pos, pointWkt
-
-        except psycopg2.DatabaseError as e:
-            QApplication.restoreOverrideCursor()
-            QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
-            return False, None, None
-
-        finally:
-            if db and db.con:
-                db.con.close()
 
     def loadSettings(self):
         ''' loads the  default settings '''
@@ -1312,3 +1263,24 @@ class PgRoutingLayer:
             QMessageBox.information(self.dock, self.dock.windowTitle(),
                 "Network error: No connection. \n Please check your network connection.")
             return
+
+    # Caller must close the connection to the database
+    def _exec_sql(self, query):
+        db = None
+        try:
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
+            cursor = db.con.cursor()
+            cursor.execute(query.as_string(db.con))
+            return db, cursor
+
+        except psycopg2.Error as e:
+            # do the rollback to avoid a "current transaction aborted, commands ignored" errors
+            db.con.rollback()
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
+            if db and db.con:
+                db.con.close()
+            return None, None
+
+

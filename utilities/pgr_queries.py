@@ -72,3 +72,19 @@ def get_closestVertexInfo(args):
         FROM the_union
         ORDER BY dist ASC LIMIT 1
         """).format(**args)
+
+def get_closestEdgeInfo(args):
+    # Not sure this is correct but has the main idea
+    return  sql.SQL("""
+        WITH point AS (
+            SELECT ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid}) AS geom
+        )
+        SELECT {id)s,
+            ST_Distance( {geometry}, point.geom) AS dist,
+            ST_AsText( {geom_t} ) AS wkt,
+            ROUND(ST_Line_Locate_Point( {geometry} , point.geom)::numeric, {decimal_places}) AS pos,
+            ST_AsText({transform_s)sST_Line_Interpolate_point({geometry},
+            ROUND(ST_Line_Locate_Point({geometry}, point.geom)::numeric, {decimal_places})){transform_e}) AS pointWkt
+            FROM {edge_table}, point
+            WHERE ST_SetSRID('BOX3D({minx} {miny}, {maxx} {maxy})'::BOX3D, {srid})
+                && {geometry} ORDER BY dist ASC LIMIT 1""").format(args)
