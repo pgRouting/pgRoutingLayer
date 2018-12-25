@@ -1,9 +1,5 @@
 from __future__ import absolute_import
-from qgis.PyQt.QtGui import QColor
-from qgis.core import QgsGeometry, QgsWkbTypes
-from qgis.gui import QgsRubberBand
 from psycopg2 import sql
-from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
 class Function(FunctionBase):

@@ -389,11 +389,11 @@ class PgRoutingLayer:
                 vertexMarker.setCenter(geom.asPoint())
                 self.idsVertexMarkers.append(vertexMarker)
         else:
-            result, id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
+            result, the_id, wkt, pos, pointWkt = self.findNearestLink(args, pt)
             if result:
                 ids = self.dock.lineEditIds.text()
                 if not ids:
-                    self.dock.lineEditIds.setText(str(id))
+                    self.dock.lineEditIds.setText(str(the_id))
                 else:
                     self.dock.lineEditIds.setText(ids + "," + str(the_id))
                 geom = QgsGeometry().fromWkt(wkt)
@@ -1257,7 +1257,7 @@ class PgRoutingLayer:
         url = QUrl('https://docs.pgrouting.org/'+str(version)+'/en/' + function+'.html')
         try:
             QDesktopServices.openUrl(url)
-        except:
+        except Exception:
             QMessageBox.information(self.dock, self.dock.windowTitle(),
                 "Network error: No connection. \n Please check your network connection.")
             return

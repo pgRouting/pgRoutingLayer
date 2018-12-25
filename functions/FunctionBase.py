@@ -109,45 +109,6 @@ class FunctionBase(object):
         return query
 
 
-    def getExportOneSourceOneTargetMergeQuery(self, args):
-        ''' returns merge query for one source and one target '''
-        args['result_query'] = self.getQuery(args)
-
-        args['with_geom_query'] = """
-            SELECT
-              CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
-              END AS path_geom
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge
-            """ % args
-
-        args['one_geom_query'] = """
-            SELECT ST_LineMerge(ST_Union(path_geom)) AS path_geom
-            FROM with_geom
-            """
-
-        args['aggregates_query'] = """SELECT
-            SUM(_cost) AS agg_cost,
-            array_agg(_node ORDER BY seq) AS _nodes,
-            array_agg(_edge ORDER BY seq) AS _edges
-            FROM result
-            """
-
-        query = """WITH
-            result AS ( %(result_query)s ),
-            with_geom AS ( %(with_geom_query)s ),
-            one_geom AS ( %(one_geom_query)s ),
-            aggregates AS ( %(aggregates_query)s )
-            SELECT row_number() over() as seq,
-            _nodes, _edges, agg_cost, path_geom
-            FROM aggregates, one_geom
-            """ % args
-        return query
-
-
     def getExportManySourceManyTargetMergeQuery(self, args):
         ''' returns merge query for many source and many target '''
         queries =  {}
@@ -262,11 +223,9 @@ class FunctionBase(object):
                         SELECT ST_AsText(ST_Reverse({geom_t}) FROM {edge_table}
                             WHERE {target} = {result_node_id} AND {id} = {result_edge_id};
                     """).format(**args)
-                    ##Utils.logMessage(query2)
+
                     cur2.execute(query2)
                     row2 = cur2.fetchone()
-                    ##Utils.logMessage(str(row2[0]))
-                    ##assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
 
                     geom = QgsGeometry().fromWkt(str(row2[0]))
                     if geom.wkbType() == QgsWkbTypes.MultiLineString:
