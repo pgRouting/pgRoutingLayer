@@ -251,22 +251,22 @@ class FunctionBase(object):
         resultPathRubberBand = canvasItemList['path']
         for row in rows:
                 cur2 = con.cursor()
-                args['result_node_id'] = row[1]
-                args['result_edge_id'] = row[2]
+                args['result_node_id'] = sql.Literal(row[1])
+                args['result_edge_id'] = sql.Literal(row[2])
                 args['result_cost'] = row[3]
-                if args['result_edge_id'] != -1:
-                    query2 = """
-                        SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
+                if row[2] != -1:
+                    query2 = sql.SQL("""
+                        SELECT ST_AsText({geom_t} FROM {edge_table}
+                            WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
                         UNION
-                        SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
-                    """ % args
+                        SELECT ST_AsText(ST_Reverse({geom_t}) FROM {edge_table}
+                            WHERE {target} = {result_node_id} AND {id} = {result_edge_id};
+                    """).format(**args)
                     ##Utils.logMessage(query2)
                     cur2.execute(query2)
                     row2 = cur2.fetchone()
                     ##Utils.logMessage(str(row2[0]))
-                    assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
+                    ##assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
 
                     geom = QgsGeometry().fromWkt(str(row2[0]))
                     if geom.wkbType() == QgsWkbTypes.MultiLineString:

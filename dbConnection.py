@@ -142,11 +142,8 @@ class TableConstraint(object):
 
     TypeCheck, TypeForeignKey, TypePrimaryKey, TypeUnique = list(range(4))
     types = { "c" : TypeCheck, "f" : TypeForeignKey, "p" : TypePrimaryKey, "u" : TypeUnique }
-
     on_action = { "a" : "NO ACTION", "r" : "RESTRICT", "c" : "CASCADE", "n" : "SET NULL", "d" : "SET DEFAULT" }
     match_types = { "u" : "UNSPECIFIED", "f" : "FULL", "p" : "PARTIAL" }
-
-    pass
 
 class TableIndex(object):
     pass
