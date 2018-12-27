@@ -352,10 +352,6 @@ class PgRoutingLayer:
         self.dock.gridLayoutSqlColumns.invalidate()
         self.dock.gridLayoutArguments.invalidate()
 
-        gridLayoutSqlColumnsHeight = self.dock.gridLayoutSqlColumns.sizeHint().height()
-        gridLayoutArgumentsHeight = self.dock.gridLayoutArguments.sizeHint().height()
-        #self.dock.splitter.setSizes([gridLayoutSqlColumnsHeight + 97, gridLayoutArgumentsHeight + 47])
-
         if (not self.dock.checkBoxHasReverseCost.isChecked()) or (not self.dock.checkBoxHasReverseCost.isEnabled()):
             self.dock.lineEditReverseCost.setEnabled(False)
 
