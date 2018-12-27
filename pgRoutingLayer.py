@@ -74,8 +74,8 @@ class PgRoutingLayer:
         'labelAstarFactor', 'selectAstarFactor',
         'labelAstarEpsilon', 'selectAstarEpsilon', 'showAstarEpsilon',
 
-        'labelRule', 'lineEditRule',
-        'labelToCost', 'lineEditToCost',
+        #'labelRule', 'lineEditRule',
+        #'labelToCost', 'lineEditToCost',
         'labelIds', 'lineEditIds', 'buttonSelectIds',
         'labelPcts', 'lineEditPcts',
         'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
@@ -354,7 +354,7 @@ class PgRoutingLayer:
 
         gridLayoutSqlColumnsHeight = self.dock.gridLayoutSqlColumns.sizeHint().height()
         gridLayoutArgumentsHeight = self.dock.gridLayoutArguments.sizeHint().height()
-        self.dock.splitter.setSizes([gridLayoutSqlColumnsHeight + 97, gridLayoutArgumentsHeight + 47])
+        #self.dock.splitter.setSizes([gridLayoutSqlColumnsHeight + 97, gridLayoutArgumentsHeight + 47])
 
         if (not self.dock.checkBoxHasReverseCost.isChecked()) or (not self.dock.checkBoxHasReverseCost.isEnabled()):
             self.dock.lineEditReverseCost.setEnabled(False)
@@ -595,8 +595,8 @@ class PgRoutingLayer:
         This method will be called when the epsilon slider is dragged by the user.
         The value() of the slider ranges from 1-99
         '''
-        size = self.dock.selectAstarEpsilon.value()
-        self.dock.showAstarEpsilon.setValue(size)
+        size = self.dock.selectAstarEpsilon.value()/100
+        self.dock.showAstarEpsilon.setText(str(size))
 
 
     def updateReverseCostEnabled(self, state):
@@ -1059,18 +1059,13 @@ class PgRoutingLayer:
 
 
         if 'lineEditX1' in controls:
-            # TODO capture heuristic, factor, epsilon in the GUI
-            QMessageBox.information(self.dock, self.dock.windowTitle(), 'TODO: capture heuristic, factor, epsilon')
             args['astarHeuristic'] = sql.Literal(str(self.dock.selectAstarHeuristic.currentIndex()))
             args['astarFactor'] = sql.Literal(str(self.dock.selectAstarFactor.text()))
             args['astarEpsilon'] = sql.Literal(str(self.dock.selectAstarEpsilon.value()))
 
 
-        if 'lineEditRule' in controls:
-            args['rule'] = self.dock.lineEditRule.text()
-
-        if 'lineEditToCost' in controls:
-            args['to_cost'] = self.dock.lineEditToCost.text()
+        #args['rule'] = self.dock.lineEditRule.text() if 'lineEditRule' in controls
+        #args['to_cost'] = self.dock.lineEditToCost.text() if 'lineEditToCost' in controls:
 
         if 'lineEditIds' in controls:
             args['ids'] = self.dock.lineEditIds.text()
@@ -1215,11 +1210,11 @@ class PgRoutingLayer:
             '5')))
         self.dock.selectAstarFactor.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/factor', '1'))
         self.dock.selectAstarEpsilon.setTickPosition(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/epsilon',
-            '1')))
+            '100')))
 
 
-        self.dock.lineEditRule.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/rule', 'rule'))
-        self.dock.lineEditToCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/to_cost', 'to_cost'))
+        #self.dock.lineEditRule.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/rule', 'rule'))
+        #self.dock.lineEditToCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/to_cost', 'to_cost'))
 
         self.dock.lineEditIds.setText(Utils.getStringValue(settings, '/pgRoutingLayer/ids', ''))
         self.dock.lineEditPcts.setText(Utils.getStringValue(settings, '/pgRoutingLayer/pcts', ''))
@@ -1263,8 +1258,8 @@ class PgRoutingLayer:
         settings.setValue('/pgRoutingLayer/sql/factor',     self.dock.selectAstarFactor.text())
         settings.setValue('/pgRoutingLayer/sql/epsilon',    self.dock.selectAstarEpsilon.tickPosition())
 
-        settings.setValue('/pgRoutingLayer/sql/rule', self.dock.lineEditRule.text())
-        settings.setValue('/pgRoutingLayer/sql/to_cost', self.dock.lineEditToCost.text())
+        #settings.setValue('/pgRoutingLayer/sql/rule', self.dock.lineEditRule.text())
+        #settings.setValue('/pgRoutingLayer/sql/to_cost', self.dock.lineEditToCost.text())
 
         settings.setValue('/pgRoutingLayer/ids', self.dock.lineEditIds.text())
         settings.setValue('/pgRoutingLayer/pcts', self.dock.lineEditPcts.text())
