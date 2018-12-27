@@ -65,10 +65,15 @@ class PgRoutingLayer:
         'labelTarget', 'lineEditTarget',
         'labelCost', 'lineEditCost',
         'labelReverseCost', 'lineEditReverseCost',
+
         'labelX1', 'lineEditX1',
         'labelY1', 'lineEditY1',
         'labelX2', 'lineEditX2',
         'labelY2', 'lineEditY2',
+        'labelAstarHeuristic', 'selectAstarHeuristic',
+        'labelAstarFactor', 'selectAstarFactor',
+        'labelAstarEpsilon', 'selectAstarEpsilon', 'showAstarEpsilon',
+
         'labelRule', 'lineEditRule',
         'labelToCost', 'lineEditToCost',
         'labelIds', 'lineEditIds', 'buttonSelectIds',
@@ -92,6 +97,18 @@ class PgRoutingLayer:
         # 'labelPid', 'lineEditPid', 'labelEdge_id', 'lineEditEdge_id',
         # 'labelFraction', 'lineEditFraction', 'labelSide', 'lineEditSide','labelDrivingSide','checkBoxLeft','checkBoxRight'
     ]
+
+    ASTAR_HEURISTICS =[
+        '= 0',
+        '= abs(max(dx, dy))',
+        '= abs(min(dx, dy))',
+        '= dx * dx + dy * dy',
+        '= sqrt(dx * dx + dy * dy)',
+        '= abs(dx) + abs(dy)',
+   ]
+
+
+
     FIND_RADIUS = 10
     FRACTION_DECIMAL_PLACES = 2
     version = 2.6
@@ -140,7 +157,6 @@ class PgRoutingLayer:
         self.action = QAction(QIcon(":/plugins/pgRoutingLayer/icon.png"), "pgRouting Layer", self.iface.mainWindow())
         #Add toolbar button and menu item
         self.iface.addPluginToDatabaseMenu("&pgRouting Layer", self.action)
-        #self.iface.addToolBarIcon(self.action)
 
         #load the form
         path = os.path.dirname(os.path.abspath(__file__))
@@ -152,11 +168,6 @@ class PgRoutingLayer:
         self.targetIdEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
         self.sourceIdsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
         self.targetIdsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
-
-        #self.idsEmitPoint.setButton(buttonSelectIds)
-        #self.targetIdEmitPoint.setButton(buttonSelectTargetId)
-        #self.sourceIdEmitPoint.setButton(buttonSelectSourceId)
-        #self.targetIdsEmitPoint.setButton(buttonSelectTargetId)
 
         #connect the action to each method
         self.action.triggered.connect(self.show)
@@ -199,6 +210,14 @@ class PgRoutingLayer:
             funcname = function.Function.getName()
             self.functions[funcname] = function.Function(self.dock)
             self.dock.comboBoxFunction.addItem(funcname)
+
+        for heuristic in self.ASTAR_HEURISTICS:
+            self.dock.selectAstarHeuristic.addItem(heuristic)
+
+        self.dock.selectAstarEpsilon.setMinimum(0)
+        self.dock.selectAstarEpsilon.setMinimum(1)
+        self.dock.selectAstarEpsilon.valueChanged.connect(self.astarEpsilonChanged)
+
 
         self.dock.lineEditIds.setValidator(QRegExpValidator(QRegExp("[0-9,]+"), self.dock))
         self.dock.lineEditPcts.setValidator(QRegExpValidator(QRegExp("[0-9,.]+"), self.dock))
@@ -570,6 +589,15 @@ class PgRoutingLayer:
             vertexMarker.setCenter(geom.asPoint())
             self.targetIdsVertexMarkers.append(vertexMarker)
             Utils.refreshMapCanvas(mapCanvas)
+
+    def astarEpsilonChanged(self, state):
+        '''
+        This method will be called when the epsilon slider is dragged by the user.
+        The value() of the slider ranges from 1-99
+        '''
+        size = self.dock.selectAstarEpsilon.value()
+        self.dock.showAstarEpsilon.setValue(size)
+
 
     def updateReverseCostEnabled(self, state):
         ''' Updates the reverse cost checkBox '''
@@ -1026,13 +1054,16 @@ class PgRoutingLayer:
             # TODO: capture vertices table, geometry of vertices table
             args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
             args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
-            QMessageBox.information(self.dock, self.dock.windowTitle(),
-                'TODO: capture vertices table, geometry of vertices table, label the edges')
+            #QMessageBox.information(self.dock, self.dock.windowTitle(),
+            #    'TODO: capture vertices table, geometry of vertices table, label the edges')
 
 
         if 'lineEditX1' in controls:
             # TODO capture heuristic, factor, epsilon in the GUI
             QMessageBox.information(self.dock, self.dock.windowTitle(), 'TODO: capture heuristic, factor, epsilon')
+            args['astarHeuristic'] = sql.Literal(str(self.dock.selectAstarHeuristic.currentIndex()))
+            args['astarFactor'] = sql.Literal(str(self.dock.selectAstarFactor.text()))
+            args['astarEpsilon'] = sql.Literal(str(self.dock.selectAstarEpsilon.value()))
 
 
         if 'lineEditRule' in controls:
@@ -1167,17 +1198,26 @@ class PgRoutingLayer:
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
         self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'edge_table'))
-        # self.dock.lineEditPointsTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/pointsOfInterest', 'pointsOfInterest'))
         self.dock.lineEditGeometry.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
+
         self.dock.lineEditId.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/id', 'id'))
         self.dock.lineEditSource.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/source', 'source'))
         self.dock.lineEditTarget.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/target', 'target'))
         self.dock.lineEditCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/cost', 'cost'))
         self.dock.lineEditReverseCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/reverse_cost', 'reverse_cost'))
+
         self.dock.lineEditX1.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/x1', 'x1'))
         self.dock.lineEditY1.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/y1', 'y1'))
         self.dock.lineEditX2.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/x2', 'x2'))
         self.dock.lineEditY2.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/y2', 'y2'))
+
+        self.dock.selectAstarHeuristic.setCurrentIndex(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/heuristic',
+            '5')))
+        self.dock.selectAstarFactor.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/factor', '1'))
+        self.dock.selectAstarEpsilon.setTickPosition(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/epsilon',
+            '1')))
+
+
         self.dock.lineEditRule.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/rule', 'rule'))
         self.dock.lineEditToCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/to_cost', 'to_cost'))
 
@@ -1219,6 +1259,9 @@ class PgRoutingLayer:
         settings.setValue('/pgRoutingLayer/sql/y1', self.dock.lineEditY1.text())
         settings.setValue('/pgRoutingLayer/sql/x2', self.dock.lineEditX2.text())
         settings.setValue('/pgRoutingLayer/sql/y2', self.dock.lineEditY2.text())
+        settings.setValue('/pgRoutingLayer/sql/heuristic',  self.dock.selectAstarHeuristic.currentIndex())
+        settings.setValue('/pgRoutingLayer/sql/factor',     self.dock.selectAstarFactor.text())
+        settings.setValue('/pgRoutingLayer/sql/epsilon',    self.dock.selectAstarEpsilon.tickPosition())
 
         settings.setValue('/pgRoutingLayer/sql/rule', self.dock.lineEditRule.text())
         settings.setValue('/pgRoutingLayer/sql/to_cost', self.dock.lineEditToCost.text())

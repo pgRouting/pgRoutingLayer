@@ -29,7 +29,11 @@ class FunctionBase(object):
             'labelX1', 'lineEditX1',
             'labelY1', 'lineEditY1',
             'labelX2', 'lineEditX2',
-            'labelY2', 'lineEditY2']
+            'labelY2', 'lineEditY2',
+            'labelAstarHeuristic', 'selectAstarHeuristic',
+            'labelAstarFactor', 'selectAstarFactor',
+            'labelAstarEpsilon', 'selectAstarEpsilon', 'showAstarEpsilon'
+            ]
 
 
     @classmethod
