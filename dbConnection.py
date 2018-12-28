@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
-from builtins import object
 from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QAction
 
-
-from pgRoutingLayer import pgRoutingLayer_utils as Utils
 
 class ConnectionManager(object):
 
@@ -21,13 +16,12 @@ class ConnectionManager(object):
         conntypes = ConnectionManager.SUPPORTED_CONNECTORS
         for c in conntypes:
             try:
-                connector = self.getConnection( c )
+                self.getConnection( c )
             except ImportError as e:
                 module = e.args[0][ len("No module named "): ]
                 ConnectionManager.SUPPORTED_CONNECTORS.remove( c )
                 ConnectionManager.MISSED_CONNECTORS.append( (c, module) )
 
-        return len(ConnectionManager.SUPPORTED_CONNECTORS) > 0
 
     @classmethod
     def getConnection(self, conntype, uri=None):
@@ -148,11 +142,8 @@ class TableConstraint(object):
 
     TypeCheck, TypeForeignKey, TypePrimaryKey, TypeUnique = list(range(4))
     types = { "c" : TypeCheck, "f" : TypeForeignKey, "p" : TypePrimaryKey, "u" : TypeUnique }
-
     on_action = { "a" : "NO ACTION", "r" : "RESTRICT", "c" : "CASCADE", "n" : "SET NULL", "d" : "SET DEFAULT" }
     match_types = { "u" : "UNSPECIFIED", "f" : "FULL", "p" : "PARTIAL" }
-
-    pass
 
 class TableIndex(object):
     pass
@@ -166,8 +157,6 @@ class TableTrigger(object):
     TypeDelete   = (1 << 3)
     TypeUpdate   = (1 << 4)
     TypeTruncate = (1 << 5)
-
-    pass
 
 class TableRule(object):
     pass
