@@ -6,8 +6,9 @@ from qgis.gui import QgsVertexMarker
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
+
 class Function(FunctionBase):
-    #TODO fix completely
+    # TODO fix completely
 
     @classmethod
     def getName(self):
@@ -20,14 +21,14 @@ class Function(FunctionBase):
         if version < 2.1:
             # version 2.0 has only one to one
             return self.commonControls + self.commonBoxes + [
-                    'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
-                    'labelDistance', 'lineEditDistance',
-                    ]
+                'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
+                'labelDistance', 'lineEditDistance',
+            ]
         else:
             return self.commonControls + self.commonBoxes + [
-                    'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-                    'labelDistance', 'lineEditDistance',
-                    ]
+                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+                'labelDistance', 'lineEditDistance',
+            ]
 
     def prepare(self, canvasItemList):
         resultNodesVertexMarkers = canvasItemList['markers']
@@ -51,8 +52,8 @@ class Function(FunctionBase):
                   %(source_id)s, %(distance)s,
                   %(directed)s, %(has_reverse_cost)s)""").format(**args)
 
-        #2.1 or greater
-        #TODO add equicost flag to gui
+        # 2.1 or greater
+        # TODO add equicost flag to gui
         return sql.SQL("""
                 SELECT seq, '(' || from_v || ', %(distance)s)' AS path_name,
                     from_v AS _from_v,
@@ -97,9 +98,9 @@ class Function(FunctionBase):
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draw the result '''
         resultNodesVertexMarkers = canvasItemList['markers']
-        table =  """%(edge_table)s_vertices_pgr""" % args
+        table = """%(edge_table)s_vertices_pgr""" % args
         srid, geomType = Utils.getSridAndGeomType(con, table, 'the_geom')
-        Utils.setTransformQuotes(args,srid, args['canvas_srid'])
+        Utils.setTransformQuotes(args, srid, args['canvas_srid'])
 
         for row in rows:
             cur2 = con.cursor()
@@ -116,7 +117,7 @@ class Function(FunctionBase):
                     SELECT ST_AsText(%(transform_s)s the_geom %(transform_e)s)
                     FROM %(edge_table)s_vertices_pgr
                     WHERE  id = %(result_node_id)d
-                    """ ).format(**args)
+                    """).format(**args)
             cur2.execute(query2)
             row2 = cur2.fetchone()
             if (row2):

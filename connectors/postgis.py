@@ -19,14 +19,11 @@ from __future__ import print_function
 from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QInputDialog
+from qgis.PyQt.QtWidgets import QInputDialog, QLineEdit
 from psycopg2 import sql
 
-
-
-
 import psycopg2
-import psycopg2.extensions # for isolation levels
+import psycopg2.extensions  # for isolation levels
 
 from .. import dbConnection as DbConn
 from .. import pgRoutingLayer_utils as Utils
@@ -76,7 +73,7 @@ class TableRule(DbConn.TableRule):
 class DbError(DbConn.DbError):
     def __init__(self, error, query=None):
         msg = str(error.args[0])
-        if query == None:
+        if query is None:
             if hasattr(error, "cursor") and hasattr(error.cursor, "query"):
                 query = str(error.cursor.query)
         else:
@@ -114,10 +111,10 @@ class Connection(DbConn.Connection):
     @classmethod
     def connect(self, selected, parent=None):
         settings = QSettings()
-        settings.beginGroup( u"/%s/connections/%s" % (self.getSettingsKey(), selected) )
+        settings.beginGroup(u"/%s/connections/%s" % (self.getSettingsKey(), selected))
 
-        if not settings.contains( "database" ): # non-existent entry?
-            raise DbError( 'there is no defined database connection "%s".' % selected )
+        if not settings.contains("database"):  # non-existent entry?
+            raise DbError('there is no defined database connection "%s".' % selected)
 
         get_value_str = lambda x: str(settings.value(x) if Utils.isSIPv2() else settings.value(x).toString())
         service, host, port, database, username, password = list(map(get_value_str, ["service", "host", "port", "database", "username", "password"]))
@@ -125,7 +122,7 @@ class Connection(DbConn.Connection):
         # qgis1.5 use 'savePassword' instead of 'save' setting
         isSave = settings.value("save") if Utils.isSIPv2() else settings.value("save").toBool()
         isSavePassword = settings.value("savePassword") if Utils.isSIPv2() else settings.value("savePassword").toBool()
-        if not ( isSave or isSavePassword ):
+        if not (isSave or isSavePassword):
             (password, ok) = QInputDialog.getText(parent, "Enter password", 'Enter password for connection "%s":' % selected, QLineEdit.Password)
             if not ok: return
 
@@ -138,7 +135,6 @@ class Connection(DbConn.Connection):
             uri.setConnection(host, port, database, username, password)
 
         return Connection(uri)
-
 
     def __init__(self, uri):
         DbConn.Connection.__init__(self, uri)
@@ -170,19 +166,19 @@ class Connection(DbConn.Connection):
             connection information in form of a string
         """
         con_str = ''
-        if self.service: con_str += "service='%s' "  % self.service
-        if self.host:    con_str += "host='%s' "     % self.host
-        if self.port:    con_str += "port=%s "       % self.port
-        if self.dbname:  con_str += "dbname='%s' "   % self.dbname
-        if self.user:    con_str += "user='%s' "     % self.user
-        if self.passwd:  con_str += "password='%s' " % self.passwd
+        if self.service: con_str += "service='%s' " % self.service
+        if self.host: con_str += "host='%s' " % self.host
+        if self.port: con_str += "port=%s " % self.port
+        if self.dbname: con_str += "dbname='%s' " % self.dbname
+        if self.user: con_str += "user='%s' " % self.user
+        if self.passwd: con_str += "password='%s' " % self.passwd
         return con_str
 
     def current_database(self):
         """
             current_database()
         """
-        c = self._exec_sql(sql.SQL( "SELECT current_database()"))
+        c = self._exec_sql(sql.SQL("SELECT current_database()"))
         return c.fetchone()[0]
 
     def version(self):
@@ -225,18 +221,17 @@ class Connection(DbConn.Connection):
         # find out whether has privileges to access geometry_columns table
         self.has_geometry_columns_access = self.get_table_privileges('geometry_columns')[0]
 
-
     def list_schemas(self):
         """
             get list of schemas in tuples: (oid, name, owner, perms)
             Not including schemas starting with pg_ or the information_schema
         """
-        c = self._exec_sql( sql.SQL("""
+        c = self._exec_sql(sql.SQL("""
             SELECT oid, nspname, pg_get_userbyid(nspowner), nspacl
             FROM pg_namespace
             WHERE nspname !~ '^pg_' AND nspname != 'information_schema'"""))
 
-        schema_cmp = lambda x,y: -1 if x[1] < y[1] else 1
+        schema_cmp = lambda x, y: -1 if x[1] < y[1] else 1
 
         return sorted(c.fetchall(), cmp=schema_cmp)
 
@@ -245,7 +240,7 @@ class Connection(DbConn.Connection):
             return list of columns in table
         """
         schema_where = sql.SQL(" AND nspname={} ").format(sql.Literal) if schema is not None else ""
-        c = self._exec_sql( sql.SQL("""
+        c = self._exec_sql(sql.SQL("""
             SELECT a.attnum AS ordinal_position,
                 a.attname AS column_name,
                 t.typname AS data_type,
@@ -262,13 +257,12 @@ class Connection(DbConn.Connection):
             WHERE
               c.relname = {0} {1} AND
                 a.attnum > 0
-            ORDER BY a.attnum""").format( sql.Literal(table), schema_where ) )
+            ORDER BY a.attnum""").format(sql.Literal(table), schema_where))
 
         attrs = []
         for row in c.fetchall():
             attrs.append(TableAttribute(row))
         return attrs
-
 
     def get_table_privileges(self, table, schema=None):
         """ table privileges: (select, insert, update, delete) """
@@ -276,7 +270,7 @@ class Connection(DbConn.Connection):
         c = self._exec_sql(sql.SQL("""SELECT has_table_privilege('{0}{1}','SELECT'),
                         has_table_privilege('{0}{1}', 'INSERT'),
                         has_table_privilege('{0}{1}', 'UPDATE'),
-                        has_table_privilege('{0}{1}', 'DELETE')""").format( s, t ))
+                        has_table_privilege('{0}{1}', 'DELETE')""").format(s, t))
         return c.fetchone()
 
     def _exec_sql(self, query):

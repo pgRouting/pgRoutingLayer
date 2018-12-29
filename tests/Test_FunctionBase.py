@@ -2,10 +2,12 @@ import unittest
 import FunctionBase as FB
 
 
-
 class TestFB(unittest.TestCase):
     def test_getJoinResultWithEdgeTable(self):
-        args = {'geometry' : 'test_geom','source': 'test_source','startpoint' : 10,'id':'test_id','edge_table':'test_Table','target':100,'endpoint':90}
+        args = {
+            'geometry': 'test_geom', 'source': 'test_source', 'startpoint': 10,
+            'id': 'test_id', 'edge_table': 'test_Table', 'target': 100, 'endpoint': 90
+        }
 
         expected_sql = """
             WITH
@@ -22,11 +24,15 @@ class TestFB(unittest.TestCase):
             """
         self.maxDiff = None
 
-        self.assertEqual(FB.getJoinResultWithEdgeTable(args),expected_sql)
+        self.assertEqual(FB.getJoinResultWithEdgeTable(args), expected_sql)
 
     def test_getExportManySourceManyTargetMergeQuery(self):
 
-        args = {'geometry' : 'test_geom','source': 'test_source','startpoint' : 10,'id':'test_id','edge_table':'test_Table','target':100,'endpoint':90}
+        args = {
+            'geometry': 'test_geom', 'source': 'test_source', 'startpoint': 10,
+            'id': 'test_id', 'edge_table': 'test_Table', 'target': 100, 'endpoint': 90
+        }
+
         expected_sql = """WITH
             result AS (  ),
             with_geom AS (
@@ -62,8 +68,7 @@ class TestFB(unittest.TestCase):
             """
         self.maxDiff = None
 
-        self.assertEqual(FB.getExportManySourceManyTargetMergeQuery(args),expected_sql)
-
+        self.assertEqual(FB.getExportManySourceManyTargetMergeQuery(args), expected_sql)
 
 
 if __name__ == '__main__':

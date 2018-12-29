@@ -3,22 +3,24 @@ from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 from psycopg2 import sql
 
+
 class DijkstraBase(FunctionBase):
+
+    def __init__(self, ui):
+        FunctionBase.__init__(self, ui)
 
     @classmethod
     def getControlNames(self, version):
         ''' returns control names. '''
         return self.commonControls + self.commonBoxes + [
-                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                ]
+            'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+            'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds']
 
     def prepare(self, canvasItemList):
         resultPathsRubberBands = canvasItemList['paths']
         for path in resultPathsRubberBands:
             path.reset(Utils.getRubberBandType(False))
         canvasItemList['paths'] = []
-
 
     @classmethod
     def getQuery(self, args):
@@ -42,6 +44,3 @@ class DijkstraBase(FunctionBase):
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         columns = [2, 5, 6]
         self.drawManyPaths(rows, columns, con, args, geomType, canvasItemList, mapCanvas)
-
-    def __init__(self, ui):
-        FunctionBase.__init__(self, ui)
