@@ -118,4 +118,4 @@ def tableName(schema, table):
     if not schema:
         return sql.SQL(""), sql.Identifier(table)
     else:
-        return sql.SQL("{}.").format(sql.Identifier(squema)), sql.Identifier(table)
+        return sql.SQL("{}.").format(sql.Identifier(schema)), sql.Identifier(table)
