@@ -3,6 +3,7 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import *
 from qgis.core import QgsGeometry, QgsPointXY
 from qgis.gui import QgsVertexMarker
+from psycopg2 import sql
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from .FunctionBase import FunctionBase
 
