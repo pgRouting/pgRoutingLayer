@@ -16,25 +16,28 @@ class FunctionBase(object):
     exportMergeButton = True
     exportEdgeBase = False
     commonControls = [
-        'labelId',      'lineEditId',
-        'labelSource',  'lineEditSource',
-        'labelTarget',  'lineEditTarget',
-        'labelCost',    'lineEditCost',
+        'labelId', 'lineEditId',
+        'labelSource', 'lineEditSource',
+        'labelTarget', 'lineEditTarget',
+        'labelCost', 'lineEditCost',
         'labelReverseCost', 'lineEditReverseCost']
     commonBoxes = [
-            'checkBoxUseBBOX',
-            'checkBoxDirected',
-            'checkBoxHasReverseCost']
+        'checkBoxUseBBOX',
+        'checkBoxDirected',
+        'checkBoxHasReverseCost']
     astarControls = [
-            'labelX1', 'lineEditX1',
-            'labelY1', 'lineEditY1',
-            'labelX2', 'lineEditX2',
-            'labelY2', 'lineEditY2',
-            'labelAstarHeuristic', 'selectAstarHeuristic',
-            'labelAstarFactor', 'selectAstarFactor',
-            'labelAstarEpsilon', 'selectAstarEpsilon', 'showAstarEpsilon'
-            ]
+        'labelX1', 'lineEditX1',
+        'labelY1', 'lineEditY1',
+        'labelX2', 'lineEditX2',
+        'labelY2', 'lineEditY2',
+        'labelAstarHeuristic', 'selectAstarHeuristic',
+        'labelAstarFactor', 'selectAstarFactor',
+        'labelAstarEpsilon', 'selectAstarEpsilon', 'showAstarEpsilon']
 
+    def __init__(self, ui):
+        self.ui = ui
+        self.minVersion = 3.0
+        self.maxVersion = 3.0
 
     @classmethod
     def getName(self):
@@ -112,10 +115,9 @@ class FunctionBase(object):
             """).format(**args)
         return query
 
-
     def getExportManySourceManyTargetMergeQuery(self, args):
         ''' returns merge query for many source and many target '''
-        queries =  {}
+        queries = {}
         queries['result_query'] = self.getQuery(args)
 
         queries['geom_query'] = sql.SQL("""
@@ -156,7 +158,6 @@ class FunctionBase(object):
             """).format(**queries)
         return query
 
-
     @classmethod
     def drawManyPaths(self, rows, columns, con, args, geomType, canvasItemList, mapCanvas):
         '''
@@ -167,9 +168,9 @@ class FunctionBase(object):
         cur_path_id = None
         for row in rows:
             cur2 = con.cursor()
-            result_path_id = str(row[ columns[0] ])
-            args['result_node_id'] = sql.Literal(row[ columns[1] ])
-            args['result_edge_id'] = sql.Literal(row[ columns[2] ])
+            result_path_id = str(row[columns[0]])
+            args['result_node_id'] = sql.Literal(row[columns[1]])
+            args['result_edge_id'] = sql.Literal(row[columns[2]])
 
             if result_path_id != cur_path_id:
                 cur_path_id = result_path_id
@@ -181,7 +182,7 @@ class FunctionBase(object):
                 rubberBand.setColor(QColor(255, 0, 0, 128))
                 rubberBand.setWidth(4)
 
-            if row[ columns[2] ] != -1:
+            if row[columns[2]] != -1:
                 query2 = sql.SQL("""
                     SELECT ST_AsText({transform_s}{geometry}{transform_e})
                     FROM {edge_table}
@@ -267,10 +268,10 @@ class FunctionBase(object):
                         (SELECT {geometry_vt} FROM  {vertex_table} WHERE id = {result_target_id})
                         ))
                     """).format(**args)
-                ##Utils.logMessage(query2)
+                # Utils.logMessage(query2)
                 cur2.execute(query2)
                 row2 = cur2.fetchone()
-                ##Utils.logMessage(str(row2[0]))
+                # Utils.logMessage(str(row2[0]))
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
@@ -314,10 +315,3 @@ class FunctionBase(object):
 
             QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
             resultNodesTextAnnotations.append(textAnnotation)
-
-
-
-    def __init__(self, ui):
-        self.ui = ui
-        self.minVersion = 3.0
-        self.maxVersion = 3.0

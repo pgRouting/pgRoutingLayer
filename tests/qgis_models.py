@@ -9,7 +9,6 @@ from qgis.gui import QgsMapCanvasLayer
 import config
 
 
-
 LOGGER = logging.getLogger('QGIS')
 
 
@@ -41,7 +40,7 @@ def set_up_interface():
 
     return qgis_app, canvas, iface
 
-#noinspection PyMethodMayBeStatic,PyPep8Naming
+
 class QgisInterface(QObject):
     """Class to expose QGIS objects and functions to plugins.
 
@@ -70,7 +69,6 @@ class QgisInterface(QObject):
 
         # For processing module
         self.destCrs = None
-
 
     @pyqtSlot('QgsMapLayer')
     def addLayer(self, layer):
@@ -184,7 +182,7 @@ class QgisInterface(QObject):
         """
         pass
 
-    def addPluginToDatabaseMenu(self,name,action):
+    def addPluginToDatabaseMenu(self, name, action):
         """Adds plugin to database menu in QGIS.
 
         :param name : Name of plugin
@@ -193,7 +191,6 @@ class QgisInterface(QObject):
         :type action: QAction
         """
         pass
-
 
     def removeToolBarIcon(self, action):
         """Remove an action (icon) from the plugin toolbar.

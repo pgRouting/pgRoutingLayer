@@ -2,9 +2,13 @@ from __future__ import absolute_import
 from psycopg2 import sql
 from .FunctionBase import FunctionBase
 
+
 class Function(FunctionBase):
 
     minPGRversion = 2.1
+
+    def __init__(self, ui):
+        FunctionBase.__init__(self, ui)
 
     @classmethod
     def getName(self):
@@ -17,9 +21,7 @@ class Function(FunctionBase):
         return self.commonControls + self.commonBoxes + [
             'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
             'labelTargetId', 'lineEditTargetId', 'buttonSelectTargetId',
-            'labelPaths', 'lineEditPaths',
-            'checkBoxHeapPaths'
-            ]
+            'labelPaths', 'lineEditPaths', 'checkBoxHeapPaths']
 
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_KSP '''
@@ -37,7 +39,6 @@ class Function(FunctionBase):
 
     def getExportQuery(self, args):
         return self.getJoinResultWithEdgeTable(args)
-
 
     def getExportMergeQuery(self, args):
         args['result_query'] = self.getQuery(args)
@@ -70,12 +71,7 @@ class Function(FunctionBase):
             FROM aggregates JOIN one_geom USING (path_name) ORDER BY _path_id
         """).format(**args)
 
-
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draw the result '''
         columns = [2, 4, 5]
         self.drawManyPaths(rows, columns, con, args, geomType, canvasItemList, mapCanvas)
-
-
-    def __init__(self, ui):
-        FunctionBase.__init__(self, ui)

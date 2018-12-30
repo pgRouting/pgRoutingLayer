@@ -2,7 +2,11 @@ from __future__ import absolute_import
 from psycopg2 import sql
 from .FunctionBase import FunctionBase
 
+
 class CostBase(FunctionBase):
+
+    def __init__(self, ui):
+        FunctionBase.__init__(self, ui)
 
     @classmethod
     def isSupportedVersion(self, version):
@@ -10,18 +14,15 @@ class CostBase(FunctionBase):
         # valid starting pgr v2.1
         return version >= 2.1
 
-
     @classmethod
     def canExportMerged(self):
         return False
-
 
     def prepare(self, canvasItemList):
         resultNodesTextAnnotations = canvasItemList['annotations']
         for anno in resultNodesTextAnnotations:
             anno.setVisible(False)
         canvasItemList['annotations'] = []
-
 
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_dijkstra '''
@@ -51,6 +52,3 @@ class CostBase(FunctionBase):
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draw the result '''
         self.drawCostPaths(rows, con, args, geomType, canvasItemList, mapCanvas)
-
-    def __init__(self, ui):
-        FunctionBase.__init__(self, ui)

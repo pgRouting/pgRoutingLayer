@@ -1,5 +1,6 @@
 from psycopg2 import sql
 
+
 def getNodeQuery(args, geomType):
     ''' returns a sql query to get nodes from a geometry. '''
     return sql.SQL("""
@@ -17,6 +18,7 @@ def getNodeQuery(args, geomType):
                 ) AS node
        )""").format(**args)
 
+
 def getEdgesQuery(args):
     return sql.SQL("""
         SELECT {id} AS id,
@@ -27,6 +29,7 @@ def getEdgesQuery(args):
             FROM {edge_table}
             {where_clause}
         """.replace("\\n", r"\n")).format(**args)
+
 
 def getEdgesQueryXY(args):
     return sql.SQL("""
@@ -45,7 +48,7 @@ def getEdgesQueryXY(args):
 
 
 def get_closestVertexInfo(args):
-    return  sql.SQL("""
+    return sql.SQL("""
         WITH
         near_source AS(SELECT {source},
                 ST_Distance(
@@ -73,9 +76,10 @@ def get_closestVertexInfo(args):
         ORDER BY dist ASC LIMIT 1
         """).format(**args)
 
+
 def get_closestEdgeInfo(args):
     # Not sure this is correct but has the main idea
-    return  sql.SQL("""
+    return sql.SQL("""
         WITH point AS (
             SELECT ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid}) AS geom
         )

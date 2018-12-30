@@ -23,9 +23,8 @@ from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QRegExp, QSettings, QUrl
-from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator,QRegExpValidator, QCursor
+from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator, QRegExpValidator, QCursor
 from qgis.PyQt.QtWidgets import QAction, QApplication, QMessageBox
-#from qgis.core import QgsMessageLog
 from qgis.core import QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
 from qgis.gui import QgsVertexMarker, QgsRubberBand, QgsMapToolEmitPoint
@@ -40,6 +39,7 @@ from PyQt5.QtGui import QDesktopServices
 
 conn = dbConnection.ConnectionManager()
 
+
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
@@ -48,8 +48,8 @@ class PgRoutingLayer:
         'pgr_bdDijkstra',
         'pgr_bdAstar',
         'pgr_KSP',
-        #'drivingDistance',
-        #'alphashape',
+        # 'drivingDistance',
+        # 'alphashape',
         'pgr_dijkstraCost',
         'pgr_bdDijkstraCost',
         'pgr_aStarCost',
@@ -74,8 +74,8 @@ class PgRoutingLayer:
         'labelAstarFactor', 'selectAstarFactor',
         'labelAstarEpsilon', 'selectAstarEpsilon', 'showAstarEpsilon',
 
-        #'labelRule', 'lineEditRule',
-        #'labelToCost', 'lineEditToCost',
+        # 'labelRule', 'lineEditRule',
+        # 'labelToCost', 'lineEditToCost',
         'labelIds', 'lineEditIds', 'buttonSelectIds',
         'labelPcts', 'lineEditPcts',
         'labelSourceId', 'lineEditSourceId', 'buttonSelectSourceId',
@@ -98,22 +98,19 @@ class PgRoutingLayer:
         # 'labelFraction', 'lineEditFraction', 'labelSide', 'lineEditSide','labelDrivingSide','checkBoxLeft','checkBoxRight'
     ]
 
-    ASTAR_HEURISTICS =[
+    ASTAR_HEURISTICS = [
         '= 0',
         '= abs(max(dx, dy))',
         '= abs(min(dx, dy))',
         '= dx * dx + dy * dy',
         '= sqrt(dx * dx + dy * dy)',
         '= abs(dx) + abs(dy)',
-   ]
-
-
+    ]
 
     FIND_RADIUS = 10
     FRACTION_DECIMAL_PLACES = 2
     version = 2.6
     functions = {}
-
 
     def __init__(self, iface):
         # Save reference to the QGIS interface
@@ -155,10 +152,10 @@ class PgRoutingLayer:
     def initGui(self):
         # Create action that will start plugin configuration
         self.action = QAction(QIcon(":/plugins/pgRoutingLayer/icon.png"), "pgRouting Layer", self.iface.mainWindow())
-        #Add toolbar button and menu item
+        # Add toolbar button and menu item
         self.iface.addPluginToDatabaseMenu("&pgRouting Layer", self.action)
 
-        #load the form
+        # load the form
         path = os.path.dirname(os.path.abspath(__file__))
         self.dock = uic.loadUi(os.path.join(path, "ui_pgRoutingLayer.ui"))
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dock)
@@ -169,7 +166,7 @@ class PgRoutingLayer:
         self.sourceIdsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
         self.targetIdsEmitPoint = QgsMapToolEmitPoint(self.iface.mapCanvas())
 
-        #connect the action to each method
+        # connect the action to each method
         self.action.triggered.connect(self.show)
         self.dock.buttonReloadConnections.clicked.connect(self.reloadConnections)
         self.dock.comboConnections.currentIndexChanged.connect(self.updateConnectionEnabled)
@@ -206,7 +203,7 @@ class PgRoutingLayer:
         self.functions = {}
         for funcfname in self.SUPPORTED_FUNCTIONS:
             # import the function
-            exec("from pgRoutingLayer.functions import %s as function" % funcfname, globals(),globals())
+            exec("from pgRoutingLayer.functions import %s as function" % funcfname, globals(), globals())
             funcname = function.Function.getName()
             self.functions[funcname] = function.Function(self.dock)
             self.dock.comboBoxFunction.addItem(funcname)
@@ -217,7 +214,6 @@ class PgRoutingLayer:
         self.dock.selectAstarEpsilon.setMinimum(0)
         self.dock.selectAstarEpsilon.setMinimum(1)
         self.dock.selectAstarEpsilon.valueChanged.connect(self.astarEpsilonChanged)
-
 
         self.dock.lineEditIds.setValidator(QRegExpValidator(QRegExp("[0-9,]+"), self.dock))
         self.dock.lineEditPcts.setValidator(QRegExpValidator(QRegExp("[0-9,.]+"), self.dock))
@@ -235,7 +231,7 @@ class PgRoutingLayer:
         self.dock.lineEditAlpha.setValidator(QDoubleValidator())
         self.dock.lineEditPaths.setValidator(QIntValidator())
 
-        #populate the combo with connections
+        # populate the combo with connections
         self.reloadMessage = False
         self.reloadConnections()
         self.loadSettings()
@@ -264,7 +260,7 @@ class PgRoutingLayer:
         actions = conn.getAvailableConnections()
         self.actionsDb = {}
         for a in actions:
-            self.actionsDb[ str(a.text()) ] = a
+            self.actionsDb[str(a.text())] = a
 
         for dbname in self.actionsDb:
             db = None
@@ -291,11 +287,10 @@ class PgRoutingLayer:
         self.reloadMessage = oldReloadMessage
         self.updateConnectionEnabled()
 
-
     def updateConnectionEnabled(self):
         ''' Updates the database connection name and function '''
         dbname = str(self.dock.comboConnections.currentText())
-        if dbname =='':
+        if dbname == '':
             return
 
         db = self.actionsDb[dbname].connect()
@@ -303,11 +298,10 @@ class PgRoutingLayer:
         self.version = Utils.getPgrVersion(con)
         if self.reloadMessage:
             QMessageBox.information(self.dock, self.dock.windowTitle(),
-                'Selected database: ' + dbname + '\npgRouting version: ' + str(self.version))
+                                    'Selected database: ' + dbname + '\npgRouting version: ' + str(self.version))
 
-
-        currentFunction = str (self.dock.comboBoxFunction.currentText())
-        if currentFunction ==' ':
+        currentFunction = str(self.dock.comboBoxFunction.currentText())
+        if currentFunction == ' ':
             return
 
         self.loadFunctionsForVersion()
@@ -318,7 +312,7 @@ class PgRoutingLayer:
         currentText = str(self.dock.comboBoxFunction.currentText())
         self.dock.comboBoxFunction.clear()
 
-        #for funcname, function in self.functions.items():
+        # for funcname, function in self.functions.items():
         for funcname in self.functions:
             function = self.functions[funcname]
             if (function.isSupportedVersion(self.version)):
@@ -328,12 +322,10 @@ class PgRoutingLayer:
         if idx >= 0:
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
-
-
     def updateFunctionEnabled(self, text):
         ''' Updates the GUI fields of the selected function. '''
-        text = str (self.dock.comboBoxFunction.currentText())
-        if text== '':
+        text = str(self.dock.comboBoxFunction.currentText())
+        if text == '':
             return
         self.clear()
         function = self.functions.get(str(text))
@@ -356,7 +348,7 @@ class PgRoutingLayer:
             self.dock.lineEditReverseCost.setEnabled(False)
 
         # if type(edge/node) changed, clear input
-        if (self.prevType != None) and (self.prevType != function.isEdgeBase()):
+        if (self.prevType is not None) and (self.prevType != function.isEdgeBase()):
             self.clear()
 
         self.prevType = function.isEdgeBase()
@@ -478,7 +470,6 @@ class PgRoutingLayer:
                 self.dock.buttonSelectSourceId.click()
         Utils.refreshMapCanvas(self.iface.mapCanvas())
 
-
     def selectSourceIds(self, checked):
         ''' Selects the source ids and dispaly its value on lineEdit. '''
         if checked:
@@ -510,7 +501,6 @@ class PgRoutingLayer:
             vertexMarker.setCenter(geom.asPoint())
             self.sourceIdsVertexMarkers.append(vertexMarker)
             Utils.refreshMapCanvas(mapCanvas)
-
 
     def selectTargetId(self, checked):
         ''' Selects the target id and dispaly its value on lineEdit. '''
@@ -591,9 +581,8 @@ class PgRoutingLayer:
         This method will be called when the epsilon slider is dragged by the user.
         The value() of the slider ranges from 1-99
         '''
-        size = self.dock.selectAstarEpsilon.value()/100
+        size = self.dock.selectAstarEpsilon.value() / 100
         self.dock.showAstarEpsilon.setText(str(size))
-
 
     def updateReverseCostEnabled(self, state):
         ''' Updates the reverse cost checkBox '''
@@ -623,7 +612,7 @@ class PgRoutingLayer:
             if len(empties) > 0:
                 QApplication.restoreOverrideCursor()
                 QMessageBox.warning(self.dock, self.dock.windowTitle(),
-                    'Following argument is not specified.\n' + ','.join(empties))
+                                    'Following argument is not specified.\n' + ','.join(empties))
                 return
 
             version = Utils.getPgrVersion(con)
@@ -636,13 +625,13 @@ class PgRoutingLayer:
             cur = con.cursor()
             cur.execute(function.getQuery(args).as_string(con))
 
-            #QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' +
+            # QMessageBox.information(self.dock, self.dock.windowTitle(), 'Geometry Query:' +
             #        function.getQuery(args).as_string(con))
 
             rows = cur.fetchall()
-            if  len(rows) == 0:
-                QMessageBox.information(self.dock, self.dock.windowTitle(), 'No paths found in ' +
-                        self.getLayerName(args, con))
+            if len(rows) == 0:
+                QMessageBox.information(self.dock, self.dock.windowTitle(),
+                                        'No paths found in ' + self.getLayerName(args, con))
 
             args['canvas_srid'] = Utils.getCanvasSrid(Utils.getDestinationCrs(self.iface.mapCanvas()))
             Utils.setTransformQuotes(args, args['srid'], args['canvas_srid'])
@@ -667,7 +656,7 @@ class PgRoutingLayer:
                     db.con.close()
                 except Exception:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
-                        'server closed the connection unexpectedly')
+                                         'server closed the connection unexpectedly')
 
     def export(self):
         ''' Exports the result layer '''
@@ -690,21 +679,19 @@ class PgRoutingLayer:
             if len(empties) > 0:
                 QApplication.restoreOverrideCursor()
                 QMessageBox.warning(self.dock, self.dock.windowTitle(),
-                    'Following argument is not specified.\n' + ','.join(empties))
+                                    'Following argument is not specified.\n' + ','.join(empties))
                 return
 
             version = Utils.getPgrVersion(con)
 
             args['version'] = version
-            if (self.version!=version) :
+            if (self.version != version):
                 QMessageBox.warning(self.dock, self.dock.windowTitle(),
-                  'versions are different')
+                                    'versions are different')
 
-
-
-            #get the EXPORT query
+            # get the EXPORT query
             msgQuery = function.getExportQuery(args)
-            #Utils.logMessage('Export:\n' + msgQuery.as_string(con))
+            # Utils.logMessage('Export:\n' + msgQuery.as_string(con))
 
             query = self.cleanQuery(msgQuery.as_string(con))
 
@@ -716,7 +703,7 @@ class PgRoutingLayer:
             vl = self.iface.addVectorLayer(uri.uri(), layerName, db.getProviderName())
             if not vl:
                 QMessageBox.information(self.dock, self.dock.windowTitle(),
-                        'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
+                                        'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
 
         except psycopg2.DatabaseError as e:
             QApplication.restoreOverrideCursor()
@@ -733,8 +720,7 @@ class PgRoutingLayer:
                     db.con.close()
                 except Exception:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
-                        'server closed the connection unexpectedly')
-
+                                         'server closed the connection unexpectedly')
 
     @classmethod
     def cleanQuery(cls, msgQuery):
@@ -770,17 +756,16 @@ class PgRoutingLayer:
         bbox['yMin'] = sql.Literal(yMin)
         bbox['xMax'] = sql.Literal(xMax)
         bbox['yMax'] = sql.Literal(yMax)
-        text = "BBOX(" + str(round(xMin,2))
-        text += " " + str(round(yMin,2))
-        text += "," + str(round(xMax,2))
-        text += " " + str(round(yMax,2)) + ")"
+        text = "BBOX(" + str(round(xMin, 2))
+        text += " " + str(round(yMin, 2))
+        text += "," + str(round(xMax, 2))
+        text += " " + str(round(yMax, 2)) + ")"
         return sql.SQL("""
            ST_MakeEnvelope(
               {xMin}, {yMin},
               {xMax}, {yMax}, {srid}
               )
         """).format(**bbox), text
-
 
     def exportMerged(self):
         ''' exports the result layer with input layer '''
@@ -803,7 +788,7 @@ class PgRoutingLayer:
             if len(empties) > 0:
                 QApplication.restoreOverrideCursor()
                 QMessageBox.warning(self.dock, self.dock.windowTitle(),
-                    'Following argument is not specified.\n' + ','.join(empties))
+                                    'Following argument is not specified.\n' + ','.join(empties))
                 return
 
             version = Utils.getPgrVersion(con)
@@ -832,10 +817,10 @@ class PgRoutingLayer:
                 ]
                 if function.getName() in bigIntFunctions:
                     QMessageBox.information(self.dock, self.dock.windowTitle(),
-                            'Invalid Layer:\n - No paths found')
+                                            'Invalid Layer:\n - No paths found')
                 else:
                     QMessageBox.information(self.dock, self.dock.windowTitle(),
-                            'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
+                                            'Invalid Layer:\n - No paths found or\n - Failed to create vector layer from query')
 
         except psycopg2.DatabaseError as e:
             QApplication.restoreOverrideCursor()
@@ -852,7 +837,7 @@ class PgRoutingLayer:
                     db.con.close()
                 except Exception:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
-                        'server closed the connection unexpectedly')
+                                         'server closed the connection unexpectedly')
 
     def getLayerName(self, args, con, letter=''):
         ''' returns the layer Name '''
@@ -861,19 +846,18 @@ class PgRoutingLayer:
         layerName = "(" + letter
 
         if 'directed' in args and args['directed'] == 'true':
-            layerName +=  "D) "
+            layerName += "D) "
         else:
-            layerName +=  "U) "
+            layerName += "U) "
 
         layerName += function.getName() + ": "
 
-
         if 'source_id' in args:
-            layerName +=  args['source_id'].as_string(con)
+            layerName += args['source_id'].as_string(con)
         elif 'ids' in args:
             layerName += "{" + args['ids'] + "}"
         else:
-            layerName +=  "[" + args['source_ids'].as_string(con) + "]"
+            layerName += "[" + args['source_ids'].as_string(con) + "]"
 
         if 'ids' in args:
             layerName += " "
@@ -887,40 +871,37 @@ class PgRoutingLayer:
                 layerName += "[" + args['target_ids'].as_string(con) + "]"
 
         if 'paths' in args:
-            layerName +=  " -  K = " + args['paths']
+            layerName += " -  K = " + args['paths']
             if 'heap_paths' in args and args['heap_paths'] == 'true':
                 layerName += '+'
-        layerName += " " +  args['printBBOX']
+        layerName += " " + args['printBBOX']
 
         return layerName
 
-
-
-
     def clear(self):
         ''' Clears the selected ids '''
-        #self.dock.lineEditIds.setText("")
+        # self.dock.lineEditIds.setText("")
         for marker in self.idsVertexMarkers:
             marker.setVisible(False)
         self.idsVertexMarkers = []
 
-        #self.dock.lineEditSourceIds.setText("")
+        # self.dock.lineEditSourceIds.setText("")
         for marker in self.sourceIdsVertexMarkers:
             marker.setVisible(False)
         self.sourceIdsVertexMarkers = []
 
-        #self.dock.lineEditTargetIds.setText("")
+        # self.dock.lineEditTargetIds.setText("")
         for marker in self.targetIdsVertexMarkers:
             marker.setVisible(False)
         self.targetIdsVertexMarkers = []
 
-        #self.dock.lineEditPcts.setText("")
-        #self.dock.lineEditSourceId.setText("")
+        # self.dock.lineEditPcts.setText("")
+        # self.dock.lineEditSourceId.setText("")
         self.sourceIdVertexMarker.setVisible(False)
-        #self.dock.lineEditSourcePos.setText("0.5")
-        #self.dock.lineEditTargetId.setText("")
+        # self.dock.lineEditSourcePos.setText("0.5")
+        # self.dock.lineEditTargetId.setText("")
         self.targetIdVertexMarker.setVisible(False)
-        #self.dock.lineEditTargetPos.setText("0.5")
+        # self.dock.lineEditTargetPos.setText("0.5")
         for rubberBand in self.idsRubberBands:
             rubberBand.reset(Utils.getRubberBandType(False))
         self.idsRubberBands = []
@@ -956,7 +937,7 @@ class PgRoutingLayer:
     def get_innerQueryArguments(self, controls):
         args = {}
         # TODO captrure the schema
-        #QMessageBox.information(self.dock, self.dock.windowTitle(), 'TODO: capture the schema')
+        # QMessageBox.information(self.dock, self.dock.windowTitle(), 'TODO: capture the schema')
         args['edge_table'] = sql.Identifier(str(self.dock.lineEditTable.text()))
         args['geometry'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
         args['id'] = sql.Identifier(str(self.dock.lineEditId.text()))
@@ -967,8 +948,8 @@ class PgRoutingLayer:
         if not self.dock.checkBoxHasReverseCost.isChecked():
             args['reverse_cost'] = sql.SQL(" -1 ")
         else:
-            args['reverse_cost'] = sql.SQL("{}").format(
-                    sql.Identifier(str(self.dock.lineEditReverseCost.text())))
+            args['reverse_cost'] = sql.SQL("{}").format(sql.Identifier(
+                                                        str(self.dock.lineEditReverseCost.text())))
 
         if 'lineEditX1' in controls:
             args['x1'] = sql.Identifier(self.dock.lineEditX1.text())
@@ -984,8 +965,9 @@ class PgRoutingLayer:
         args['dbsrid'] = sql.Literal(args['srid'])
         if self.dock.checkBoxUseBBOX.isChecked():
             args['BBOX'], args['printBBOX'] = self.getBBOX(args['srid'])
-            args['where_clause'] = sql.SQL(' WHERE {0}.{1} {2}').format(
-                    args['edge_table'], args['geometry'], args['BBOX'])
+            args['where_clause'] = sql.SQL(' WHERE {0}.{1} {2}').format(args['edge_table'],
+                                                                        args['geometry'],
+                                                                        args['BBOX'])
         else:
             args['BBOX'] = sql.SQL("")
             args['printBBOX'] = ' '
@@ -993,13 +975,12 @@ class PgRoutingLayer:
 
         return args
 
-
     def get_innerQuery(self, controls, conn):
         args = {}
         args = self.get_innerQueryArguments(controls)
         args.update(self.get_whereClause(args['edge_table'], args['geometry'], conn))
 
-        if not 'lineEditX1' in controls:
+        if 'lineEditX1' not in controls:
             args['innerQuery'] = PgrQ.getEdgesQuery(args)
         else:
             args['innerQuery'] = PgrQ.getEdgesQueryXY(args)
@@ -1035,8 +1016,7 @@ class PgRoutingLayer:
                     db.con.close()
                 except Exception:
                     QMessageBox.critical(self.dock, self.dock.windowTitle(),
-                        'server closed the connection unexpectedly')
-
+                                         'server closed the connection unexpectedly')
 
     def _getArguments(self, controls, conn):
         ''' updates the GUI field text to args '''
@@ -1050,18 +1030,16 @@ class PgRoutingLayer:
             # TODO: capture vertices table, geometry of vertices table
             args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
             args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
-            #QMessageBox.information(self.dock, self.dock.windowTitle(),
+            # QMessageBox.information(self.dock, self.dock.windowTitle(),
             #    'TODO: capture vertices table, geometry of vertices table, label the edges')
-
 
         if 'lineEditX1' in controls:
             args['astarHeuristic'] = sql.Literal(str(self.dock.selectAstarHeuristic.currentIndex()))
             args['astarFactor'] = sql.Literal(str(self.dock.selectAstarFactor.text()))
             args['astarEpsilon'] = sql.Literal(str(self.dock.selectAstarEpsilon.value()))
 
-
-        #args['rule'] = self.dock.lineEditRule.text() if 'lineEditRule' in controls
-        #args['to_cost'] = self.dock.lineEditToCost.text() if 'lineEditToCost' in controls:
+        # args['rule'] = self.dock.lineEditRule.text() if 'lineEditRule' in controls
+        # args['to_cost'] = self.dock.lineEditToCost.text() if 'lineEditToCost' in controls:
 
         if 'lineEditIds' in controls:
             args['ids'] = self.dock.lineEditIds.text()
@@ -1082,16 +1060,13 @@ class PgRoutingLayer:
             args['source_pos'] = self.dock.lineEditSourcePos.text()
 
         if 'lineEditSourceIds' in controls:
-            args['source_ids'] = sql.SQL("string_to_array({}, ',')::BIGINT[]").format(
-                    sql.Literal(str(self.dock.lineEditSourceIds.text())))
-
+            args['source_ids'] = sql.SQL("string_to_array({}, ',')::BIGINT[]").format(sql.Literal(str(self.dock.lineEditSourceIds.text())))
 
         if 'lineEditTargetPos' in controls:
             args['target_pos'] = self.dock.lineEditTargetPos.text()
 
         if 'lineEditTargetIds' in controls:
-            args['target_ids'] = sql.SQL("string_to_array({}, ',')::BIGINT[]").format(
-                    sql.Literal(str(self.dock.lineEditTargetIds.text())))
+            args['target_ids'] = sql.SQL("string_to_array({}, ',')::BIGINT[]").format(sql.Literal(str(self.dock.lineEditTargetIds.text())))
 
         if 'lineEditDistance' in controls:
             args['distance'] = self.dock.lineEditDistance.text()
@@ -1099,13 +1074,10 @@ class PgRoutingLayer:
         if 'lineEditAlpha' in controls:
             args['alpha'] = self.dock.lineEditAlpha.text()
 
-        args['directed'] = sql.SQL("directed := {}::BOOLEAN").format(
-                sql.Literal(
-                    str(self.dock.checkBoxDirected.isChecked()).lower()))
+        args['directed'] = sql.SQL("directed := {}::BOOLEAN").format(sql.Literal(str(self.dock.checkBoxDirected.isChecked()).lower()))
 
         if 'checkBoxHeapPaths' in controls:
-            args['heap_paths'] = sql.SQL("heap_paths := {}::BOOLEAN").format(
-                sql.Literal(str(self.dock.checkBoxHeapPaths.isChecked()).lower()))
+            args['heap_paths'] = sql.SQL("heap_paths := {}::BOOLEAN").format(sql.Literal(str(self.dock.checkBoxHeapPaths.isChecked()).lower()))
 
         # if 'labelDrivingSide' in controls:
         #     args['driving_side'] = str('b')
@@ -1115,7 +1087,6 @@ class PgRoutingLayer:
         #         args['driving_side'] = str('r')
 
         return args
-
 
     # emulate "matching.sql" - "find_nearest_node_within_distance"
     def findNearestNode(self, args, pt):
@@ -1136,8 +1107,7 @@ class PgRoutingLayer:
         args['SBBOX'] = self.getBBOX(args['srid'])[0]
         args['geom_t'] = Utils.getTransformedGeom(args['srid'], args['dbcanvas_srid'], args['geometry'])
 
-
-        db, cur = self._exec_sql( PgrQ.get_closestVertexInfo(args) )
+        db, cur = self._exec_sql(PgrQ.get_closestVertexInfo(args))
         if cur:
             row = cur.fetchone()
             db.con.close()
@@ -1169,14 +1139,13 @@ class PgRoutingLayer:
 
         Utils.setTransformQuotes(args, args['srid'], args['canvas_srid'])
 
-        db, cur = self._exec_sql( PgrQ.get_closestEdgeInfo(args) )
+        db, cur = self._exec_sql(PgrQ.get_closestEdgeInfo(args))
         if cur:
             row = cur.fetchone()
             db.con.close()
             return True, row[0], row[2], row[3], [4]
         else:
             return False, None, None, None, None
-
 
     def loadSettings(self):
         ''' loads the  default settings '''
@@ -1202,15 +1171,12 @@ class PgRoutingLayer:
         self.dock.lineEditX2.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/x2', 'x2'))
         self.dock.lineEditY2.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/y2', 'y2'))
 
-        self.dock.selectAstarHeuristic.setCurrentIndex(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/heuristic',
-            '5')))
+        self.dock.selectAstarHeuristic.setCurrentIndex(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/heuristic', '5')))
         self.dock.selectAstarFactor.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/factor', '1'))
-        self.dock.selectAstarEpsilon.setTickPosition(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/epsilon',
-            '100')))
+        self.dock.selectAstarEpsilon.setTickPosition(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/epsilon', '100')))
 
-
-        #self.dock.lineEditRule.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/rule', 'rule'))
-        #self.dock.lineEditToCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/to_cost', 'to_cost'))
+        # self.dock.lineEditRule.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/rule', 'rule'))
+        # self.dock.lineEditToCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/to_cost', 'to_cost'))
 
         self.dock.lineEditIds.setText(Utils.getStringValue(settings, '/pgRoutingLayer/ids', ''))
         self.dock.lineEditPcts.setText(Utils.getStringValue(settings, '/pgRoutingLayer/pcts', ''))
@@ -1250,12 +1216,12 @@ class PgRoutingLayer:
         settings.setValue('/pgRoutingLayer/sql/y1', self.dock.lineEditY1.text())
         settings.setValue('/pgRoutingLayer/sql/x2', self.dock.lineEditX2.text())
         settings.setValue('/pgRoutingLayer/sql/y2', self.dock.lineEditY2.text())
-        settings.setValue('/pgRoutingLayer/sql/heuristic',  self.dock.selectAstarHeuristic.currentIndex())
-        settings.setValue('/pgRoutingLayer/sql/factor',     self.dock.selectAstarFactor.text())
-        settings.setValue('/pgRoutingLayer/sql/epsilon',    self.dock.selectAstarEpsilon.tickPosition())
+        settings.setValue('/pgRoutingLayer/sql/heuristic', self.dock.selectAstarHeuristic.currentIndex())
+        settings.setValue('/pgRoutingLayer/sql/factor', self.dock.selectAstarFactor.text())
+        settings.setValue('/pgRoutingLayer/sql/epsilon', self.dock.selectAstarEpsilon.tickPosition())
 
-        #settings.setValue('/pgRoutingLayer/sql/rule', self.dock.lineEditRule.text())
-        #settings.setValue('/pgRoutingLayer/sql/to_cost', self.dock.lineEditToCost.text())
+        # settings.setValue('/pgRoutingLayer/sql/rule', self.dock.lineEditRule.text())
+        # settings.setValue('/pgRoutingLayer/sql/to_cost', self.dock.lineEditToCost.text())
 
         settings.setValue('/pgRoutingLayer/ids', self.dock.lineEditIds.text())
         settings.setValue('/pgRoutingLayer/pcts', self.dock.lineEditPcts.text())
@@ -1284,16 +1250,16 @@ class PgRoutingLayer:
             con = db.con
             version = Utils.getPgrVersion(con)
         except psycopg2.DatabaseError:
-            #database didn't have pgrouting
+            # database didn't have pgrouting
             return 0
         except SystemError:
             return 0
-        url = QUrl('https://docs.pgrouting.org/'+str(version)+'/en/' + function+'.html')
+        url = QUrl('https://docs.pgrouting.org/' + str(version) + '/en/' + function + '.html')
         try:
             QDesktopServices.openUrl(url)
         except Exception:
             QMessageBox.information(self.dock, self.dock.windowTitle(),
-                "Network error: No connection. \n Please check your network connection.")
+                                    "Network error: No connection. \n Please check your network connection.")
             return
 
     # Caller must close the connection to the database
@@ -1314,5 +1280,3 @@ class PgRoutingLayer:
             if db and db.con:
                 db.con.close()
             return None, None
-
-

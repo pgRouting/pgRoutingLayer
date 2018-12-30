@@ -2,14 +2,18 @@ from __future__ import absolute_import
 from .DijkstraBase import DijkstraBase
 from psycopg2 import sql
 
+
 class AstarBase(DijkstraBase):
+
+    def __init__(self, ui):
+        DijkstraBase.__init__(self, ui)
 
     @classmethod
     def getControlNames(self, version):
         return self.commonControls + self.commonBoxes + self.astarControls + [
-                'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
-                'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
-                ]
+            'labelSourceIds', 'lineEditSourceIds', 'buttonSelectSourceIds',
+            'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
+        ]
 
     @classmethod
     def getQuery(self, args):
@@ -26,6 +30,3 @@ class AstarBase(DijkstraBase):
                 factor := {astarFactor},
                 epsilon := {astarEpsilon})
             """).format(**args)
-
-    def __init__(self, ui):
-        DijkstraBase.__init__(self, ui)
