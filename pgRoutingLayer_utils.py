@@ -5,16 +5,17 @@ from psycopg2 import sql
 import sip
 
 
-def getSridAndGeomType(con, table, geometry):
+def getSridAndGeomType(con, schema, table, geometry):
     ''' retrieve Spatial Reference Id and geometry type, example 4326(WGS84) , Point '''
 
     args = {}
+    args['schema'] = schema
     args['table'] = table
     args['geometry'] = geometry
     cur = con.cursor()
     cur.execute(sql.SQL("""
         SELECT ST_SRID({geometry}), ST_GeometryType({geometry})
-            FROM {table}
+            FROM {schema}.{table}
             LIMIT 1
         """).format(**args).as_string(con))
     row = cur.fetchone()
@@ -37,7 +38,7 @@ def setTransformQuotes(args, srid, canvas_srid):
     ''' Sets transformQuotes '''
     if srid > 0 and canvas_srid > 0:
         args['transform_s'] = sql.SQL("ST_Transform(")
-        args['transform_e'] = sql.SQL(", {}").format(sql.Literal(canvas_srid))
+        args['transform_e'] = sql.SQL(", {})").format(sql.Literal(canvas_srid))
     else:
         args['transform_s'] = sql.SQL("")
         args['transform_e'] = sql.SQL("")

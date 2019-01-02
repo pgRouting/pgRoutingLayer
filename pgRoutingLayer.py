@@ -936,8 +936,8 @@ class PgRoutingLayer:
 
     def get_innerQueryArguments(self, controls):
         args = {}
-        # TODO captrure the schema
-        # QMessageBox.information(self.dock, self.dock.windowTitle(), 'TODO: capture the schema')
+
+        args['edge_schema'] = sql.Identifier(str(self.dock.lineEditSchema.text()))
         args['edge_table'] = sql.Identifier(str(self.dock.lineEditTable.text()))
         args['geometry'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
         args['id'] = sql.Identifier(str(self.dock.lineEditId.text()))
@@ -959,15 +959,14 @@ class PgRoutingLayer:
 
         return args
 
-    def get_whereClause(self, edge_table, geometry, conn):
+    def get_whereClause(self, edge_schema, edge_table, geometry, conn):
         args = {}
-        args['srid'], args['geomType'] = Utils.getSridAndGeomType(conn, edge_table, geometry)
+        args['srid'], args['geomType'] = Utils.getSridAndGeomType(conn, edge_schema, edge_table, geometry)
         args['dbsrid'] = sql.Literal(args['srid'])
         if self.dock.checkBoxUseBBOX.isChecked():
             args['BBOX'], args['printBBOX'] = self.getBBOX(args['srid'])
-            args['where_clause'] = sql.SQL(' WHERE {0}.{1} {2}').format(args['edge_table'],
-                                                                        args['geometry'],
-                                                                        args['BBOX'])
+            args['where_clause'] = sql.SQL(' WHERE {0}.{1} && {2}').format(edge_table, geometry,
+                                                                           args['BBOX'])
         else:
             args['BBOX'] = sql.SQL("")
             args['printBBOX'] = ' '
@@ -978,7 +977,7 @@ class PgRoutingLayer:
     def get_innerQuery(self, controls, conn):
         args = {}
         args = self.get_innerQueryArguments(controls)
-        args.update(self.get_whereClause(args['edge_table'], args['geometry'], conn))
+        args.update(self.get_whereClause(args['edge_schema'], args['edge_table'], args['geometry'], conn))
 
         if 'lineEditX1' not in controls:
             args['innerQuery'] = PgrQ.getEdgesQuery(args)
@@ -1028,6 +1027,7 @@ class PgRoutingLayer:
 
         if function in ['pgr_astarcost', 'pgr_dijkstracost', 'pgr_bdastarcost', 'pgr_bddijkstracost']:
             # TODO: capture vertices table, geometry of vertices table
+            args['vertex_schema'] = sql.Identifier(str(self.dock.lineEditSchema.text()))
             args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
             args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
             # QMessageBox.information(self.dock, self.dock.windowTitle(),
@@ -1157,6 +1157,7 @@ class PgRoutingLayer:
         if idx >= 0:
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
+        self.dock.lineEditSchema.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_schema', 'edge_schema'))
         self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'edge_table'))
         self.dock.lineEditGeometry.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
 
@@ -1202,6 +1203,7 @@ class PgRoutingLayer:
         settings.setValue('/pgRoutingLayer/Database', self.dock.comboConnections.currentText())
         settings.setValue('/pgRoutingLayer/Function', self.dock.comboBoxFunction.currentText())
 
+        settings.setValue('/pgRoutingLayer/sql/edge_schema', self.dock.lineEditSchema.text())
         settings.setValue('/pgRoutingLayer/sql/edge_table', self.dock.lineEditTable.text())
         # settings.setValue('/pgRoutingLayer/sql/pointsOfInterest', self.dock.lineEditPointsTable.text())
         settings.setValue('/pgRoutingLayer/sql/geometry', self.dock.lineEditGeometry.text())

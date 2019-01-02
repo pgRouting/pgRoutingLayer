@@ -35,6 +35,29 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
+      <item row="1" column="0">
+       <widget class="QToolButton" name="buttonFunctionHelp">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>icons/about.png</normaloff>icons/about.png</iconset>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QToolButton" name="buttonReloadConnections">
         <property name="sizePolicy">
@@ -55,19 +78,6 @@
         <property name="icon">
          <iconset>
           <normaloff>icons/arrow_refresh.png</normaloff>icons/arrow_refresh.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QComboBox" name="comboConnections">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="locale">
-         <locale language="English" country="UnitedStates"/>
         </property>
        </widget>
       </item>
@@ -109,6 +119,19 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2">
+       <widget class="QComboBox" name="comboConnections">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="1">
        <widget class="QLabel" name="labelFunction">
         <property name="maximumSize">
@@ -128,29 +151,6 @@
         </property>
         <property name="scaledContents">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QToolButton" name="buttonFunctionHelp">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>22</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>icons/about.png</normaloff>icons/about.png</iconset>
         </property>
        </widget>
       </item>
@@ -183,76 +183,17 @@
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="Edges">
           <attribute name="title">
            <string>Edges SQL</string>
           </attribute>
-          <widget class="QWidget" name="layoutWidget">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>10</y>
-             <width>261</width>
-             <height>95</height>
-            </rect>
-           </property>
-           <layout class="QGridLayout" name="gridLayoutSqlBase">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="labelTable">
-              <property name="locale">
-               <locale language="English" country="UnitedStates"/>
-              </property>
-              <property name="text">
-               <string>Edge table</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEditTable">
-              <property name="toolTip">
-               <string>Name of the table containing the routable network</string>
-              </property>
-              <property name="locale">
-               <locale language="English" country="UnitedStates"/>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="labelGeometry">
-              <property name="locale">
-               <locale language="English" country="UnitedStates"/>
-              </property>
-              <property name="text">
-               <string>Geometry</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEditGeometry">
-              <property name="toolTip">
-               <string>Name of the geometry column in network table</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QCheckBox" name="checkBoxUseBBOX">
-              <property name="text">
-               <string>BBOX</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
           <widget class="QGroupBox" name="groupBoxSql">
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>110</y>
+             <y>130</y>
              <width>261</width>
              <height>401</height>
             </rect>
@@ -305,7 +246,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>241</width>
-                 <height>355</height>
+                 <height>361</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_5">
@@ -546,6 +487,82 @@
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="">
+           <property name="geometry">
+            <rect>
+             <x>14</x>
+             <y>14</y>
+             <width>239</width>
+             <height>118</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelTable">
+              <property name="locale">
+               <locale language="English" country="UnitedStates"/>
+              </property>
+              <property name="text">
+               <string>Edge table</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="lineEditTable">
+              <property name="toolTip">
+               <string>Name of the table containing the routable network</string>
+              </property>
+              <property name="locale">
+               <locale language="English" country="UnitedStates"/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelSchema">
+              <property name="locale">
+               <locale language="English" country="UnitedStates"/>
+              </property>
+              <property name="text">
+               <string>Edge schema</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="lineEditSchema">
+              <property name="toolTip">
+               <string>Name of the table containing the routable network</string>
+              </property>
+              <property name="locale">
+               <locale language="English" country="UnitedStates"/>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelGeometry">
+              <property name="locale">
+               <locale language="English" country="UnitedStates"/>
+              </property>
+              <property name="text">
+               <string>Geometry</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="lineEditGeometry">
+              <property name="toolTip">
+               <string>Name of the geometry column in network table</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QCheckBox" name="checkBoxUseBBOX">
+              <property name="text">
+               <string>BBOX</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -607,8 +624,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>235</width>
-                 <height>599</height>
+                 <width>237</width>
+                 <height>500</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
