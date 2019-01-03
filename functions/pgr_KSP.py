@@ -51,7 +51,7 @@ class Function(FunctionBase):
                       THEN et.{geometry}
                     ELSE ST_Reverse(et.{geometry})
                 END AS path_geom
-                FROM {edge_table} AS et JOIN result ON et.{id} = result._edge
+                FROM {edge_schema}.{edge_table} AS et JOIN result ON et.{id} = result._edge
             ),
             one_geom AS (
                 SELECT path_name, ST_LineMerge(ST_Union(path_geom)) AS path_geom

@@ -110,7 +110,7 @@ class FunctionBase(object):
                 ELSE ST_Reverse({edge_table}.{geometry})
               END AS path_geom,
               result.*, {edge_table}.*
-            FROM {edge_table} JOIN result
+            FROM {edge_schema}.{edge_table} JOIN result
               ON {edge_table}.{id} = result._edge ORDER BY result.seq
             """).format(**args)
         return query
@@ -128,7 +128,7 @@ class FunctionBase(object):
                   THEN {edge_table}.{geometry}
                 ELSE ST_Reverse({edge_table}.{geometry})
               END AS path_geom
-            FROM {edge_table} JOIN result
+            FROM {edge_schema}.{edge_table} JOIN result
               ON {edge_table}.{id} = result._edge
             """).format(**args)
 
@@ -185,13 +185,13 @@ class FunctionBase(object):
             if row[columns[2]] != -1:
                 query2 = sql.SQL("""
                     SELECT ST_AsText({transform_s}{geometry}{transform_e})
-                    FROM {edge_table}
+                    FROM {edge_schema}.{edge_table}
                     WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
 
                     UNION
 
-                    SELECT ST_AsText({transform_s}ST_Reverse({geometry}{transform_e}))
-                    FROM {edge_table}
+                    SELECT ST_AsText({transform_s}ST_Reverse({geometry}){transform_e})
+                    FROM {edge_schema}.{edge_table}
                     WHERE {target} = {result_node_id} AND {id} = {result_edge_id}
                     """).format(**args).as_string(con)
 
@@ -222,10 +222,10 @@ class FunctionBase(object):
                 args['result_cost'] = row[3]
                 if row[2] != -1:
                     query2 = sql.SQL("""
-                        SELECT ST_AsText({geom_t} FROM {edge_table}
+                        SELECT ST_AsText({geom_t} FROM {edge_schema}.{edge_table}
                             WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
                         UNION
-                        SELECT ST_AsText(ST_Reverse({geom_t}) FROM {edge_table}
+                        SELECT ST_AsText(ST_Reverse({geom_t}) FROM {edge_schema}.{edge_table}
                             WHERE {target} = {result_node_id} AND {id} = {result_edge_id};
                     """).format(**args)
 
@@ -264,8 +264,8 @@ class FunctionBase(object):
             if args['result_cost'] != -1:
                 query2 = sql.SQL("""
                     SELECT ST_AsText( ST_MakeLine(
-                        (SELECT {geometry_vt} FROM  {vertex_table} WHERE id = {result_source_id}),
-                        (SELECT {geometry_vt} FROM  {vertex_table} WHERE id = {result_target_id})
+                        (SELECT {geometry_vt} FROM  {vertex_schema}.{vertex_table} WHERE id = {result_source_id}),
+                        (SELECT {geometry_vt} FROM  {vertex_schema}.{vertex_table} WHERE id = {result_target_id})
                         ))
                     """).format(**args)
                 # Utils.logMessage(query2)
@@ -295,10 +295,10 @@ class FunctionBase(object):
             args['result_target_id'] = sql.Literal(result_target_id)
             result_cost = row[3]
             query2 = sql.SQL("""
-                SELECT ST_AsText( ST_startPoint({geometry}) ) FROM {edge_table}
+                SELECT ST_AsText( ST_startPoint({geometry}) ) FROM {edge_schema}.{edge_table}
                     WHERE {source} = {result_target_id}
                 UNION
-                SELECT ST_AsText( ST_endPoint( {geometry} ) ) FROM {edge_table}
+                SELECT ST_AsText( ST_endPoint( {geometry} ) ) FROM {edge_schema}.{edge_table}
                     WHERE {target} = {result_target_id}
                 """).format(**args)
             cur2.execute(query2)

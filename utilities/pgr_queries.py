@@ -11,10 +11,10 @@ def getNodeQuery(args, geomType):
                 {geometry}
             FROM (
                 SELECT {source} AS id, ST_StartPoint({geom_t}) AS _geom
-                FROM {edge_table}
+                FROM {edge_schema}.{edge_table}
                     UNION
                 SELECT {target}, ST_EndPoint({geom_t})
-                FROM {edge_table}
+                FROM {edge_schema}.{edge_table}
                 ) AS node
        )""").format(**args)
 
@@ -22,12 +22,11 @@ def getNodeQuery(args, geomType):
 def getEdgesQuery(args):
     return sql.SQL("""
         SELECT {id} AS id,
-                {source} AS source,
-                {target} AS target,
-                {cost}::FLOAT AS cost,
-                {reverse_cost}::FLOAT AS reverse_cost
-            FROM {edge_table}
-            {where_clause}
+            {source} AS source,
+            {target} AS target,
+            {cost}::FLOAT AS cost,
+            {reverse_cost}::FLOAT AS reverse_cost
+        FROM {edge_schema}.{edge_table} {where_clause}
         """.replace("\\n", r"\n")).format(**args)
 
 
@@ -42,8 +41,7 @@ def getEdgesQueryXY(args):
                 {y1}::FLOAT AS y1,
                 {x2}::FLOAT AS x2,
                 {y2}::FLOAT AS y2
-            FROM {edge_table}
-            {where_clause}
+        FROM {edge_schema}.{edge_table} {where_clause}
         """.replace("\\n", r"\n")).format(**args)
 
 
@@ -56,7 +54,7 @@ def get_closestVertexInfo(args):
                     ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
                 ) AS dist,
                 ST_AsText(ST_StartPoint({geom_t})) AS point
-                FROM {edge_table}
+                FROM {edge_schema}.{edge_table}
                 WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
         ),
         near_target AS(SELECT {target},
@@ -65,7 +63,7 @@ def get_closestVertexInfo(args):
                     ST_GeomFromText('POINT({x} {y})', {dbcanvas_srid})
                 ) AS dist,
                 ST_AsText(ST_EndPoint({geom_t}))
-                FROM {edge_table}
+                FROM {edge_schema}.{edge_table}
                 WHERE  {geom_t} && {SBBOX} ORDER BY dist ASC LIMIT 1
         ),
         the_union AS (
@@ -89,6 +87,6 @@ def get_closestEdgeInfo(args):
             ROUND(ST_Line_Locate_Point( {geometry} , point.geom)::numeric, {decimal_places}) AS pos,
             ST_AsText({transform_s)sST_Line_Interpolate_point({geometry},
             ROUND(ST_Line_Locate_Point({geometry}, point.geom)::numeric, {decimal_places})){transform_e}) AS pointWkt
-            FROM {edge_table}, point
+            FROM {edge_schema}.{edge_table}, point
             WHERE ST_SetSRID('BOX3D({minx} {miny}, {maxx} {maxy})'::BOX3D, {srid})
                 && {geometry} ORDER BY dist ASC LIMIT 1""").format(args)

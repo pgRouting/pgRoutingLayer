@@ -45,8 +45,8 @@ class CostBase(FunctionBase):
             SELECT result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
 
             FROM result
-            JOIN  {vertex_table} AS a ON (start_vid = a.id)
-            JOIN  {vertex_table} AS b ON (end_vid = b.id)
+            JOIN  {vertex_schema}.{vertex_table} AS a ON (start_vid = a.id)
+            JOIN  {vertex_schema}.{vertex_table} AS b ON (end_vid = b.id)
             """).format(**args)
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):

@@ -99,8 +99,9 @@ class Function(FunctionBase):
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draw the result '''
         resultNodesVertexMarkers = canvasItemList['markers']
+        schema = """%(edge_schema)s""" % args
         table = """%(edge_table)s_vertices_pgr""" % args
-        srid, geomType = Utils.getSridAndGeomType(con, table, 'the_geom')
+        srid, geomType = Utils.getSridAndGeomType(con, schema, table, 'the_geom')
         Utils.setTransformQuotes(args, srid, args['canvas_srid'])
 
         for row in rows:
