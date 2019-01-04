@@ -17,15 +17,7 @@ pgRoutingLayer is a plugin for QGIS that serves as a GUI for pgRouting - a popul
 
 pgRoutingLayer currently supports the following functions:
 
-- [pgr_astar](functions/pgr_astar.md)
-- [pgr_astarCost](functions/pgr_astarCost.md)
-- [pgr_bdAstar](functions/pgr_bdAstar.md)
-- [pgr_bdAstarCost](functions/pgr_bdAstarCost.md)
-- [pgr_bdDijkstra](functions/pgr_bdDijkstra.md)
-- [pgr_bdDijkstraCost](functions/pgr_bdDijkstraCost.md)
 - [pgr_dijkstra](functions/pgr_dijkstra.md)
-- [pgr_dijkstraCost](functions/pgr_dijkstraCost.md)
-- [pgr_KSP](functions/pgr_KSP.md)
 
 Please check the pgRouting documentation for detailed descriptons: [https://docs.pgrouting.org](https://docs.pgrouting.org)
 
