@@ -6,14 +6,4 @@ nav:
   - Layer naming convention: intro/layer_naming_convention.md
 - Functions:
   - pgr_djikstra: functions/pgr_dijkstra.md
-  - pgr_astar: functions/pgr_astar.md
-  - pgr_alphaShape: functions/pgr_alphaShape.md
-  - pgr_bdAstar: functions/pgr_bdAstar.md
-  - pgr_bdDijkstra: functions/pgr_bdDijkstra.md
-  - pgr_drivingDistance: functions/pgr_drivingDistance.md
-  - pgr_KSP: functions/pgr_KSP.md
-  - pgr_trspViaEdges: functions/pgr_trspViaEdges.md
-  - pgr_trspViaVertices: functions/pgr_trspViaVertices.md
-  - pgr_trsp_edge: functions/pgr_trsp_edge.md
-  - pgr_trsp_vertex: functions/pgr_trsp_vertex.md
 theme: readthedocs
