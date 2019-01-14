@@ -3,10 +3,17 @@
 - Uses BBOX of the QGIS canvas to limit the resulting path(s)
 
 ## Edges SQL tab
-![Edges SQL tab](..img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
+![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
 
 ## Arguments tab
 ![Arguments tab](../img/tabs/arguments/arguments_dijkstra.png)
+
+|Field|Action|
+| ----------- | --------- |
+|![fromVid](../img/fields/arguments/astar&dijkstra_fromVid.png)| |
+|![toVid](../img/fields/arguments/astar&dijkstra_toVid.png)| |
+|![fromVids](../img/fields/arguments/astar&dijkstra_fromVids.png)| |
+|![toVids](.../img/fields/arguments/astar&dijkstra_toVids.png)| |
 
 ## Execute tab 
 ![Execute tab](../img/tabs/execute/execute.png)
