@@ -1,8 +1,5 @@
 # pgr_dijkstra
-
-- Uses BBOX of the QGIS canvas to limit the resulting path(s):
-
-![BBOX](../img/fields/edgesSQL_fields/BBOXon.png)
+![pgr_dijkstra](../img/functions/f_pgr_dijkstra.png)
 
 ## Edges SQL tab
 ![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
@@ -12,17 +9,17 @@
 |![Edge table](../img/fields/edgesSQL_fields/edge_table.png)| Write the table name of the edges|
 |![Edge schema](../img/fields/edgesSQL_fields/edge_schema.png)|Write the schema of the edge table|
 |![Geometry](../img/fields/edgesSQL_fields/geometry.png)|Write the geometry column name|
-|![BBOX](../img/fields/edgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
+|![BBOX](../img/fields/edgesSQL_fields/BBOX.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table ![BBOX](../img/fields/edgesSQL_fields/BBOXon.png)|
 
 ### Columns
 
 |Field|Action|
 | ----------- | --------- |
-|![Id](../img/fields/edgesSQL_fields/columns/Id.png)| Write the table name of the edges|
-|![Source](../img/fields/edgesSQL_fields/source.png)|Write the schema of the edge table|
-|![Target](../img/fields/edgesSQL_fields/geometry.png)|Write the geometry column name|
-|![Cost](../img/fields/edgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
-|![Reverse Cost](../img/fields/edgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
+|![Id](../img/fields/edgesSQL_fields/columns/Id.png)| Write the column that has the edge identifier|
+|![Source](../img/fields/edgesSQL_fields/columns/source.png)|Write the column that has the edge source|
+|![Target](../img/fields/edgesSQL_fields/columns/target.png)|Write the column that has the edge target|
+|![Cost](../img/fields/edgesSQL_fields/columns/cost.png)|Write the column that has the cost of the edge source -> target|
+|![Reverse Cost](../img/fields/edgesSQL_fields/columns/reverseCostOFF.png)|Write the column that has the cost of the edge target -> source, the column will be used when the box is checked ![Reverse Cost](../img/fields/edgesSQL_fields/columns/reverseCost.png)|
 
 ## Arguments tab
 ![Arguments tab](../img/tabs/arguments/arguments_dijkstra.png)
@@ -31,6 +28,7 @@
 | ----------- | --------- |
 |![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose or write the comma separated identifiers of the start vertices|
 |![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose or write the comma separated identifiers of the destination vertices|
+|![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
 ## Execute tab 
 ![Execute tab](../img/tabs/execute/execute.png)
