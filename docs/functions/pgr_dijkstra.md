@@ -1,6 +1,11 @@
 # pgr_dijkstra
 ![pgr_dijkstra](../img/functions/f_pgr_dijkstra.png)
 
+|Button|Action|
+| ----------- | --------- |
+|![Help](../img/functions/helpButton.png)|Opens the web page of the documentation of pgr_dijkstra|
+|![Function](../img/functions/dijkstra.png)| Deploy function menu ![Function](../img/functions/dijkstra_menu.png)  
+]
 ## Edges SQL tab
 ![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
 
