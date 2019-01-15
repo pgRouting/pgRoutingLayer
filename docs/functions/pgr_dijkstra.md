@@ -2,28 +2,27 @@
 
 - Uses BBOX of the QGIS canvas to limit the resulting path(s):
 
-![BBOX](../img/fields/EdgesSQL_fields/BBOXon.png)
+![BBOX](../img/fields/edgesSQL_fields/BBOXon.png)
 
 ## Edges SQL tab
 ![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
 
 |Field|Action|
 | ----------- | --------- |
-|![Edge table](../img/fields/EdgesSQL_fields/edge_table.png)| Write the table name of the edges|
-|![Edge schema](../img/fields/EdgesSQL_fields/edge_schema.png)|Write the schema of the edge table|
-|![Geometry](../img/fields/EdgesSQL_fields/geometry.png)|Write the geometry column name|
-|![BBOX](../img/fields/EdgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
+|![Edge table](../img/fields/edgesSQL_fields/edge_table.png)| Write the table name of the edges|
+|![Edge schema](../img/fields/edgesSQL_fields/edge_schema.png)|Write the schema of the edge table|
+|![Geometry](../img/fields/edgesSQL_fields/geometry.png)|Write the geometry column name|
+|![BBOX](../img/fields/edgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
 
 ### Columns
 
 |Field|Action|
 | ----------- | --------- |
-|![Id](../img/fields/EdgesSQL_fields/Columns/Id.png)
-)| Write the table name of the edges|
-|![Source](../img/fields/EdgesSQL_fields/edge_schema.png)|Write the schema of the edge table|
-|![Target](../img/fields/EdgesSQL_fields/geometry.png)|Write the geometry column name|
-|![Cost](../img/fields/EdgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
-|![Reverse Cost](../img/fields/EdgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
+|![Id](../img/fields/edgesSQL_fields/columns/Id.png)| Write the table name of the edges|
+|![Source](../img/fields/edgesSQL_fields/source.png)|Write the schema of the edge table|
+|![Target](../img/fields/edgesSQL_fields/geometry.png)|Write the geometry column name|
+|![Cost](../img/fields/edgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
+|![Reverse Cost](../img/fields/edgesSQL_fields/BBOXon.png)|Check to use the  Bounding Box of the QGIS canvas to limit the rows of edge table|
 
 ## Arguments tab
 ![Arguments tab](../img/tabs/arguments/arguments_dijkstra.png)
