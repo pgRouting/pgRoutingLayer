@@ -4,7 +4,7 @@
 |Button|Action|
 | ----------- | --------- |
 |![Help](../img/functions/helpButton.png)|Opens the web page of the documentation of pgr_astarCost|
-|![Function](../img/functions/dijkstra.png)| Choose pgr_astarCost on the drop down box|
+|![Function](../img/functions/astarCost.png)| Choose pgr_astarCost on the drop down box|
 
 ## Edges SQL tab
 ![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
@@ -27,13 +27,16 @@
 |![Reverse Cost](../img/fields/edgesSQL_fields/columns/reverseCostOFF.png)|Write the column that has the cost of the edge target -> source, the column will be used when the box is ticked ![Reverse Cost](../img/fields/edgesSQL_fields/columns/reverseCost.png)|
 
 ## Arguments tab
-![Arguments tab](../img/tabs/arguments/arguments_dijkstra.png)
+![Arguments tab](../img/tabs/arguments/arguments_astar.png)
 
 |Field|Action|
 | ----------- | --------- |
-|![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose or write the comma separated identifiers of the start vertices|
+|![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertices|
 |![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose or write the comma separated identifiers of the destination vertices|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
+|![Heuristic](../img/fields/arguments/astar_heuristic.png)| ... |
+|![Factor](../img/fields/arguments/astar_factor.png)| ... |
+|![Epsilon](../img/fields/arguments/astar_epsilon.png)| ... |
 
 ## Execute tab 
 ![Execute tab](../img/tabs/execute/execute.png)
