@@ -4,7 +4,7 @@
 |Button|Action|
 | ----------- | --------- |
 |![Help](../img/functions/helpButton.png)|Opens the web page of the documentation of pgr_dijkstra|
-|![Function](../img/functions/dijkstra.png)| Choose pgr_dijkstra on the drop down box ![Function](../img/functions/dijkstra_menu.png)|
+|![Function](../img/functions/dijkstra.png)| Choose pgr_dijkstra on the drop down box|
 
 ## Edges SQL tab
 ![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
