@@ -33,10 +33,10 @@
 | ----------- | --------- |
 |![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertices|
 |![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the destination vertices|
-|![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 |![Heuristic](../img/fields/arguments/astar_heuristic.png)| ... |
 |![Factor](../img/fields/arguments/astar_factor.png)| ... |
-|![Epsilon](../img/fields/arguments/astar_epsilon.png)| ... |
+|![Epsilon](../img/fields/arguments/astar_epsilon.png)| ... ![Epsilon](../img/fields/arguments/astar_epsilon2.png)|
+|![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
 ## Execute tab 
 ![Execute tab](../img/tabs/execute/execute.png)
@@ -46,10 +46,9 @@
 |![Preview](../img/buttons/execute/preview.png)| Draws in the canvas the resulting path |
 |![Clear Preview](../img/buttons/execute/clearpreview.png)| Removes from the canvas objects generated with Preview|
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
-|![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
+|![Export Merged](../img/buttons/execute/exportmergedOFF.png)| Disabled|
 
 Depending on the pressed button the layer name will be 
 ```
 (<U|D>) pgr_astarCost: <source_id>  to <target_id>  BBOX(<bbox>)
-(M <U|D>) pgr_astarCost: <source_id>  to <target_id>  BBOX(<bbox>)
 ```
