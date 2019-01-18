@@ -31,8 +31,8 @@
 
 |Field|Action|
 | ----------- | --------- |
-|![fromVid](../img/fields/arguments/KSP_fromVid.png)| Choose or write the comma separated identifiers of the start vertices|
-|![toVid](../img/fields/arguments/KSP_toVid.png)|Choose or write the comma separated identifiers of the destination vertices|
+|![fromVid](../img/fields/arguments/KSP_fromVid.png)| Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertex|
+|![toVid](../img/fields/arguments/KSP_toVid.png)|Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertex|
 |![K](../img/fields/arguments/KSP_k.png)| ... |
 |![Heap paths](../img/fields/arguments/KSP_heapPaths.png)| Tick.. ![Heap paths](../img/fields/arguments/KSP_heapPathsON.png)
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
