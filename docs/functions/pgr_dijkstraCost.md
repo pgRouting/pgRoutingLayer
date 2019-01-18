@@ -31,8 +31,8 @@
 
 |Field|Action|
 | ----------- | --------- |
-|![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose or write the comma separated identifiers of the start vertices|
-|![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose or write the comma separated identifiers of the destination vertices|
+|![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertices|
+|![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the destination vertices|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
 ## Execute tab 
