@@ -35,8 +35,8 @@
 
 |Field|Action|
 | ----------- | --------- |
-|![fromVids](../img/fields/arguments/astar-dijkstra_fromVid.png)| Choose or write the comma separated identifiers of the start vertices|
-|![toVids](../img/fields/arguments/astar-dijkstra_toVid.png)|Choose or write the comma separated identifiers of the destination vertices|
+|![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertices|
+|![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the destination vertices|
 |![Heuristic](../img/fields/arguments/astar_heuristic.png)| ... |
 |![Factor](../img/fields/arguments/astar_factor.png)| ... |
 |![Epsilon](../img/fields/arguments/astar_epsilon.png)| ... ![Epsilon](../img/fields/arguments/astar_epsilon2.png)|
@@ -51,6 +51,7 @@
 |![Clear Preview](../img/buttons/execute/clearpreview.png)| Removes from the canvas objects generated with Preview|
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
 |![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
+
 
 Depending on the pressed button the layer name will be 
 ```
