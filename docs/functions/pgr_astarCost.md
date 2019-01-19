@@ -33,9 +33,9 @@
 | ----------- | --------- |
 |![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertices|
 |![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the destination vertices|
-|![Heuristic](../img/fields/arguments/astar_heuristic.png)| ... |
-|![Factor](../img/fields/arguments/astar_factor.png)| ... |
-|![Epsilon](../img/fields/arguments/astar_epsilon.png)| ... ![Epsilon](../img/fields/arguments/astar_epsilon2.png)|
+|![Heuristic](../img/fields/arguments/astar_heuristic.png)| Heuristic number. Current valid values `0~5` . Default ``5``|
+|![Factor](../img/fields/arguments/astar_factor.png)| For units manipulation.  `factor > 0`.  Default  ``1``. See  `astar_factor`.|
+|![Epsilon](../img/fields/arguments/astar_epsilon.png)| For less restricted results. `epsilon >= 1`.  Default ``1``.|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
 ## Execute tab 
