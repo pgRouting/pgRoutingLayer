@@ -1,10 +1,10 @@
-# pgr_dijkstra
-![pgr_dijkstra](../img/functions/f_pgr_dijkstra.png)
+# pgr_bdDijkstraCost
+![pgr_bdDijkstraCost](../img/functions/f_pgr_bdDijkstraCost.png)
 
 |Button|Action|
 | ----------- | --------- |
-|![Help](../img/functions/helpButton.png)|Opens the web page of the documentation of pgr_dijkstra|
-|![Function](../img/functions/dijkstra.png)| Choose pgr_dijkstra on the drop down box|
+|![Help](../img/functions/helpButton.png)|Opens the web page of the documentation of pgr_bdDijkstraCost|
+|![Function](../img/functions/bdDijkstraCost.png)| Choose pgr_bdDijkstraCost on the drop down box|
 
 ## Edges SQL tab
 ![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
@@ -36,17 +36,16 @@
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
 ## Execute tab 
-![Execute tab](../img/tabs/execute/execute.png)
+![Execute tab](../img/tabs/execute/ExecuteCost.png)
 
 |Button|Action|
 | ----------- | --------- |
 |![Preview](../img/buttons/execute/preview.png)| Draws in the canvas the resulting path |
 |![Clear Preview](../img/buttons/execute/clearpreview.png)| Removes from the canvas objects generated with Preview|
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
-|![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
+|![Export Merged](../img/buttons/execute/exportmergedOFF.png)| Disabled|
 
 Depending on the pressed button the layer name will be 
 ```
-(<U|D>) pgr_dijkstra: <source_id>  to <target_id>  BBOX(<bbox>)
-(M <U|D>) pgr_dijkstra: <source_id>  to <target_id>  BBOX(<bbox>)
+(<U|D>) pgr_bdDijkstraCost: <source_id>  to <target_id>  BBOX(<bbox>)
 ```

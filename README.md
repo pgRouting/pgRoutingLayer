@@ -17,17 +17,16 @@ Please check the pgRouting documentation for detailed descriptons: [http://docs.
 
 pgRoutingLayer currently supports the following functions:
 
-- `pgr_alphaShape`
-- `pgr_astar`
+- `pgr_aStar`
+- `pgr_aStarCost`
 - `pgr_bdAstar`
+- `pgr_bdAstarCost`
 - `pgr_bdDijkstra`
+- `pgr_bdDijkstraCost`
 - `pgr_dijkstra`
-- `pgr_drivingDistance`
+- `pgr_dijkstraCost`
 - `pgr_KSP`
-- `pgr_trsp(edge)`
-- `pgr_trsp(vertex)`
-- `pgr_trspViaEdges`
-- `pgr_trspViaVertices`
+
 
 ## License
 
