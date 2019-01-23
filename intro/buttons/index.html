@@ -92,15 +92,11 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../functions/pgr_dijkstra/">pgr_djikstra</a>
+    <a class="" href="../../functions/pgr_aStar/">pgr_aStar</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../functions/pgr_astar/">pgr_astar</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../functions/pgr_alphaShape/">pgr_alphaShape</a>
+    <a class="" href="../../functions/pgr_astarCost/">pgr_astarCost</a>
                 </li>
                 <li class="">
                     
@@ -108,31 +104,27 @@
                 </li>
                 <li class="">
                     
+    <a class="" href="../../functions/pgr_bdAstar/">pgr_bdAstarCost</a>
+                </li>
+                <li class="">
+                    
     <a class="" href="../../functions/pgr_bdDijkstra/">pgr_bdDijkstra</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../functions/pgr_drivingDistance/">pgr_drivingDistance</a>
+    <a class="" href="../../functions/pgr_bdDijkstraCost/">pgr_bdDijkstraCost</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../functions/pgr_dijkstra/">pgr_djikstra</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../functions/pgr_dijkstraCost/">pgr_djikstraCost</a>
                 </li>
                 <li class="">
                     
     <a class="" href="../../functions/pgr_KSP/">pgr_KSP</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../functions/pgr_trspViaEdges/">pgr_trspViaEdges</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../functions/pgr_trspViaVertices/">pgr_trspViaVertices</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../functions/pgr_trsp_edge/">pgr_trsp_edge</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../../functions/pgr_trsp_vertex/">pgr_trsp_vertex</a>
                 </li>
     </ul>
 	    </li>
@@ -174,12 +166,14 @@
             <div class="section">
               
                 <h2 id="the-buttons">The Buttons</h2>
-<p>There are 4 buttons for controlling how to render the pgRouting query:</p>
-<p><img alt="buttons" src="../../img/buttons.png" /></p>
+<p>There are 4 buttons located in the execute tab, for controlling how to render the pgRouting query:</p>
+<p><img alt="buttons" src="../../img/tabs/execute/execute.png" /></p>
 <h3 id="preview">Preview</h3>
+<p><img alt="Preview" src="../../img/buttons/execute/preview.png" /></p>
 <p>Draws in the canvas the resulting path.</p>
-<p>Creates a temporary lines on the canvas. No additional information is shown, except for pgr_dijkstraCost where an annotation is also created.</p>
+<p>Creates a temporary lines on the canvas. No additional information is shown, except for the Cost functions where an annotation is also created.</p>
 <h3 id="clear-preview">Clear Preview</h3>
+<p><img alt="Clear Preview" src="../../img/buttons/execute/clearpreview.png" /></p>
 <p>Removes from the canvas objects generated with Preview</p>
 <p>When Clear Preview is called the generated temporary lines and annotation are deleted from the canvas. When the QGIS project is saved when there are visible annotations:</p>
 <ul>
@@ -188,8 +182,10 @@
 <li>The annotations will be shown, but won't be cleared using the Clear Preview button, they are not under the pgRoutingLayer GUI control</li>
 </ul>
 <h3 id="export">Export</h3>
+<p><img alt="Export" src="../../img/buttons/execute/export.png" /></p>
 <p>Creates a one row per edge line geometry layer</p>
 <h3 id="export-merged">Export Merged</h3>
+<p><img alt="Export Merged" src="../../img/buttons/execute/exportmergedON.png" /></p>
 <p>Creates a one row per path multi-line geometry layer.</p>
 <p>Only one row is generated. Not all functions results can be merged, when that is the case then the button is dimmed.</p>
               

@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>pgr_bdAstar - pgRoutingLayer</title>
+  <title>pgr_bdAstarCost - pgRoutingLayer</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "pgr_bdAstar";
+    var mkdocs_page_name = "pgr_bdAstarCost";
     var mkdocs_page_input_path = "functions/pgr_bdAstar.md";
     var mkdocs_page_url = null;
   </script>
@@ -74,26 +74,33 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../pgr_dijkstra/">pgr_djikstra</a>
+    <a class="" href="../pgr_aStar/">pgr_aStar</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_astar/">pgr_astar</a>
+    <a class="" href="../pgr_astarCost/">pgr_astarCost</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_alphaShape/">pgr_alphaShape</a>
+    <a class="" href="./">pgr_bdAstar</a>
                 </li>
                 <li class=" current">
                     
-    <a class="current" href="./">pgr_bdAstar</a>
+    <a class="current" href="./">pgr_bdAstarCost</a>
     <ul class="subnav">
             
     <li class="toctree-l3"><a href="#pgr_bdastar">pgr_bdAstar</a></li>
     
+
+    <li class="toctree-l3"><a href="#pgr_bdastar_1">pgr_bdAstar</a></li>
+    
         <ul>
         
-            <li><a class="toctree-l4" href="#todo-fix-image">TODO fix image</a></li>
+            <li><a class="toctree-l4" href="#edges-sql-tab">Edges SQL tab</a></li>
+        
+            <li><a class="toctree-l4" href="#arguments-tab">Arguments tab</a></li>
+        
+            <li><a class="toctree-l4" href="#execute-tab">Execute tab</a></li>
         
         </ul>
     
@@ -106,27 +113,19 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_drivingDistance/">pgr_drivingDistance</a>
+    <a class="" href="../pgr_bdDijkstraCost/">pgr_bdDijkstraCost</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../pgr_dijkstra/">pgr_djikstra</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../pgr_dijkstraCost/">pgr_djikstraCost</a>
                 </li>
                 <li class="">
                     
     <a class="" href="../pgr_KSP/">pgr_KSP</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trspViaEdges/">pgr_trspViaEdges</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trspViaVertices/">pgr_trspViaVertices</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trsp_edge/">pgr_trsp_edge</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trsp_vertex/">pgr_trsp_vertex</a>
                 </li>
     </ul>
 	    </li>
@@ -157,7 +156,7 @@
         
       
     
-    <li>pgr_bdAstar</li>
+    <li>pgr_bdAstarCost</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -170,26 +169,162 @@
                 <h1 id="pgr_bdastar">pgr_bdAstar</h1>
 <ul>
 <li>
-<p>Uses BBOX of the QGIS canvas to limit the resulting path(s)</p>
-</li>
-<li>
-<p>Buttons:</p>
-</li>
-<li><img alt="Preview" src="../../img/preview.png" />: Draws in the canvas the resulting path</li>
-<li><img alt="Clear Preview" src="../../img/clearpreview.png" />: Removes from the canvas objects generated with Preview</li>
-<li><img alt="Export" src="../../img/export.png" />: Creates a one row per edge line geometry layer<ul>
-<li>Layer name:
-<code>(&lt; U|D &gt;) pgr_bdAstar: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
+<h1 id="pgr_bdastar_1">pgr_bdAstar</h1>
+<img alt="pgr_bdAstar" src="../../img/functions/f_pgr_bdAstar.png" /></li>
 </ul>
-</li>
-<li><img alt="Export Merged" src="../../img/exportmerged.png" />: Creates a one row per path multiline geometry layer. As many rows as needed.<ul>
-<li>Layer name:
-<code>(M &lt; U|D &gt;) pgr_bdAstar: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="todo-fix-image">TODO fix image</h2>
-<p><img alt="pgr_astar01" src="../../img/pgr_astar01.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Button</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Help" src="../../img/functions/helpButton.png" /></td>
+<td>Opens the web page of the documentation of pgr_bdAstar</td>
+</tr>
+<tr>
+<td><img alt="Function" src="../../img/functions/bdAstar.png" /></td>
+<td>Choose pgr_bdAstar on the drop down box</td>
+</tr>
+</tbody>
+</table>
+<h2 id="edges-sql-tab">Edges SQL tab</h2>
+<p><img alt="Edges SQL tab" src="../../img/tabs/edges_SQL/astar_edgesSQL.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Edge table" src="../../img/fields/edgesSQL_fields/edge_table.png" /></td>
+<td>Write the table name of the edges</td>
+</tr>
+<tr>
+<td><img alt="Edge schema" src="../../img/fields/edgesSQL_fields/edge_schema.png" /></td>
+<td>Write the schema of the edge table</td>
+</tr>
+<tr>
+<td><img alt="Geometry" src="../../img/fields/edgesSQL_fields/geometry.png" /></td>
+<td>Write the geometry column name</td>
+</tr>
+<tr>
+<td><img alt="BBOX" src="../../img/fields/edgesSQL_fields/BBOX.png" /></td>
+<td>Tick to use the  Bounding Box of the QGIS canvas to limit the rows of edge table <img alt="BBOX" src="../../img/fields/edgesSQL_fields/BBOXon.png" /></td>
+</tr>
+</tbody>
+</table>
+<h3 id="columns">Columns</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Id" src="../../img/fields/edgesSQL_fields/columns/Id.png" /></td>
+<td>Write the column that has the edge identifier</td>
+</tr>
+<tr>
+<td><img alt="Source" src="../../img/fields/edgesSQL_fields/columns/source.png" /></td>
+<td>Write the column that has the edge source</td>
+</tr>
+<tr>
+<td><img alt="Target" src="../../img/fields/edgesSQL_fields/columns/target.png" /></td>
+<td>Write the column that has the edge target</td>
+</tr>
+<tr>
+<td><img alt="Cost" src="../../img/fields/edgesSQL_fields/columns/cost.png" /></td>
+<td>Write the column that has the cost of the edge source -&gt; target</td>
+</tr>
+<tr>
+<td><img alt="Reverse Cost" src="../../img/fields/edgesSQL_fields/columns/reverseCostOFF.png" /></td>
+<td>Write the column that has the cost of the edge target -&gt; source, the column will be used when the box is ticked <img alt="Reverse Cost" src="../../img/fields/edgesSQL_fields/columns/reverseCost.png" /></td>
+</tr>
+<tr>
+<td><img alt="x" src="../../img/fields/edgesSQL_fields/columns/x1.png" /></td>
+<td>Write the geometry column name</td>
+</tr>
+<tr>
+<td><img alt="y" src="../../img/fields/edgesSQL_fields/columns/y1.png" /></td>
+<td>Write the geometry column name</td>
+</tr>
+</tbody>
+</table>
+<h2 id="arguments-tab">Arguments tab</h2>
+<p><img alt="Arguments tab" src="../../img/tabs/arguments/arguments_astar.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="fromVids" src="../../img/fields/arguments/astar-dijkstra_fromVids.png" /></td>
+<td>Choose with <img alt="plus" src="../../img/tabs/arguments/plus_button.png" /> or write the comma separated identifiers of the start vertices</td>
+</tr>
+<tr>
+<td><img alt="toVids" src="../../img/fields/arguments/astar-dijkstra_toVids.png" /></td>
+<td>Choose with <img alt="plus" src="../../img/tabs/arguments/plus_button.png" /> or write the comma separated identifiers of the destination vertices</td>
+</tr>
+<tr>
+<td><img alt="Heuristic" src="../../img/fields/arguments/astar_heuristic.png" /></td>
+<td>Heuristic number. Current valid values <code>0~5</code> . Default <code>5</code></td>
+</tr>
+<tr>
+<td><img alt="Factor" src="../../img/fields/arguments/astar_factor.png" /></td>
+<td>For units manipulation.  <code>factor &gt; 0</code>.  Default  <code>1</code>. See  <code>astar_factor</code>.</td>
+</tr>
+<tr>
+<td><img alt="Epsilon" src="../../img/fields/arguments/astar_epsilon.png" /></td>
+<td>For less restricted results. <code>epsilon &gt;= 1</code>.  Default <code>1</code>.</td>
+</tr>
+<tr>
+<td><img alt="Directed" src="../../img/fields/arguments/directedOFF.png" /></td>
+<td>Tick if the graph is directed <img alt="Directed" src="../../img/fields/arguments/directedON.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="execute-tab">Execute tab</h2>
+<p><img alt="Execute tab" src="../../img/tabs/execute/execute.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Button</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Preview" src="../../img/buttons/execute/preview.png" /></td>
+<td>Draws in the canvas the resulting path</td>
+</tr>
+<tr>
+<td><img alt="Clear Preview" src="../../img/buttons/execute/clearpreview.png" /></td>
+<td>Removes from the canvas objects generated with Preview</td>
+</tr>
+<tr>
+<td><img alt="Export" src="../../img/buttons/execute/export.png" /></td>
+<td>Creates a one row per edge line geometry layer</td>
+</tr>
+<tr>
+<td><img alt="Export Merged" src="../../img/buttons/execute/exportmergedON.png" /></td>
+<td>Creates a one row per path multiline geometry layer. As many rows as needed</td>
+</tr>
+</tbody>
+</table>
+<p>Depending on the pressed button the layer name will be </p>
+<pre><code>(&lt;U|D&gt;) pgr_bdAstar: &lt;source_id&gt;  to &lt;target_id&gt;  BBOX(&lt;bbox&gt;)
+(M &lt;U|D&gt;) pgr_bdAstar: &lt;source_id&gt;  to &lt;target_id&gt;  BBOX(&lt;bbox&gt;)
+</code></pre>
               
             </div>
           </div>
@@ -200,7 +335,7 @@
         <a href="../pgr_bdDijkstra/" class="btn btn-neutral float-right" title="pgr_bdDijkstra">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../pgr_alphaShape/" class="btn btn-neutral" title="pgr_alphaShape"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="./" class="btn btn-neutral" title="pgr_bdAstar"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -226,7 +361,7 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../pgr_alphaShape/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="./" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
         <span style="margin-left: 15px"><a href="../pgr_bdDijkstra/" style="color: #fcfcfc">Next &raquo;</a></span>

@@ -74,19 +74,19 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../pgr_dijkstra/">pgr_djikstra</a>
+    <a class="" href="../pgr_aStar/">pgr_aStar</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_astar/">pgr_astar</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_alphaShape/">pgr_alphaShape</a>
+    <a class="" href="../pgr_astarCost/">pgr_astarCost</a>
                 </li>
                 <li class="">
                     
     <a class="" href="../pgr_bdAstar/">pgr_bdAstar</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../pgr_bdAstar/">pgr_bdAstarCost</a>
                 </li>
                 <li class=" current">
                     
@@ -97,7 +97,11 @@
     
         <ul>
         
-            <li><a class="toctree-l4" href="#todo-fix-image">TODO fix image</a></li>
+            <li><a class="toctree-l4" href="#edges-sql-tab">Edges SQL tab</a></li>
+        
+            <li><a class="toctree-l4" href="#arguments-tab">Arguments tab</a></li>
+        
+            <li><a class="toctree-l4" href="#execute-tab">Execute tab</a></li>
         
         </ul>
     
@@ -106,27 +110,19 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../pgr_drivingDistance/">pgr_drivingDistance</a>
+    <a class="" href="../pgr_bdDijkstraCost/">pgr_bdDijkstraCost</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../pgr_dijkstra/">pgr_djikstra</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../pgr_dijkstraCost/">pgr_djikstraCost</a>
                 </li>
                 <li class="">
                     
     <a class="" href="../pgr_KSP/">pgr_KSP</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trspViaEdges/">pgr_trspViaEdges</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trspViaVertices/">pgr_trspViaVertices</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trsp_edge/">pgr_trsp_edge</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../pgr_trsp_vertex/">pgr_trsp_vertex</a>
                 </li>
     </ul>
 	    </li>
@@ -168,28 +164,140 @@
             <div class="section">
               
                 <h1 id="pgr_bddijkstra">pgr_bdDijkstra</h1>
-<ul>
-<li>
-<p>Uses BBOX of the QGIS canvas to limit the resulting path(s)</p>
-</li>
-<li>
-<p>Buttons:</p>
-</li>
-<li><img alt="Preview" src="../../img/preview.png" />: Draws in the canvas the resulting path</li>
-<li><img alt="Clear Preview" src="../../img/clearpreview.png" />: Removes from the canvas objects generated with Preview</li>
-<li><img alt="Export" src="../../img/export.png" />: Creates a one row per edge line geometry layer<ul>
-<li>Layer name:
-<code>(&lt; U|D &gt;) pgr_bdDijkstra: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
-</ul>
-</li>
-<li><img alt="Export Merged" src="../../img/exportmerged.png" />: Creates a one row per path multiline geometry layer. As many rows as needed.<ul>
-<li>Layer name:
-<code>(M &lt; U|D &gt;) pgr_bdDijkstra: &lt; source_id &gt;  to &lt; target_id&gt;  BBOX(&lt; bbox &gt;)</code></li>
-</ul>
-</li>
-</ul>
-<h2 id="todo-fix-image">TODO fix image</h2>
-<p><img alt="pgr_dijkstra01" src="../../img/pgr_dijkstra01.png" /></p>
+<p><img alt="pgr_bdDijkstra" src="../../img/functions/f_pgr_bdDijkstra.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Button</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Help" src="../../img/functions/helpButton.png" /></td>
+<td>Opens the web page of the documentation of pgr_bdDijkstra</td>
+</tr>
+<tr>
+<td><img alt="Function" src="../../img/functions/bdDijkstra.png" /></td>
+<td>Choose pgr_bdDijkstra on the drop down box</td>
+</tr>
+</tbody>
+</table>
+<h2 id="edges-sql-tab">Edges SQL tab</h2>
+<p><img alt="Edges SQL tab" src="../../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Edge table" src="../../img/fields/edgesSQL_fields/edge_table.png" /></td>
+<td>Write the table name of the edges</td>
+</tr>
+<tr>
+<td><img alt="Edge schema" src="../../img/fields/edgesSQL_fields/edge_schema.png" /></td>
+<td>Write the schema of the edge table</td>
+</tr>
+<tr>
+<td><img alt="Geometry" src="../../img/fields/edgesSQL_fields/geometry.png" /></td>
+<td>Write the geometry column name</td>
+</tr>
+<tr>
+<td><img alt="BBOX" src="../../img/fields/edgesSQL_fields/BBOX.png" /></td>
+<td>Tick to use the  Bounding Box of the QGIS canvas to limit the rows of edge table <img alt="BBOX" src="../../img/fields/edgesSQL_fields/BBOXon.png" /></td>
+</tr>
+</tbody>
+</table>
+<h3 id="columns">Columns</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Id" src="../../img/fields/edgesSQL_fields/columns/Id.png" /></td>
+<td>Write the column that has the edge identifier</td>
+</tr>
+<tr>
+<td><img alt="Source" src="../../img/fields/edgesSQL_fields/columns/source.png" /></td>
+<td>Write the column that has the edge source</td>
+</tr>
+<tr>
+<td><img alt="Target" src="../../img/fields/edgesSQL_fields/columns/target.png" /></td>
+<td>Write the column that has the edge target</td>
+</tr>
+<tr>
+<td><img alt="Cost" src="../../img/fields/edgesSQL_fields/columns/cost.png" /></td>
+<td>Write the column that has the cost of the edge source -&gt; target</td>
+</tr>
+<tr>
+<td><img alt="Reverse Cost" src="../../img/fields/edgesSQL_fields/columns/reverseCostOFF.png" /></td>
+<td>Write the column that has the cost of the edge target -&gt; source, the column will be used when the box is ticked <img alt="Reverse Cost" src="../../img/fields/edgesSQL_fields/columns/reverseCost.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="arguments-tab">Arguments tab</h2>
+<p><img alt="Arguments tab" src="../../img/tabs/arguments/arguments_dijkstra.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="fromVids" src="../../img/fields/arguments/astar-dijkstra_fromVids.png" /></td>
+<td>Choose with <img alt="plus" src="../../img/tabs/arguments/plus_button.png" /> or write the comma separated identifiers of the start vertices</td>
+</tr>
+<tr>
+<td><img alt="toVids" src="../../img/fields/arguments/astar-dijkstra_toVids.png" /></td>
+<td>Choose with <img alt="plus" src="../../img/tabs/arguments/plus_button.png" /> or write the comma separated identifiers of the destination vertices</td>
+</tr>
+<tr>
+<td><img alt="Directed" src="../../img/fields/arguments/directedOFF.png" /></td>
+<td>Tick if the graph is directed <img alt="Directed" src="../../img/fields/arguments/directedON.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="execute-tab">Execute tab</h2>
+<p><img alt="Execute tab" src="../../img/tabs/execute/execute.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Button</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="Preview" src="../../img/buttons/execute/preview.png" /></td>
+<td>Draws in the canvas the resulting path</td>
+</tr>
+<tr>
+<td><img alt="Clear Preview" src="../../img/buttons/execute/clearpreview.png" /></td>
+<td>Removes from the canvas objects generated with Preview</td>
+</tr>
+<tr>
+<td><img alt="Export" src="../../img/buttons/execute/export.png" /></td>
+<td>Creates a one row per edge line geometry layer</td>
+</tr>
+<tr>
+<td><img alt="Export Merged" src="../../img/buttons/execute/exportmergedON.png" /></td>
+<td>Creates a one row per path multiline geometry layer. As many rows as needed</td>
+</tr>
+</tbody>
+</table>
+<p>Depending on the pressed button the layer name will be </p>
+<pre><code>(&lt;U|D&gt;) pgr_bdDijkstra: &lt;source_id&gt;  to &lt;target_id&gt;  BBOX(&lt;bbox&gt;)
+(M &lt;U|D&gt;) pgr_bdDijkstra: &lt;source_id&gt;  to &lt;target_id&gt;  BBOX(&lt;bbox&gt;)
+</code></pre>
               
             </div>
           </div>
@@ -197,10 +305,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../pgr_drivingDistance/" class="btn btn-neutral float-right" title="pgr_drivingDistance">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../pgr_bdDijkstraCost/" class="btn btn-neutral float-right" title="pgr_bdDijkstraCost">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../pgr_bdAstar/" class="btn btn-neutral" title="pgr_bdAstar"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../pgr_bdAstar/" class="btn btn-neutral" title="pgr_bdAstarCost"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -229,7 +337,7 @@
         <span><a href="../pgr_bdAstar/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../pgr_drivingDistance/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../pgr_bdDijkstraCost/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
