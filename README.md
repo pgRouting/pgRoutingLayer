@@ -13,7 +13,7 @@ PgRouting Layer is a plugin for QGIS that serves as a GUI for pgRouting - a popu
 
 ## What this plugin currently does
 
-Please check the pgRouting documentation for detailed descriptons: [http://docs.pgrouting.org](http://docs.pgrouting.org)
+Please check plugin documentation for detailed descriptions: [http://qgis.pgrouting.org](http://qgis.pgrouting.org)
 
 pgRoutingLayer currently supports the following functions:
 
@@ -26,6 +26,8 @@ pgRoutingLayer currently supports the following functions:
 - `pgr_dijkstra`
 - `pgr_dijkstraCost`
 - `pgr_KSP`
+
+Functions detailed descriptions: [http://docs.pgrouting.org](http://docs.pgrouting.org)
 
 
 ## License
