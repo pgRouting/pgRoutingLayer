@@ -43,6 +43,7 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
+<<<<<<< HEAD
         'pgr_aStar',
         'pgr_aStarCost',
         'pgr_bdAstar',
@@ -52,6 +53,23 @@ class PgRoutingLayer:
         'pgr_dijkstra',
         'pgr_dijkstraCost',
         'pgr_KSP'
+=======
+        'alphashape',
+        'astar',
+        'bdAstar',
+        'bdDijkstra',
+        'dijkstra',
+        # 'dijkstraCost',
+        'drivingDistance',
+        'ksp',
+        'trsp_edge',
+        'trsp_vertex',
+        'trspViaEdges',
+        'trspViaVertices',
+        # 'tsp_euclid',
+        # 'with_Points',
+        # 'with_PointsCost'
+>>>>>>> master
     ]
 
     TOGGLE_CONTROL_NAMES = [
