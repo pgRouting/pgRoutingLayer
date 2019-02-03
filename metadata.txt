@@ -7,7 +7,10 @@ qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 author=Anita Graser, Ko Nagase, Vicky Vergara
 email=project@pgrouting.org
-changelog=2.2.2
+changelog=3.0.0
+    - Support for QGIS 3 (Python 3 and PyQt5). 
+    - Removed deprecated functions.
+    2.2.2
     - Bug fix: activating alphashape.py to use BBOX by mixedbredie
     2.2.1
     - Bug fix activating plugin
