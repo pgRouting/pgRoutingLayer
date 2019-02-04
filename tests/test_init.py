@@ -15,7 +15,6 @@ class TestInit(unittest.TestCase):
     def test_read_init(self):
         """Test that the plugin __init__ will validate on plugins.qgis.org."""
 
-
         required_metadata = [
             'name',
             'description',
@@ -41,6 +40,7 @@ class TestInit(unittest.TestCase):
                 expectation, file_path))
 
             self.assertIn(expectation, dict(metadata), message)
+
 
 if __name__ == '__main__':
     unittest.main()

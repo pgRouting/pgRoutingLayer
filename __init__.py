@@ -21,16 +21,6 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
-def name():
-    return "pgRouting Layer"
-def description():
-    return "Dockable widget that adds pgRouting layers"
-def version():
-    return "Version 0.1"
-def icon():
-    return "icon.png"
-def qgisMinimumVersion():
-    return "1.7"
 
 def classFactory(iface):
     from pgRoutingLayer.pgRoutingLayer import PgRoutingLayer

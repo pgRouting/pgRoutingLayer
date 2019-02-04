@@ -2,10 +2,12 @@ import unittest
 import FunctionBase as FB
 
 
-
 class TestFB(unittest.TestCase):
     def test_getJoinResultWithEdgeTable(self):
-        args = {'geometry' : 'test_geom','source': 'test_source','startpoint' : 10,'id':'test_id','edge_table':'test_Table','target':100,'endpoint':90}
+        args = {
+            'geometry': 'test_geom', 'source': 'test_source', 'startpoint': 10,
+            'id': 'test_id', 'edge_table': 'test_Table', 'target': 100, 'endpoint': 90
+        }
 
         expected_sql = """
             WITH
@@ -22,14 +24,18 @@ class TestFB(unittest.TestCase):
             """
         self.maxDiff = None
 
-        self.assertEqual(FB.getJoinResultWithEdgeTable(args),expected_sql)
+        self.assertEqual(FB.getJoinResultWithEdgeTable(args), expected_sql)
 
     def test_getExportManySourceManyTargetMergeQuery(self):
 
-        args = {'geometry' : 'test_geom','source': 'test_source','startpoint' : 10,'id':'test_id','edge_table':'test_Table','target':100,'endpoint':90}
+        args = {
+            'geometry': 'test_geom', 'source': 'test_source', 'startpoint': 10,
+            'id': 'test_id', 'edge_table': 'test_Table', 'target': 100, 'endpoint': 90
+        }
+
         expected_sql = """WITH
             result AS (  ),
-            with_geom AS ( 
+            with_geom AS (
             SELECT
               seq, result.path_name,
               CASE
@@ -40,13 +46,13 @@ class TestFB(unittest.TestCase):
             FROM test_Table JOIN result
               ON test_Table.test_id = result._edge
              ),
-            one_geom AS ( 
+            one_geom AS (
             SELECT path_name, ST_LineMerge(ST_Union(path_geom)) AS path_geom
             FROM with_geom
             GROUP BY path_name
             ORDER BY path_name
              ),
-            aggregates AS ( 
+            aggregates AS (
                 SELECT
                     path_name, _start_vid, _end_vid,
                     SUM(_cost) AS agg_cost,
@@ -62,21 +68,9 @@ class TestFB(unittest.TestCase):
             """
         self.maxDiff = None
 
-        self.assertEqual(FB.getExportManySourceManyTargetMergeQuery(args),expected_sql)
-
-            
-
-        
-        
-    
-
-
-
-
+        self.assertEqual(FB.getExportManySourceManyTargetMergeQuery(args), expected_sql)
 
 
 if __name__ == '__main__':
-   
 
     unittest.main()
-
