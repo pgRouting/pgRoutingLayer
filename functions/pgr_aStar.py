@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # /*PGR-GNU*****************************************************************
-# File: drivingDistance.py
+# File: pgr_aStar.py
 # 
 # Copyright (c) 2011~2019 pgRouting developers
 # Mail: project@pgrouting.org
