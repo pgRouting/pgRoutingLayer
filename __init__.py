@@ -2,7 +2,7 @@
 # /*PGR-GNU*****************************************************************
 # File: __init__.py
 # 
-# Copyright (c) 2011~2018 pgRouting developers
+# Copyright (c) 2011~2019 pgRouting developers
 # Mail: project@pgrouting.org
 # 
 # Developer's GitHub nickname: 
