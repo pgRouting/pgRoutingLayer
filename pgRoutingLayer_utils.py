@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # /*PGR-GNU*****************************************************************
-# File: __init__.py
+# File: pgRoutingLayer_utils.py
 # 
 # Copyright (c) 2011~2019 pgRouting developers
 # Mail: project@pgrouting.org
