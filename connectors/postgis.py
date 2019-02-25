@@ -1,20 +1,32 @@
 # -*- coding: utf-8 -*-
-"""
-RT Sql Layer
-Copyright 2010 Giuseppe Sucameli
+# /*PGR-GNU*****************************************************************
+# File: postgis.py
+# 
+# Copyright (c) 2011~2019 pgRouting developers
+# Mail: project@pgrouting.org
+# 
+# Developer's GitHub nickname: 
+# - cayetanobv
+# - AasheeshT
+# - jef-n
+# - sanak
+# - cvvergara
+# - anitagraser
+# ------
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# ********************************************************************PGR-GNU*/
 
-based on PostGIS Manager
-Copyright 2008 Martin Dobias
-
-Licensed under the terms of GNU GPL v2 (or any later)
-http://www.gnu.org/copyleft/gpl.html
-
-
-Good resource for metadata extraction:
-http://www.alberton.info/postgresql_meta_info.html
-System information functions:
-http://www.postgresql.org/docs/8.0/static/functions-info.html
-"""
 from __future__ import print_function
 from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
