@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # /*PGR-GNU*****************************************************************
-# File: pgr_aStarCost.py
+# File: pgr_bdAstar.py
 # 
 # Copyright (c) 2011~2019 pgRouting developers
 # Mail: project@pgrouting.org
