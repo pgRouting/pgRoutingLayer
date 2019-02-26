@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # /*PGR-GNU*****************************************************************
 # File: postgis.py
-# 
+#
 # Copyright (c) 2011~2019 pgRouting developers
 # Mail: project@pgrouting.org
-# 
-# Developer's GitHub nickname: 
+#
+# Developer's GitHub nickname:
 # - cayetanobv
 # - AasheeshT
 # - jef-n
@@ -13,7 +13,7 @@
 # - cvvergara
 # - anitagraser
 # ------
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or

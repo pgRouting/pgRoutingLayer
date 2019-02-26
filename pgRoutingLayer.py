@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 # /*PGR-GNU*****************************************************************
 # File: pgRoutingLayer.py
-# 
+#
 # Copyright (c) 2011~2019 pgRouting developers
 # Mail: project@pgrouting.org
-# 
-# Developer's GitHub nickname: 
+#
+# Developer's GitHub nickname:
 # - AasheeshT
 # - cayetanobv
-# - sanak 
+# - sanak
 # - veniversum
 # - cvvergara
 # - anitagraser
 # ------
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -51,7 +51,7 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
-        
+
         'pgr_aStar',
         'pgr_aStarCost',
         'pgr_bdAstar',
@@ -60,7 +60,7 @@ class PgRoutingLayer:
         'pgr_bdDijkstraCost',
         'pgr_dijkstra',
         'pgr_dijkstraCost',
-        'pgr_KSP',     
+        'pgr_KSP',
     ]
 
     TOGGLE_CONTROL_NAMES = [
