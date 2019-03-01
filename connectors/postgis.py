@@ -159,7 +159,7 @@ class Connection(DbConn.Connection):
         self.passwd = uri.password()
 
         try:
-            self.con = psycopg2.connect(self.connection_info(), connect_timeout=10)
+            self.con = psycopg2.connect(self.connection_info(), connect_timeout=5)
         except psycopg2.OperationalError as e:
             raise DbError(e)
 

@@ -1,13 +1,15 @@
-# pgr_dijkstra
-![pgr_dijkstra](../img/functions/f_pgr_dijkstra.png)
+# pgr_astar
+
+- # pgr_astar
+![pgr_astar](../img/functions/f_pgr_astar.png)
 
 |Button|Action|
 | ----------- | --------- |
-|![Help](../img/functions/helpButton.png)|Opens the web page of the documentation of pgr_dijkstra|
-|![Function](../img/functions/dijkstra.png)| Choose pgr_dijkstra on the drop down box|
+|![Help](../img/functions/helpButton.png)|Opens the web page of the documentation of pgr_astar|
+|![Function](../img/functions/astar.png)| Choose pgr_astar on the drop down box|
 
 ## Edges SQL tab
-![Edges SQL tab](../img/tabs/edges_SQL/dijkstra-KSP_edgesSQL.png)
+![Edges SQL tab](../img/tabs/edges_SQL/astar_edgesSQL.png)
 
 |Field|Action|
 | ----------- | --------- |
@@ -25,14 +27,19 @@
 |![Target](../img/fields/edgesSQL_fields/columns/target.png)|Write the column that has the edge target|
 |![Cost](../img/fields/edgesSQL_fields/columns/cost.png)|Write the column that has the cost of the edge source -> target|
 |![Reverse Cost](../img/fields/edgesSQL_fields/columns/reverseCostOFF.png)|Write the column that has the cost of the edge target -> source, the column will be used when the box is ticked ![Reverse Cost](../img/fields/edgesSQL_fields/columns/reverseCost.png)|
+|![x](../img/fields/edgesSQL_fields/columns/x1.png)|Write the geometry column name|
+|![y](../img/fields/edgesSQL_fields/columns/y1.png)|Write the geometry column name|
 
 ## Arguments tab
-![Arguments tab](../img/tabs/arguments/arguments_dijkstra.png)
+![Arguments tab](../img/tabs/arguments/arguments_astar.png)
 
 |Field|Action|
 | ----------- | --------- |
 |![fromVids](../img/fields/arguments/astar-dijkstra_fromVids.png)| Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the start vertices|
 |![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the destination vertices|
+|![Heuristic](../img/fields/arguments/astar_heuristic.png)| Heuristic number. Current valid values `0~5` . Default ``5``|
+|![Factor](../img/fields/arguments/astar_factor.png)| For units manipulation.  `factor > 0`.  Default  ``1``. See  `astar_factor`.|
+|![Epsilon](../img/fields/arguments/astar_epsilon.png)| For less restricted results. `epsilon >= 1`.  Default ``1``.|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
 ## Execute tab 
@@ -45,8 +52,9 @@
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
 |![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
 
+
 Depending on the pressed button the layer name will be 
 ```
-(<U|D>) pgr_dijkstra: <source_id>  to <target_id>  BBOX(<bbox>)
-(M <U|D>) pgr_dijkstra: <source_id>  to <target_id>  BBOX(<bbox>)
+(<U|D>) pgr_astar: <source_id>  to <target_id>  BBOX(<bbox>)
+(M <U|D>) pgr_astar: <source_id>  to <target_id>  BBOX(<bbox>)
 ```
