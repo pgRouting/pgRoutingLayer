@@ -4,8 +4,6 @@
 <Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/>
 
 # pgr_bdAstar
-
-- # pgr_bdAstar
 ![pgr_bdAstar](../img/functions/f_pgr_bdAstar.png)
 
 |Button|Action|
