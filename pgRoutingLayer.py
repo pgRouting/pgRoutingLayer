@@ -1161,7 +1161,7 @@ class PgRoutingLayer:
         if idx >= 0:
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
-        self.dock.lineEditSchema.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_schema', 'edge_schema'))
+        self.dock.lineEditSchema.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_schema', 'public'))
         self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'edge_table'))
         self.dock.lineEditGeometry.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
 

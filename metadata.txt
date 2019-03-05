@@ -1,33 +1,22 @@
-; the next section is mandatory
 [general]
 name=pgRoutingLayer
-qgisMinimumVersion=3.0
 description=Dockable widget that adds pgRouting layers
-about=Dockable widget that adds pgRouting layers of:
-- pgr_aStar pgr_aStarCost
-- pgr_bdAstar pgr_bdAstarCost
-- pgr_bdDijkstra pgr_bdDijkstraCost
-- pgr_dijkstra pgr_dijkstraCost
-- pgr_KSP
+about=Dockable widget that adds pgRouting layers
 version=3.0.0
+qgisMinimumVersion=3.0
+qgisMaximumVersion=3.99
 author=Anita Graser, Ko Nagase, Vicky Vergara, Cayetano Benavent, Aasheesh Tiwari
 email=project@pgrouting.org
-repository=https://github.com/pgRouting/pgRoutingLayer
-
-
-; start of optional metadata
-qgisMaximumVersion=3.99
-changelog=
-    3.0.0
+changelog=3.0.0
     - Support for QGIS 3 (Python 3 and PyQt5).
-    - Functions included from pgRouting:
-      - Some known functions that will remain on pgRouting 3.0
-    - Removed functions that .
+    - Removed deprecated functions.
+    - Support only for some functions that are known to be on pgRouting 3.0
     2.2.2
-    - Last experimental version valid only for QGIS 2.x
+    - Last experimental releas works only for QGIS 2.x
 tags=pgRouting,PostGIS,routing,network analysis
 icon=icon.png
 experimental=False
-homepage=http://qgis.pgrouting.org/
+homepage=https://qgis.pgrouting.org/
 tracker=https://github.com/pgRouting/pgRoutingLayer/issues
+repository=https://github.com/pgRouting/pgRoutingLayer
 category=Database
