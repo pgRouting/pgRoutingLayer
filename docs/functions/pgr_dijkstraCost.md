@@ -1,3 +1,8 @@
+<pgRoutingLayer Manual>
+<Copyright(c) pgRouting Contributors>
+<This documentation is licensed under a Creative Commons Attribution-Share>
+<Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/>
+
 # pgr_dijkstraCost
 ![pgr_dijkstraCost](../img/functions/f_pgr_dijkstraCost.png)
 
