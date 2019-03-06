@@ -13,6 +13,10 @@ language: python
 python:
   - "3.5-dev"  # 3.5 development branch
 
+packages:
+  -  pyqt5-dev-tools
+
+
 install:
   - pip install -r requirements.txt
 
