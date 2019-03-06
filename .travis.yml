@@ -24,5 +24,6 @@ install:
 
 script:
   - pb_tool compile
+  - pb_tool deploy -p .
   - mkdocs build
 
