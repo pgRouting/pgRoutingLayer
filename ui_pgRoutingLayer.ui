@@ -189,7 +189,7 @@
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="Edges">
           <attribute name="title">
@@ -199,7 +199,7 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>130</y>
+             <y>150</y>
              <width>261</width>
              <height>401</height>
             </rect>
@@ -258,7 +258,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>241</width>
-                 <height>361</height>
+                 <height>355</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_5">
@@ -505,7 +505,7 @@
              <x>14</x>
              <y>14</y>
              <width>239</width>
-             <height>118</height>
+             <height>139</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout">
@@ -535,7 +535,7 @@
                <locale language="English" country="UnitedStates"/>
               </property>
               <property name="text">
-               <string>Edge schema</string>
+               <string>Schema</string>
               </property>
              </widget>
             </item>
@@ -642,8 +642,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>237</width>
-                 <height>500</height>
+                 <width>235</width>
+                 <height>599</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
@@ -1184,7 +1184,7 @@ _sql</string>
           <attribute name="title">
            <string>Execute</string>
           </attribute>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <property name="geometry">
             <rect>
              <x>11</x>
