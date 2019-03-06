@@ -1,0 +1,22 @@
+# ------------------------------------------------------------------------------
+# Travis CI scripts
+# Copyright(c) pgRouting Contributors
+#
+# Main configuration
+# ------------------------------------------------------------------------------
+
+dist: trusty
+sudo: required
+
+
+language: python
+python:
+  - "3.5-dev"  # 3.5 development branch
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - pb_tool compile
+  - mkdocs build
+
