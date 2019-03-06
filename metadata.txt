@@ -2,6 +2,11 @@
 name=pgRoutingLayer
 description=Dockable widget that adds pgRouting layers
 about=Dockable widget that adds pgRouting layers
+    - pgr_astar pgr_astarCost
+    - pgr_bdAstar pgr_astarCost
+    - pgr_dijstra pgr_dijstraCost
+    - pgr_bdDijstra pgr_bdDijstraCost
+    - pgr_KSP
 version=3.0.0
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
