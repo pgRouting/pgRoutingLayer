@@ -17,7 +17,7 @@ changelog=3.0.0
     - Removed deprecated functions.
     - Support only for some functions that are known to be on pgRouting 3.0
     2.2.2
-    - Last experimental releas works only for QGIS 2.x
+    - Last experimental release works only for QGIS 2.x
 tags=pgRouting,PostGIS,routing,network analysis
 icon=icon.png
 experimental=False

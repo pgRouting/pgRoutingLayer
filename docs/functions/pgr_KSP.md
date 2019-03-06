@@ -42,7 +42,7 @@
 |![Heap paths](../img/fields/arguments/KSP_heapPaths.png)| Tick.. ![Heap paths](../img/fields/arguments/KSP_heapPathsON.png)
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
-## Execute tab 
+## Execute tab
 ![Execute tab](../img/tabs/execute/execute.png)
 
 |Button|Action|
@@ -52,7 +52,7 @@
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
 |![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
 
-Depending on the pressed button the layer name will be 
+Depending on the pressed button the layer name will be
 ```
 (<U|D>) pgr_KSP: <source_id>  to <target_id>  BBOX(<bbox>)
 (M <U|D>) pgr_KSP: <source_id>  to <target_id>  BBOX(<bbox>)
