@@ -18,12 +18,20 @@ addons:
     packages:
         -  pyqt5-dev-tools
 
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
 
 install:
   - pip install -r requirements.txt
 
+before_script:
+  - mkdir build
+
 script:
-  - pb_tool compile
-  - pb_tool deploy -p .
+  - pb_tool deploy -y -p build
   - mkdocs build
 
