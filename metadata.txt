@@ -2,31 +2,26 @@
 name=pgRoutingLayer
 description=Dockable widget that adds pgRouting layers
 about=Dockable widget that adds pgRouting layers
+    - pgr_astar pgr_astarCost
+    - pgr_bdAstar pgr_astarCost
+    - pgr_dijstra pgr_dijstraCost
+    - pgr_bdDijstra pgr_bdDijstraCost
+    - pgr_KSP
 version=3.0.0
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
-author=Anita Graser, Ko Nagase, Vicky Vergara
+author=Anita Graser, Ko Nagase, Vicky Vergara, Cayetano Benavent, Aasheesh Tiwari
 email=project@pgrouting.org
 changelog=3.0.0
-    - Support for QGIS 3 (Python 3 and PyQt5). 
+    - Support for QGIS 3 (Python 3 and PyQt5).
     - Removed deprecated functions.
+    - Support only for some functions that are known to be on pgRouting 3.0
     2.2.2
-    - Bug fix: activating alphashape.py to use BBOX by mixedbredie
-    2.2.1
-    - Bug fix activating plugin
-    2.2.0
-    - Support for pgRouting V2.0 up to v2.5
-    - BBOX is optional
-    2.1.0
-    - change support sites
-    - port to pgRouting 2.1 API by pgRouting team
-    - drop QGIS 1.8 support
-    2.0.0
-    - port to 2.0 API by Ko Nagase
+    - Last experimental release works only for QGIS 2.x
 tags=pgRouting,PostGIS,routing,network analysis
 icon=icon.png
-experimental=True
-homepage=https://github.com/pgRouting/pgRoutingLayer/wiki
-tracker=https://github.com/pgRouting/pgRoutingLayer
+experimental=False
+homepage=https://qgis.pgrouting.org/
+tracker=https://github.com/pgRouting/pgRoutingLayer/issues
 repository=https://github.com/pgRouting/pgRoutingLayer
 category=Database
