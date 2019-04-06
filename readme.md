@@ -1,10 +1,11 @@
-# Welcome to PgRouting Layer!
+# Welcome to pgRoutingLayer
 
-A plugin for QGIS by Anita Graser, Ko Nagase and Vicky Vergara
+A plugin for QGIS created by by Anita Graser, Ko Nagase and Vicky Vergara.
 
-* project home and bug tracker: https://github.com/pgrouting/pgRoutingLayer
-* plugin repository: http://plugins.qgis.org/plugins
+pgRoutingLayer is currently developed and maintained by pgRouting community.
 
+- Project home and bug tracker: [https://github.com/pgrouting/pgRoutingLayer](https://github.com/pgrouting/pgRoutingLayer)
+- Plugin repository: [https://plugins.qgis.org/plugins/pgRoutingLayer/](https://plugins.qgis.org/plugins/pgRoutingLayer/)
 
 ## What is the goal
 
@@ -12,22 +13,22 @@ PgRouting Layer is a plugin for QGIS that serves as a GUI for pgRouting - a popu
 
 ## What this plugin currently does
 
-Please check the pgRouting documentation for detailed descriptons: http://docs.pgrouting.org/2.4/en/doc/index.html
+Please check plugin documentation for detailed descriptions: [http://qgis.pgrouting.org](http://qgis.pgrouting.org)
 
-PgRoutingLayer currently supports the following functions:
+pgRoutingLayer currently supports the following functions:
 
-* alphashape
-* astar
-* bdAstar
-* bdDijkstra
-* dijkstra
-* dijkstraCost
-* drivingDistance
-* ksp
-* shootingStar
-* trsp_edge
-* trsp_vertex
-* tsp_euclid
+- `pgr_aStar`
+- `pgr_aStarCost`
+- `pgr_bdAstar`
+- `pgr_bdAstarCost`
+- `pgr_bdDijkstra`
+- `pgr_bdDijkstraCost`
+- `pgr_dijkstra`
+- `pgr_dijkstraCost`
+- `pgr_KSP`
+
+Functions detailed descriptions: [http://docs.pgrouting.org](http://docs.pgrouting.org)
+
 
 ## License
 
@@ -38,7 +39,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ## Installation
 
-This plugin can be installed using the QGIS Plugin Manager. You will have to enable "experimental" plugins.
+This plugin can be installed using the QGIS Plugin Manager.
 
 ### Dependencies
 

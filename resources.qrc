@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/plugins/pgroutinglayer" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
+

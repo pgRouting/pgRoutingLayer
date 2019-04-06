@@ -1,4 +1,30 @@
 # coding=utf-8
+# -*- coding: utf-8 -*-
+# /*PGR-GNU*****************************************************************
+# File: qgis_models.py
+#
+# Copyright (c) 2011~2019 pgRouting developers
+# Mail: project@pgrouting.org
+#
+# Developer's GitHub nickname:
+# - cayetanobv
+# - AasheeshT
+# - cvvergara
+# - anitagraser
+# ------
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# ********************************************************************PGR-GNU*/
 
 import logging
 import sys
@@ -6,8 +32,7 @@ import sys
 from PyQt4.QtCore import QObject, pyqtSlot, pyqtSignal, QCoreApplication
 from qgis.core import QgsMapLayerRegistry, QgsApplication, QgsVectorLayer
 from qgis.gui import QgsMapCanvasLayer
-import config 
-
+import config
 
 
 LOGGER = logging.getLogger('QGIS')
@@ -41,7 +66,7 @@ def set_up_interface():
 
     return qgis_app, canvas, iface
 
-#noinspection PyMethodMayBeStatic,PyPep8Naming
+
 class QgisInterface(QObject):
     """Class to expose QGIS objects and functions to plugins.
 
@@ -71,7 +96,6 @@ class QgisInterface(QObject):
         # For processing module
         self.destCrs = None
 
-
     @pyqtSlot('QgsMapLayer')
     def addLayer(self, layer):
         """Handle a layer being added to the registry so it shows up in canvas.
@@ -97,7 +121,8 @@ class QgisInterface(QObject):
         """Remove layers from the canvas before they get deleted."""
         self.canvas.setLayerSet([])
 
-    def newProject(self):
+    @classmethod
+    def newProject(cls):
         """Create new project."""
         # noinspection PyArgumentList
         QgsMapLayerRegistry.instance().removeAllMapLayers()
@@ -183,16 +208,15 @@ class QgisInterface(QObject):
         """
         pass
 
-    def addPluginToDatabaseMenu(self,name,action):
+    def addPluginToDatabaseMenu(self, name, action):
         """Adds plugin to database menu in QGIS.
 
-        :param name : Name of plugin 
+        :param name : Name of plugin
         :type name : str
         :param action: Action to add to the toolbar.
         :type action: QAction
         """
         pass
-
 
     def removeToolBarIcon(self, action):
         """Remove an action (icon) from the plugin toolbar.
@@ -271,20 +295,24 @@ class MyMapCanvas(object):
 class HybridLayer(QgsVectorLayer):
 
     def __init__(self, layer_type, layer_name):
-        type = '{}?crs=EPSG:3857'.format(layer_type)
-        QgsVectorLayer.__init__(self, type, layer_name, 'memory', False)
+        geom_type = '{}?crs=EPSG:3857'.format(layer_type)
+        QgsVectorLayer.__init__(self, geom_type, layer_name, 'memory', False)
 
+    @staticmethod
     def type(self):
         # QgsMapLayer.RasterLayer
         return 1
 
+    @staticmethod
     def rasterType(self):
         # QgsRasterLayer.Multiband
         return 2
 
+    @staticmethod
     def bandCount(self):
         # One band for each RGBa
         return 4
 
+    @staticmethod
     def bandName(self, index):
         return 'Band {}'.format(index)

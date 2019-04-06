@@ -1,39 +1,76 @@
-from builtins import str
-from builtins import object
-from qgis.core import (QgsMessageLog, Qgis, QgsGeometry,QgsWkbTypes)
-from qgis.gui import QgsRubberBand
-from qgis.PyQt.QtGui import QColor
+# -*- coding: utf-8 -*-
+# /*PGR-GNU*****************************************************************
+# File: FunctionBase.py
+#
+# Copyright (c) 2011~2019 pgRouting developers
+# Mail: project@pgrouting.org
+#
+# Developer's GitHub nickname:
+# - cayetanobv
+# - AasheeshT
+# - sanak
+# - cvvergara
+# - anitagraser
+# ------
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# ********************************************************************PGR-GNU*/
+
+from qgis.PyQt.QtCore import QSizeF, QPointF
+from qgis.core import (QgsGeometry, QgsWkbTypes, QgsTextAnnotation)
+from qgis.PyQt.QtGui import QColor, QTextDocument
+from qgis.gui import QgsRubberBand, QgsMapCanvasAnnotationItem
+from psycopg2 import sql
 
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 
 
 class FunctionBase(object):
 
+    minPGRversion = 2.1
+
     # the mayority of the functions have this values
     exportButton = True
     exportMergeButton = True
     exportEdgeBase = False
     commonControls = [
-        'labelId',      'lineEditId',
-        'labelSource',  'lineEditSource',
-        'labelTarget',  'lineEditTarget',
-        'labelCost',    'lineEditCost',
+        'labelId', 'lineEditId',
+        'labelSource', 'lineEditSource',
+        'labelTarget', 'lineEditTarget',
+        'labelCost', 'lineEditCost',
         'labelReverseCost', 'lineEditReverseCost']
     commonBoxes = [
-            'checkBoxUseBBOX',
-            'checkBoxDirected',
-            'checkBoxHasReverseCost']
+        'checkBoxUseBBOX',
+        'checkBoxDirected',
+        'checkBoxHasReverseCost']
     astarControls = [
-            'labelX1', 'lineEditX1',
-            'labelY1', 'lineEditY1',
-            'labelX2', 'lineEditX2',
-            'labelY2', 'lineEditY2']
+        'labelX1', 'lineEditX1',
+        'labelY1', 'lineEditY1',
+        'labelX2', 'lineEditX2',
+        'labelY2', 'lineEditY2',
+        'labelAstarHeuristic', 'selectAstarHeuristic',
+        'labelAstarFactor', 'selectAstarFactor',
+        'labelAstarEpsilon', 'selectAstarEpsilon', 'showAstarEpsilon']
 
+    def __init__(self, ui):
+        self.ui = ui
+        self.minVersion = 3.0
+        self.maxVersion = 3.0
 
     @classmethod
     def getName(self):
         return ''
-    
+
     @classmethod
     def getControlNames(self, version):
         return self.commonControls + self.commonBoxes + [
@@ -41,13 +78,11 @@ class FunctionBase(object):
             'labelTargetIds', 'lineEditTargetIds', 'buttonSelectTargetIds',
         ]
 
-
-    
     @classmethod
     def isEdgeBase(self):
         ''' checks if EdgeBase is set. '''
         return self.exportEdgeBase
-    
+
     @classmethod
     def canExport(self):
         ''' checks if exportButton is set '''
@@ -60,150 +95,113 @@ class FunctionBase(object):
 
     @classmethod
     def isSupportedVersion(self, version):
-        ''' returns true if version is between 2 and 3.0 '''
-        return version >= 2.0 and version < 3.0
+        ''' returns true if version is greater than minPGRversio '''
+        return version >= self.minPGRversion
 
     @classmethod
     def whereClause(self, table, geometry, bbox):
         ''' returns where clause for sql parameterising '''
         if bbox == ' ':
-            return ' '
+            return sql.SQL(' WHERE true ')
         else:
-            return 'WHERE {0}.{1} {2}'.format(table, geometry, bbox)
+            return sql.SQL(' WHERE {0}.{1} {2}').format(table, geometry, bbox)
 
     def prepare(self, canvasItemList):
         pass
-    
-    def getQuery(self, args):
-        return ''
-    
-    def getExportQuery(self, args):
-        return ''
 
+    @classmethod
+    def getQuery(self, args):
+        pass
+
+    @classmethod
+    def getExportQuery(self, args):
+        pass
+
+    @classmethod
     def getExportMergeQuery(self, args):
-        return 'NOT AVAILABLE'
-    
+        pass
+
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         pass
-    
+
     def getJoinResultWithEdgeTable(self, args):
         '''returns a query which joins edge_table with result based on edge.id'''
         args['result_query'] = self.getQuery(args)
 
-        query = """
+        query = sql.SQL("""
             WITH
-            result AS ( %(result_query)s )
-            SELECT 
+            result AS ( {result_query} )
+            SELECT
               CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
+                WHEN result._node = {edge_table}.{source}
+                  THEN {edge_table}.{geometry}
+                ELSE ST_Reverse({edge_table}.{geometry})
               END AS path_geom,
-              result.*, %(edge_table)s.*
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge ORDER BY result.seq
-            """ % args
+              result.*, {edge_table}.*
+            FROM {edge_schema}.{edge_table} JOIN result
+              ON {edge_table}.{id} = result._edge ORDER BY result.seq
+            """).format(**args)
         return query
-
-
-    def getExportOneSourceOneTargetMergeQuery(self, args):
-        ''' returns merge query for one source and one target '''
-        args['result_query'] = self.getQuery(args)
-
-        args['with_geom_query'] = """
-            SELECT 
-              CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
-              END AS path_geom
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge 
-            """ % args
-
-        args['one_geom_query'] = """
-            SELECT ST_LineMerge(ST_Union(path_geom)) AS path_geom
-            FROM with_geom
-            """
-
-        args['aggregates_query'] = """SELECT
-            SUM(_cost) AS agg_cost,
-            array_agg(_node ORDER BY seq) AS _nodes,
-            array_agg(_edge ORDER BY seq) AS _edges
-            FROM result
-            """
-
-        query = """WITH
-            result AS ( %(result_query)s ),
-            with_geom AS ( %(with_geom_query)s ),
-            one_geom AS ( %(one_geom_query)s ),
-            aggregates AS ( %(aggregates_query)s )
-            SELECT row_number() over() as seq,
-            _nodes, _edges, agg_cost, path_geom
-            FROM aggregates, one_geom 
-            """ % args
-        return query
-
 
     def getExportManySourceManyTargetMergeQuery(self, args):
         ''' returns merge query for many source and many target '''
-        args['result_query'] = self.getQuery(args)
+        queries = {}
+        queries['result_query'] = self.getQuery(args)
 
-        args['with_geom_query'] = """
-            SELECT 
+        queries['geom_query'] = sql.SQL("""
+            SELECT
               seq, result.path_name,
               CASE
-                WHEN result._node = %(edge_table)s.%(source)s
-                  THEN %(edge_table)s.%(geometry)s
-                ELSE ST_Reverse(%(edge_table)s.%(geometry)s)
+                WHEN result._node = {edge_table}.{source}
+                  THEN {edge_table}.{geometry}
+                ELSE ST_Reverse({edge_table}.{geometry})
               END AS path_geom
-            FROM %(edge_table)s JOIN result
-              ON %(edge_table)s.%(id)s = result._edge 
-            """ % args
+            FROM {edge_schema}.{edge_table} JOIN result
+              ON {edge_table}.{id} = result._edge
+            """).format(**args)
 
-        args['one_geom_query'] = """
-            SELECT path_name, ST_LineMerge(ST_Union(path_geom)) AS path_geom
-            FROM with_geom
-            GROUP BY path_name
-            ORDER BY path_name
-            """ % args
-
-        args['aggregates_query'] = """
+        query = sql.SQL("""WITH
+            result AS ( {result_query} ),
+            with_geom AS ( {geom_query} ),
+            one_geom AS (
+                SELECT path_name, ST_LineMerge(ST_Union(path_geom)) AS path_geom
+                FROM with_geom
+                GROUP BY path_name
+                ORDER BY path_name
+            ),
+            aggregates AS (
                 SELECT
                     path_name, _start_vid, _end_vid,
                     SUM(_cost) AS agg_cost,
                     array_agg(_node ORDER BY _path_seq) AS _nodes,
                     array_agg(_edge ORDER BY _path_seq) AS _edges
-                    FROM result
+                FROM result
                 GROUP BY path_name, _start_vid, _end_vid
-                ORDER BY _start_vid, _end_vid"""
-
-        query = """WITH
-            result AS ( %(result_query)s ),
-            with_geom AS ( %(with_geom_query)s ),
-            one_geom AS ( %(one_geom_query)s ),
-            aggregates AS ( %(aggregates_query)s )
+                ORDER BY _start_vid, _end_vid
+            )
             SELECT row_number() over() as seq,
                 path_name, _start_vid, _end_vid, agg_cost, _nodes, _edges,
                 path_geom AS path_geom FROM aggregates JOIN one_geom
                 USING (path_name)
-            """ % args
+            """).format(**queries)
         return query
 
-
-    def drawManyPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
-        ''' draws multi line string on the mapCanvas. '''
+    @classmethod
+    def drawManyPaths(self, rows, columns, con, args, geomType, canvasItemList, mapCanvas):
+        '''
+            draws multi line string on the mapCanvas.
+        '''
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
-        cur_path_id = str(-1) + "," + str(-1)
+        cur_path_id = None
         for row in rows:
             cur2 = con.cursor()
-            args['result_path_id'] = str(row[3]) + "," + str(row[4])
-            args['result_node_id'] = row[5]
-            args['result_edge_id'] = row[6]
-            args['result_cost'] = row[7]
-            if args['result_path_id'] != cur_path_id:
-                cur_path_id = args['result_path_id']
+            result_path_id = str(row[columns[0]])
+            args['result_node_id'] = sql.Literal(row[columns[1]])
+            args['result_edge_id'] = sql.Literal(row[columns[2]])
+
+            if result_path_id != cur_path_id:
+                cur_path_id = result_path_id
                 if rubberBand:
                     resultPathsRubberBands.append(rubberBand)
                     rubberBand = None
@@ -212,19 +210,21 @@ class FunctionBase(object):
                 rubberBand.setColor(QColor(255, 0, 0, 128))
                 rubberBand.setWidth(4)
 
-            if args['result_edge_id'] != -1:
-                query2 = """
-                    SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
-                        WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
+            if row[columns[2]] != -1:
+                query2 = sql.SQL("""
+                    SELECT ST_AsText({transform_s}{geometry}{transform_e})
+                    FROM {edge_schema}.{edge_table}
+                    WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
+
                     UNION
-                    SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
-                        WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
-                    """ % args
-                ##Utils.logMessage(query2)
+
+                    SELECT ST_AsText({transform_s}ST_Reverse({geometry}){transform_e})
+                    FROM {edge_schema}.{edge_table}
+                    WHERE {target} = {result_node_id} AND {id} = {result_edge_id}
+                    """).format(**args).as_string(con)
+
                 cur2.execute(query2)
                 row2 = cur2.fetchone()
-                ##Utils.logMessage(str(row2[0]))
-                assert row2, "Invalid result geometry. (path_id:%(result_path_id)s, node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
 
                 geom = QgsGeometry().fromWkt(str(row2[0]))
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
@@ -239,28 +239,26 @@ class FunctionBase(object):
             resultPathsRubberBands.append(rubberBand)
             rubberBand = None
 
-
+    @classmethod
     def drawOnePath(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draws  line string on the mapCanvas. '''
         resultPathRubberBand = canvasItemList['path']
         for row in rows:
                 cur2 = con.cursor()
-                args['result_node_id'] = row[1]
-                args['result_edge_id'] = row[2]
+                args['result_node_id'] = sql.Literal(row[1])
+                args['result_edge_id'] = sql.Literal(row[2])
                 args['result_cost'] = row[3]
-                if args['result_edge_id'] != -1:
-                    query2 = """
-                        SELECT ST_AsText(%(transform_s)s%(geometry)s%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(source)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d
+                if row[2] != -1:
+                    query2 = sql.SQL("""
+                        SELECT ST_AsText({geom_t} FROM {edge_schema}.{edge_table}
+                            WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
                         UNION
-                        SELECT ST_AsText(%(transform_s)sST_Reverse(%(geometry)s)%(transform_e)s) FROM %(edge_table)s
-                            WHERE %(target)s = %(result_node_id)d AND %(id)s = %(result_edge_id)d;
-                    """ % args
-                    ##Utils.logMessage(query2)
+                        SELECT ST_AsText(ST_Reverse({geom_t}) FROM {edge_schema}.{edge_table}
+                            WHERE {target} = {result_node_id} AND {id} = {result_edge_id};
+                    """).format(**args)
+
                     cur2.execute(query2)
                     row2 = cur2.fetchone()
-                    ##Utils.logMessage(str(row2[0]))
-                    assert row2, "Invalid result geometry. (node_id:%(result_node_id)d, edge_id:%(result_edge_id)d)" % args
 
                     geom = QgsGeometry().fromWkt(str(row2[0]))
                     if geom.wkbType() == QgsWkbTypes.MultiLineString:
@@ -271,12 +269,77 @@ class FunctionBase(object):
                         for pt in geom.asPolyline():
                             resultPathRubberBand.addPoint(pt)
 
+    @classmethod
+    def drawCostPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
+        resultPathsRubberBands = canvasItemList['paths']
+        rubberBand = None
+        cur_path_id = -1
+        for row in rows:
+            cur2 = con.cursor()
+            args['result_path_id'] = row[0]
+            args['result_source_id'] = sql.Literal(row[1])
+            args['result_target_id'] = sql.Literal(row[2])
+            args['result_cost'] = row[3]
+            if args['result_path_id'] != cur_path_id:
+                cur_path_id = args['result_path_id']
+                if rubberBand:
+                    resultPathsRubberBands.append(rubberBand)
+                    rubberBand = None
 
+                rubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
+                rubberBand.setColor(QColor(255, 0, 0, 128))
+                rubberBand.setWidth(4)
+            if args['result_cost'] != -1:
+                query2 = sql.SQL("""
+                    SELECT ST_AsText( ST_MakeLine(
+                        (SELECT {geometry_vt} FROM  {vertex_schema}.{vertex_table} WHERE id = {result_source_id}),
+                        (SELECT {geometry_vt} FROM  {vertex_schema}.{vertex_table} WHERE id = {result_target_id})
+                        ))
+                    """).format(**args)
+                # Utils.logMessage(query2)
+                cur2.execute(query2)
+                row2 = cur2.fetchone()
+                # Utils.logMessage(str(row2[0]))
 
+                geom = QgsGeometry().fromWkt(str(row2[0]))
+                if geom.wkbType() == QgsWkbTypes.MultiLineString:
+                    for line in geom.asMultiPolyline():
+                        for pt in line:
+                            rubberBand.addPoint(pt)
+                elif geom.wkbType() == QgsWkbTypes.LineString:
+                    for pt in geom.asPolyline():
+                        rubberBand.addPoint(pt)
 
+        # TODO label the edge instead of labeling the target points
+        if rubberBand:
+            resultPathsRubberBands.append(rubberBand)
+            rubberBand = None
+        resultNodesTextAnnotations = canvasItemList['annotations']
+        for row in rows:
+            cur2 = con.cursor()
+            args['result_seq'] = row[0]
+            args['result_source_id'] = sql.Literal(row[1])
+            result_target_id = row[2]
+            args['result_target_id'] = sql.Literal(result_target_id)
+            result_cost = row[3]
+            query2 = sql.SQL("""
+                SELECT ST_AsText( ST_startPoint({geometry}) ) FROM {edge_schema}.{edge_table}
+                    WHERE {source} = {result_target_id}
+                UNION
+                SELECT ST_AsText( ST_endPoint( {geometry} ) ) FROM {edge_schema}.{edge_table}
+                    WHERE {target} = {result_target_id}
+                """).format(**args)
+            cur2.execute(query2)
+            row2 = cur2.fetchone()
 
+            geom = QgsGeometry().fromWkt(str(row2[0]))
+            pt = geom.asPoint()
+            textDocument = QTextDocument("{0!s}:{1}".format(result_target_id, result_cost))
+            textAnnotation = QgsTextAnnotation()
+            textAnnotation.setMapPosition(geom.asPoint())
+            textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
+            textAnnotation.setFrameOffsetFromReferencePoint(QPointF(20, -40))
+            textAnnotation.setDocument(textDocument)
 
-    def __init__(self, ui):
-        self.ui = ui
-        self.minVersion = 3.0
-        self.maxVersion = 3.0
+            QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
+            resultNodesTextAnnotations.append(textAnnotation)

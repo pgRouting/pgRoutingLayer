@@ -1,3 +1,31 @@
+# coding=utf-8
+# -*- coding: utf-8 -*-
+# /*PGR-GNU*****************************************************************
+# File: Test_utils.py
+#
+# Copyright (c) 2011~2019 pgRouting developers
+# Mail: project@pgrouting.org
+#
+# Developer's GitHub nickname:
+# - cayetanobv
+# - AasheeshT
+# - cvvergara
+# - anitagraser
+# ------
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# ********************************************************************PGR-GNU*/
+
 import pgRoutingLayer_utils as utils
 import unittest
 import sys
@@ -5,8 +33,6 @@ from qgis.core import *
 from qgis.gui import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import psycopg2
-import sip
 
 
 
@@ -49,9 +75,9 @@ class TestUtils(unittest.TestCase):
         setting.setValue('/pgRoutingLayer/Database', 99)
         self.assertTrue(utils.getBoolValue(setting,'/pgRoutingLayer/Database', 99))
 
-    
+
     def test_getDestinationCrs(self):
-        app = QApplication(sys.argv)
+        QApplication(sys.argv)
         # create a map canvas widget
         canvas = QgsMapCanvas()
         canvas.setCanvasColor(QColor('white'))
@@ -95,46 +121,10 @@ class TestUtils(unittest.TestCase):
                         ST_EndPoint(ST_GeometryN(test_geom, 1)) AS test_geom
                         FROM test_Table
                 ) AS node
-        )""" 
+        )"""
         self.maxDiff = None
         geomType = 'ST_MultiLineString'
         self.assertMultiLineEqual(utils.getNodeQuery(args,geomType),expected_sql)
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
-
-
-
-
-    
-
-
-        
-
-    
-
-    
-        
-
-    
-
-        
-
-        
-        
-
-
-
-        
-
-    
-
-        
-        
-
-    

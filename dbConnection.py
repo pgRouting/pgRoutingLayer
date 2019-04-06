@@ -1,15 +1,37 @@
 # -*- coding: utf-8 -*-
+# /*PGR-GNU*****************************************************************
+# File: dbConnection.py
+#
+# Copyright (c) 2011~2019 pgRouting developers
+# Mail: project@pgrouting.org
+#
+# Developer's GitHub nickname:
+# - AasheeshT
+# - cayetanobv
+# - sanak
+# - cvvergara
+# - anitagraser
+# ------
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# ********************************************************************PGR-GNU*/
+
 
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
-from builtins import object
 from qgis.core import QgsDataSourceUri
 from qgis.PyQt.QtCore import QSettings
 from qgis.PyQt.QtWidgets import QAction
 
-
-from pgRoutingLayer import pgRoutingLayer_utils as Utils
 
 class ConnectionManager(object):
 
@@ -21,13 +43,11 @@ class ConnectionManager(object):
         conntypes = ConnectionManager.SUPPORTED_CONNECTORS
         for c in conntypes:
             try:
-                connector = self.getConnection( c )
+                self.getConnection(c)
             except ImportError as e:
-                module = e.args[0][ len("No module named "): ]
-                ConnectionManager.SUPPORTED_CONNECTORS.remove( c )
-                ConnectionManager.MISSED_CONNECTORS.append( (c, module) )
-
-        return len(ConnectionManager.SUPPORTED_CONNECTORS) > 0
+                module = e.args[0][len("No module named "):]
+                ConnectionManager.SUPPORTED_CONNECTORS.remove(c)
+                ConnectionManager.MISSED_CONNECTORS.append((c, module))
 
     @classmethod
     def getConnection(self, conntype, uri=None):
@@ -35,7 +55,7 @@ class ConnectionManager(object):
             raise NotSupportedConnTypeException(conntype)
 
         # import the connector
-        exec( "from pgRoutingLayer.connectors import %s as connector" % conntype, globals(),globals())
+        exec("from pgRoutingLayer.connectors import %s as connector" % conntype, globals(), globals())
         return connector.Connection(uri) if uri else connector.Connection
 
     @classmethod
@@ -44,15 +64,15 @@ class ConnectionManager(object):
 
     @classmethod
     def getAvailableConnections(self, conntypes=None):
-        if conntypes == None:
+        if conntypes is None:
             conntypes = ConnectionManager.SUPPORTED_CONNECTORS
         if not hasattr(conntypes, '__iter__'):
             conntypes = [conntypes]
 
         connections = []
         for c in conntypes:
-            connection = self.getConnection( c )
-            connections.extend( connection.getAvailableConnections() )
+            connection = self.getConnection(c)
+            connections.extend(connection.getAvailableConnections())
         return connections
 
 
@@ -66,12 +86,12 @@ class NotSupportedConnTypeException(Exception):
 
 class DbError(Exception):
     def __init__(self, errormsg, query=None):
-        self.msg = str( errormsg )
-        self.query = str( query ) if query else None
+        self.msg = str(errormsg)
+        self.query = str(query) if query else None
 
     def __str__(self):
         msg = self.msg.encode('utf-8')
-        if self.query != None:
+        if self.query:
             msg += "\nQuery:\n" + self.query.encode('utf-8')
         return msg
 
@@ -106,22 +126,20 @@ class Connection(object):
         connections = []
 
         settings = QSettings()
-        settings.beginGroup( "/%s/connections" % self.getSettingsKey() )
+        settings.beginGroup("/%s/connections" % self.getSettingsKey())
         keys = settings.childGroups()
         for name in keys:
-            connections.append( Connection.ConnectionAction(name, self.getTypeName()) )
+            connections.append(Connection.ConnectionAction(name, self.getTypeName()))
         settings.endGroup()
 
         return connections
 
-
     def getURI(self):
         # returns a new QgsDataSourceUri instance
-        return QgsDataSourceUri( self.uri.connectionInfo() )
+        return QgsDataSourceUri(self.uri.connectionInfo())
 
     def getAction(self, parent=None):
         return Connection.ConnectionAction(self.uri.database(), self.getTypeName(), parent)
-
 
     class ConnectionAction(QAction):
         def __init__(self, text, conntype, parent=None):
@@ -131,11 +149,11 @@ class Connection(object):
 
         def connect(self):
             selected = self.text()
-            conn = ConnectionManager.getConnection( self.type ).connect( selected, self.parent() )
+            conn = ConnectionManager.getConnection(self.type).connect(selected, self.parent())
 
             # set as default in QSettings
             settings = QSettings()
-            settings.setValue( "/%s/connections/selected" % conn.getSettingsKey(), selected )
+            settings.setValue("/%s/connections/selected" % conn.getSettingsKey(), selected)
 
             return conn
 
@@ -143,34 +161,34 @@ class Connection(object):
 class TableAttribute(object):
     pass
 
+
 class TableConstraint(object):
     """ class that represents a constraint of a table (relation) """
 
     TypeCheck, TypeForeignKey, TypePrimaryKey, TypeUnique = list(range(4))
-    types = { "c" : TypeCheck, "f" : TypeForeignKey, "p" : TypePrimaryKey, "u" : TypeUnique }
+    types = {"c": TypeCheck, "f": TypeForeignKey, "p": TypePrimaryKey, "u": TypeUnique}
+    on_action = {"a": "NO ACTION", "r": "RESTRICT", "c": "CASCADE", "n": "SET NULL", "d": "SET DEFAULT"}
+    match_types = {"u": "UNSPECIFIED", "f": "FULL", "p": "PARTIAL"}
 
-    on_action = { "a" : "NO ACTION", "r" : "RESTRICT", "c" : "CASCADE", "n" : "SET NULL", "d" : "SET DEFAULT" }
-    match_types = { "u" : "UNSPECIFIED", "f" : "FULL", "p" : "PARTIAL" }
-
-    pass
 
 class TableIndex(object):
     pass
 
+
 class TableTrigger(object):
     # Bits within tgtype (pg_trigger.h)
-    TypeRow      = (1 << 0) # row or statement
-    TypeBefore   = (1 << 1) # before or after
+    TypeRow = (1 << 0)  # row or statement
+    TypeBefore = (1 << 1)  # before or after
     # events: one or more
-    TypeInsert   = (1 << 2)
-    TypeDelete   = (1 << 3)
-    TypeUpdate   = (1 << 4)
+    TypeInsert = (1 << 2)
+    TypeDelete = (1 << 3)
+    TypeUpdate = (1 << 4)
     TypeTruncate = (1 << 5)
 
-    pass
 
 class TableRule(object):
     pass
+
 
 class TableField(object):
     def is_null_txt(self):
