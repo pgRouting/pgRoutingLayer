@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>333</width>
+    <width>339</width>
     <height>640</height>
    </rect>
   </property>
@@ -258,7 +258,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>241</width>
-                 <height>355</height>
+                 <height>362</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_5">
@@ -515,17 +515,7 @@
                <locale language="English" country="UnitedStates"/>
               </property>
               <property name="text">
-               <string>Edge table</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEditTable">
-              <property name="toolTip">
-               <string>Name of the table containing the routable network</string>
-              </property>
-              <property name="locale">
-               <locale language="English" country="UnitedStates"/>
+               <string>Schema</string>
               </property>
              </widget>
             </item>
@@ -535,17 +525,7 @@
                <locale language="English" country="UnitedStates"/>
               </property>
               <property name="text">
-               <string>Schema</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEditSchema">
-              <property name="toolTip">
-               <string>Name of the table containing the routable network</string>
-              </property>
-              <property name="locale">
-               <locale language="English" country="UnitedStates"/>
+               <string>Edge Table</string>
               </property>
              </widget>
             </item>
@@ -559,19 +539,21 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="lineEditGeometry">
-              <property name="toolTip">
-               <string>Name of the geometry column in network table</string>
-              </property>
-             </widget>
-            </item>
             <item row="3" column="1">
              <widget class="QCheckBox" name="checkBoxUseBBOX">
               <property name="text">
                <string>BBOX</string>
               </property>
              </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="SchemacomboBox"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="EdgeTablecomboBox"/>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="GeometrycomboBox"/>
             </item>
            </layout>
           </widget>
@@ -642,8 +624,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>235</width>
-                 <height>599</height>
+                 <width>213</width>
+                 <height>450</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
@@ -1272,10 +1254,6 @@ _sql</string>
    </layout>
   </widget>
  </widget>
- <tabstops>
-  <tabstop>lineEditTable</tabstop>
-  <tabstop>lineEditGeometry</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>

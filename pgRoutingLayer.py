@@ -174,6 +174,7 @@ class PgRoutingLayer:
         self.action.triggered.connect(self.show)
         self.dock.buttonReloadConnections.clicked.connect(self.reloadConnections)
         self.dock.comboConnections.currentIndexChanged.connect(self.updateConnectionEnabled)
+        self.dock.SchemacomboBox.currentIndexChanged.connect(self.updateEdgeTable)
         self.dock.comboBoxFunction.currentIndexChanged.connect(self.updateFunctionEnabled)
 
         self.dock.buttonSelectIds.clicked.connect(self.selectIds)
@@ -234,6 +235,7 @@ class PgRoutingLayer:
         self.dock.lineEditDistance.setValidator(QDoubleValidator())
         self.dock.lineEditAlpha.setValidator(QDoubleValidator())
         self.dock.lineEditPaths.setValidator(QIntValidator())
+        
 
         # populate the combo with connections
         self.reloadMessage = False
@@ -241,6 +243,10 @@ class PgRoutingLayer:
         self.loadSettings()
         Utils.logMessage("startup version " + str(self.version))
         self.reloadMessage = True
+        #experiment
+        layers=QgsProject.instance().layerTreeRoot().children()
+        self.dock.EdgeTablecomboBox.clear()
+        self.dock.EdgeTablecomboBox.addItems([layer.name() for layer in layers])
 
     def show(self):
         self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock)
@@ -291,6 +297,48 @@ class PgRoutingLayer:
         self.reloadMessage = oldReloadMessage
         self.updateConnectionEnabled()
 
+        
+    def updateSchemaTable(self,con):
+        self.dock.SchemacomboBox.clear()
+        cursor=con.cursor()
+        cursor.execute("""select schema_name
+from information_schema.schemata""")
+        for schema in cursor.fetchall():
+            self.dock.SchemacomboBox.addItems(schema)
+        
+        
+    def updateEdgeTable(self):
+        
+        dbname = str(self.dock.comboConnections.currentText())
+        if dbname == '':
+            return
+        
+        db = self.actionsDb[dbname].connect()
+        con = db.con
+        cursor = con.cursor()
+        curSchema =str(self.dock.SchemacomboBox.currentText())
+        tab={}
+        tab['temp']= curSchema
+
+        query=sql.SQL("""SELECT table_name FROM information_schema.tables
+WHERE table_schema='public' """)
+        
+        cursor.execute(query.as_string(con))
+        for table in cursor.fetchall():
+            self.dock.EdgeTablecomboBox.addItems(table)
+        self.updateGeometryTable(con)
+
+    def updateGeometryTable(self,con):
+        curTable =str(self.dock.EdgeTablecomboBox.currentText())
+        self.dock.GeometrycomboBox.clear()
+        cursor=con.cursor()
+        cursor.execute("""SELECT geometry_columns.f_geometry_column FROM geometry_columns""")
+        for geom in cursor.fetchall():
+            self.dock.GeometrycomboBox.addItems(geom)
+            
+
+            
+
     def updateConnectionEnabled(self):
         ''' Updates the database connection name and function '''
         dbname = str(self.dock.comboConnections.currentText())
@@ -309,6 +357,7 @@ class PgRoutingLayer:
             return
 
         self.loadFunctionsForVersion()
+        self.updateSchemaTable(con)
         self.updateFunctionEnabled(currentFunction)
 
     def loadFunctionsForVersion(self):
@@ -941,9 +990,9 @@ class PgRoutingLayer:
     def get_innerQueryArguments(self, controls):
         args = {}
 
-        args['edge_schema'] = sql.Identifier(str(self.dock.lineEditSchema.text()))
-        args['edge_table'] = sql.Identifier(str(self.dock.lineEditTable.text()))
-        args['geometry'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
+        args['edge_schema'] = sql.Identifier(str(self.dock.SchemacomboBox.currentText()))
+        args['edge_table'] = sql.Identifier(str(self.dock.EdgeTablecomboBox.currentText()))
+        args['geometry'] = sql.Identifier(str(self.dock.GeometrycomboBox.currentText()))
         args['id'] = sql.Identifier(str(self.dock.lineEditId.text()))
         args['source'] = sql.Identifier(str(self.dock.lineEditSource.text()))
         args['target'] = sql.Identifier(str(self.dock.lineEditTarget.text()))
@@ -1161,9 +1210,9 @@ class PgRoutingLayer:
         if idx >= 0:
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
-        self.dock.lineEditSchema.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_schema', 'public'))
-        self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'edge_table'))
-        self.dock.lineEditGeometry.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
+        self.dock.SchemacomboBox.findText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_schema', 'public'))
+        self.dock.EdgeTablecomboBox.findText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'edge_table'))
+        self.dock.GeometrycomboBox.findText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
 
         self.dock.lineEditId.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/id', 'id'))
         self.dock.lineEditSource.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/source', 'source'))
