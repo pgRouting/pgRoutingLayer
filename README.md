@@ -5,7 +5,7 @@ A plugin for QGIS created by by Anita Graser, Ko Nagase and Vicky Vergara.
 pgRoutingLayer is currently developed and maintained by pgRouting community.
 
 - Project home and bug tracker: [https://github.com/pgrouting/pgRoutingLayer](https://github.com/pgrouting/pgRoutingLayer)
-- Plugin repository: [https://plugins.qgis.org/plugins](https://plugins.qgis.org/plugins)
+- Plugin repository: [https://plugins.qgis.org/plugins/pgRoutingLayer/](https://plugins.qgis.org/plugins/pgRoutingLayer/)
 
 ## What is the goal
 
@@ -39,7 +39,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ## Installation
 
-This plugin can be installed using the QGIS Plugin Manager. You will have to enable "experimental" plugins.
+This plugin can be installed using the QGIS Plugin Manager.
 
 ### Dependencies
 

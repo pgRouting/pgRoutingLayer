@@ -1,24 +1,32 @@
-"""
-/***************************************************************************
- pgRouting Layer
-                                 a QGIS plugin
+# -*- coding: utf-8 -*-
+# /*PGR-GNU*****************************************************************
+# File: pgRoutingLayer.py
+#
+# Copyright (c) 2011~2019 pgRouting developers
+# Mail: project@pgrouting.org
+#
+# Developer's GitHub nickname:
+# - AasheeshT
+# - cayetanobv
+# - sanak
+# - veniversum
+# - cvvergara
+# - anitagraser
+# ------
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# ********************************************************************PGR-GNU*/
 
- based on "Fast SQL Layer" plugin. Copyright 2011 Pablo Torres Carreira
-                             -------------------
-        begin                : 2011-11-25
-        copyright            : (c) 2011 by Anita Graser
-        email                : anita.graser.at@gmail.com
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
 from __future__ import absolute_import
 # Import the PyQt and QGIS libraries
 from qgis.PyQt import uic
@@ -43,6 +51,7 @@ conn = dbConnection.ConnectionManager()
 class PgRoutingLayer:
 
     SUPPORTED_FUNCTIONS = [
+
         'pgr_aStar',
         'pgr_aStarCost',
         'pgr_bdAstar',
@@ -51,7 +60,7 @@ class PgRoutingLayer:
         'pgr_bdDijkstraCost',
         'pgr_dijkstra',
         'pgr_dijkstraCost',
-        'pgr_KSP'
+        'pgr_KSP',
     ]
 
     TOGGLE_CONTROL_NAMES = [
@@ -1152,7 +1161,7 @@ class PgRoutingLayer:
         if idx >= 0:
             self.dock.comboBoxFunction.setCurrentIndex(idx)
 
-        self.dock.lineEditSchema.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_schema', 'edge_schema'))
+        self.dock.lineEditSchema.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_schema', 'public'))
         self.dock.lineEditTable.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/edge_table', 'edge_table'))
         self.dock.lineEditGeometry.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/geometry', 'the_geom'))
 

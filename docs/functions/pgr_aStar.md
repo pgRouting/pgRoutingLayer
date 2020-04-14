@@ -1,6 +1,9 @@
-# pgr_astar
+<pgRoutingLayer Manual>
+<Copyright(c) pgRouting Contributors>
+<This documentation is licensed under a Creative Commons Attribution-Share>
+<Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/>
 
-- # pgr_astar
+# pgr_astar
 ![pgr_astar](../img/functions/f_pgr_astar.png)
 
 |Button|Action|
@@ -42,7 +45,7 @@
 |![Epsilon](../img/fields/arguments/astar_epsilon.png)| For less restricted results. `epsilon >= 1`.  Default ``1``.|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
-## Execute tab 
+## Execute tab
 ![Execute tab](../img/tabs/execute/execute.png)
 
 |Button|Action|
@@ -53,7 +56,7 @@
 |![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
 
 
-Depending on the pressed button the layer name will be 
+Depending on the pressed button the layer name will be
 ```
 (<U|D>) pgr_astar: <source_id>  to <target_id>  BBOX(<bbox>)
 (M <U|D>) pgr_astar: <source_id>  to <target_id>  BBOX(<bbox>)

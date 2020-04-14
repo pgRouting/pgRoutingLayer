@@ -1,6 +1,9 @@
-# pgr_bdAstar
+<pgRoutingLayer Manual>
+<Copyright(c) pgRouting Contributors>
+<This documentation is licensed under a Creative Commons Attribution-Share>
+<Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/>
 
-- # pgr_bdAstar
+# pgr_bdAstar
 ![pgr_bdAstar](../img/functions/f_pgr_bdAstar.png)
 
 |Button|Action|
@@ -42,7 +45,7 @@
 |![Epsilon](../img/fields/arguments/astar_epsilon.png)| For less restricted results. `epsilon >= 1`.  Default ``1``.|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
-## Execute tab 
+## Execute tab
 ![Execute tab](../img/tabs/execute/execute.png)
 
 |Button|Action|
@@ -50,10 +53,10 @@
 |![Preview](../img/buttons/execute/preview.png)| Draws in the canvas the resulting path |
 |![Clear Preview](../img/buttons/execute/clearpreview.png)| Removes from the canvas objects generated with Preview|
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
-|![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
+|![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multi line geometry layer. As many rows as needed|
 
 
-Depending on the pressed button the layer name will be 
+Depending on the pressed button the layer name will be
 ```
 (<U|D>) pgr_bdAstar: <source_id>  to <target_id>  BBOX(<bbox>)
 (M <U|D>) pgr_bdAstar: <source_id>  to <target_id>  BBOX(<bbox>)

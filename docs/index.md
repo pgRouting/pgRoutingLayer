@@ -32,7 +32,7 @@ Please check the pgRouting documentation for detailed descriptons: [https://docs
 
 ## Installation
 
-This plugin can be installed using the QGIS Plugin Manager. You will have to enable "experimental" plugins.
+This plugin can be installed using the QGIS Plugin Manager.
 
 ### Dependencies
 
@@ -43,7 +43,7 @@ This plugin can be installed using the QGIS Plugin Manager. You will have to ena
 ## Links
 
 - Project home and bug tracker: [https://github.com/pgrouting/pgRoutingLayer](https://github.com/pgrouting/pgRoutingLayer)
-- Plugin repository: [https://plugins.qgis.org/plugins](https://plugins.qgis.org/plugins)
+- Plugin repository: [https://plugins.qgis.org/plugins/pgRoutingLayer/](https://plugins.qgis.org/plugins/pgRoutingLayer/)
 - pgRouting project: [https://docs.pgrouting.org](https://docs.pgrouting.org)
 
 ## License

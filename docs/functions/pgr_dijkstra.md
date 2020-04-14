@@ -1,3 +1,8 @@
+<pgRoutingLayer Manual>
+<Copyright(c) pgRouting Contributors>
+<This documentation is licensed under a Creative Commons Attribution-Share>
+<Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/>
+
 # pgr_dijkstra
 ![pgr_dijkstra](../img/functions/f_pgr_dijkstra.png)
 
@@ -35,7 +40,7 @@
 |![toVids](../img/fields/arguments/astar-dijkstra_toVids.png)|Choose with ![plus](../img/tabs/arguments/plus_button.png) or write the comma separated identifiers of the destination vertices|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
-## Execute tab 
+## Execute tab
 ![Execute tab](../img/tabs/execute/execute.png)
 
 |Button|Action|
@@ -45,7 +50,7 @@
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
 |![Export Merged](../img/buttons/execute/exportmergedON.png)| Creates a one row per path multiline geometry layer. As many rows as needed|
 
-Depending on the pressed button the layer name will be 
+Depending on the pressed button the layer name will be
 ```
 (<U|D>) pgr_dijkstra: <source_id>  to <target_id>  BBOX(<bbox>)
 (M <U|D>) pgr_dijkstra: <source_id>  to <target_id>  BBOX(<bbox>)

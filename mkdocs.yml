@@ -8,7 +8,7 @@ nav:
   - pgr_aStar: functions/pgr_aStar.md
   - pgr_astarCost: functions/pgr_astarCost.md
   - pgr_bdAstar: functions/pgr_bdAstar.md
-  - pgr_bdAstarCost: functions/pgr_bdAstar.md
+  - pgr_bdAstarCost: functions/pgr_bdAstarCost.md
   - pgr_bdDijkstra: functions/pgr_bdDijkstra.md
   - pgr_bdDijkstraCost: functions/pgr_bdDijkstraCost.md
   - pgr_djikstra: functions/pgr_dijkstra.md

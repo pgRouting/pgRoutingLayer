@@ -1,0 +1,35 @@
+# ------------------------------------------------------------------------------
+# Travis CI scripts
+# Copyright(c) pgRouting Contributors
+#
+# Main configuration
+# ------------------------------------------------------------------------------
+
+dist: xenial
+
+language: python
+python:
+  - "3.5"
+
+addons:
+  apt:
+    packages:
+        -  pyqt5-dev-tools
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - mkdir build
+
+script:
+  - pb_tool deploy -y -p build
+  - mkdocs build
+

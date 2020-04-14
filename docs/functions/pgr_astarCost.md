@@ -1,3 +1,8 @@
+<pgRoutingLayer Manual>
+<Copyright(c) pgRouting Contributors>
+<This documentation is licensed under a Creative Commons Attribution-Share>
+<Alike 3.0 License: http://creativecommons.org/licenses/by-sa/3.0/>
+
 # pgr_astarCost
 ![pgr_astarCost](../img/functions/f_pgr_astarCost.png)
 
@@ -38,7 +43,7 @@
 |![Epsilon](../img/fields/arguments/astar_epsilon.png)| For less restricted results. `epsilon >= 1`.  Default ``1``.|
 |![Directed](../img/fields/arguments/directedOFF.png)| Tick if the graph is directed ![Directed](../img/fields/arguments/directedON.png)|
 
-## Execute tab 
+## Execute tab
 ![Execute tab](../img/tabs/execute/execute.png)
 
 |Button|Action|
@@ -48,7 +53,7 @@
 |![Export](../img/buttons/execute/export.png)| Creates a one row per edge line geometry layer|
 |![Export Merged](../img/buttons/execute/exportmergedOFF.png)| Disabled|
 
-Depending on the pressed button the layer name will be 
+Depending on the pressed button the layer name will be
 ```
 (<U|D>) pgr_astarCost: <source_id>  to <target_id>  BBOX(<bbox>)
 ```
