@@ -129,7 +129,7 @@ def getPgrVersion(con):
     ''' returns version of PostgreSQL database. '''
     try:
         cur = con.cursor()
-        cur.execute('SELECT version FROM pgr_version()')
+        cur.execute('SELECT version FROM pgr_full_version()')
         row = cur.fetchone()[0]
         versions = ''.join([i for i in row if i.isdigit()])
         version = versions[0]
