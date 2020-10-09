@@ -37,7 +37,7 @@ This plugin can be installed using the QGIS Plugin Manager.
 ### Dependencies
 
 - This plugin runs only with QGIS 3.x and Python 3.
-- pgRouting v2.x up and running to use this plugin.
+- pgRouting v3.x up and running to use this plugin.
 - Additionally, QGIS needs python-psycopg2 installed to be able to connect to the database.
 
 ## Links
