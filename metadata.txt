@@ -7,11 +7,13 @@ about=Dockable widget that adds pgRouting layers
     - pgr_dijstra pgr_dijstraCost
     - pgr_bdDijstra pgr_bdDijstraCost
     - pgr_KSP
-version=3.0.0
+version=3.0.1
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 author=Anita Graser, Ko Nagase, Vicky Vergara, Cayetano Benavent, Aasheesh Tiwari
 email=project@pgrouting.org
+changelog=3.0.1
+    - Removing support for pgRouting 2.x
 changelog=3.0.0
     - Support for QGIS 3 (Python 3 and PyQt5).
     - Removed deprecated functions.
