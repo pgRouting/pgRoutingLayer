@@ -14,7 +14,7 @@ author=Anita Graser, Ko Nagase, Vicky Vergara, Cayetano Benavent, Aasheesh Tiwar
 email=project@pgrouting.org
 changelog=3.0.1
     - Removing support for pgRouting 2.x
-changelog=3.0.0
+    3.0.0
     - Support for QGIS 3 (Python 3 and PyQt5).
     - Removed deprecated functions.
     - Support only for some functions that are known to be on pgRouting 3.0
