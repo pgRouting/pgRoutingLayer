@@ -72,25 +72,14 @@ def setTransformQuotes(args, srid, canvas_srid):
         args['transform_e'] = sql.SQL("")
 
 
-def isSIPv2():
-    '''Checks the version of SIP '''
-    return sip.getapi('QVariant') > 1
-
-
 def getStringValue(settings, key, value):
     ''' returns key and its corresponding value. example: ("interval",30). '''
-    if isSIPv2():
-        return settings.value(key, value, type=str)
-    else:
-        return settings.value(key, QVariant(value)).toString()
+    return settings.value(key, value, type=str)
 
 
 def getBoolValue(settings, key, value):
     ''' returns True if settings exist otherwise False. '''
-    if isSIPv2():
-        return settings.value(key, value, type=bool)
-    else:
-        return settings.value(key, QVariant(value)).toBool()
+    return settings.value(key, value, type=bool)
 
 
 def getDestinationCrs(mapCanvas):

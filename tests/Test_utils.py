@@ -62,9 +62,6 @@ class TestUtils(unittest.TestCase):
         utils.setEndPoint(geomType,args)
         self.assertEqual(args['endpoint'], 'ST_EndPoint(ST_GeometryN(test_geom, 1))')
 
-    def test_isSIPv2(self):
-        self.assertTrue(utils.isSIPv2())
-
     def test_getStringValue(self):
         setting = QSettings()
         setting.setValue('/pgRoutingLayer/Database', 99)
