@@ -88,12 +88,12 @@ def getDestinationCrs(mapCanvas):
 
 
 def getCanvasSrid(crs):
-    ''' Returns SRID based on QGIS version. '''
+    ''' Returns SRID. '''
     return crs.postgisSrid()
 
 
 def createFromSrid(crs, srid):
-    ''' Creates EPSG crs for QGIS version 1 or Creates Spatial reference system based of SRID for QGIS version 2. '''
+    ''' Creates Spatial reference system based of SRID. '''
     return crs.createFromSrid(srid)
 
 
