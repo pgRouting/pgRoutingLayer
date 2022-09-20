@@ -35,8 +35,10 @@ from qgis.PyQt.QtGui import QColor, QIcon, QIntValidator, QDoubleValidator, QReg
 from qgis.PyQt.QtWidgets import QAction, QApplication, QMessageBox
 from qgis.core import QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 from qgis.core import QgsProject, QgsGeometry, QgsWkbTypes
+from qgis.core import Qgis
 from qgis.gui import QgsVertexMarker, QgsRubberBand, QgsMapToolEmitPoint
 from pgRoutingLayer import dbConnection
+from pgRoutingLayer.connectors.postgis import DbError as PgDbError
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
 from pgRoutingLayer.utilities import pgr_queries as PgrQ
 import os
@@ -274,8 +276,8 @@ class PgRoutingLayer:
                 if (Utils.getPgrVersion(con) != 0):
                     self.dock.comboConnections.addItem(dbname)
 
-            except dbConnection.DbError as e:
-                Utils.logMessage("dbname:" + dbname + ", " + e.msg)
+            except PgDbError as e:
+                Utils.logMessage("dbname:" + dbname + ", " + e.msg, Qgis.Critical)
 
             finally:
                 if db and db.con:
