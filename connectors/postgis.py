@@ -128,12 +128,12 @@ class Connection(DbConn.Connection):
         if not settings.contains("database"):  # non-existent entry?
             raise DbError('there is no defined database connection "%s".' % selected)
 
-        get_value_str = lambda x: str(settings.value(x) if Utils.isSIPv2() else settings.value(x).toString())
+        get_value_str = lambda x: str(settings.value(x))
         service, host, port, database, username, password = list(map(get_value_str, ["service", "host", "port", "database", "username", "password"]))
 
         # qgis1.5 use 'savePassword' instead of 'save' setting
-        isSave = settings.value("save") if Utils.isSIPv2() else settings.value("save").toBool()
-        isSavePassword = settings.value("savePassword") if Utils.isSIPv2() else settings.value("savePassword").toBool()
+        isSave = settings.value("save")
+        isSavePassword = settings.value("savePassword")
         if not (isSave or isSavePassword):
             (password, ok) = QInputDialog.getText(parent, "Enter password", 'Enter password for connection "%s":' % selected, QLineEdit.Password)
             if not ok: return
