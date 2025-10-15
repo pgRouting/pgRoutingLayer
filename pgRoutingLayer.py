@@ -1260,7 +1260,7 @@ class PgRoutingLayer:
         except psycopg2.DatabaseError:
             # database didn't have pgrouting
             return 0
-        except SystemError:
+        except (SystemError, KeyError):
             return 0
         url = QUrl('https://docs.pgrouting.org/' + str(version) + '/en/' + function + '.html')
         try:
