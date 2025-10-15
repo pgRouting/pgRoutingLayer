@@ -954,8 +954,7 @@ class PgRoutingLayer:
         if not self.dock.checkBoxHasReverseCost.isChecked():
             args['reverse_cost'] = sql.SQL(" -1 ")
         else:
-            args['reverse_cost'] = sql.SQL("{}").format(sql.Identifier(
-                                                        str(self.dock.lineEditReverseCost.text())))
+            args['reverse_cost'] = sql.Identifier(str(self.dock.lineEditReverseCost.text()))
 
         if 'lineEditX1' in controls:
             args['x1'] = sql.Identifier(self.dock.lineEditX1.text())
@@ -1031,32 +1030,16 @@ class PgRoutingLayer:
         function = str(self.dock.comboBoxFunction.currentText()).lower()
         args['function'] = sql.Identifier(str(function))
 
-        if function in ['pgr_astarcost', 'pgr_dijkstracost', 'pgr_bdastarcost', 'pgr_bddijkstracost']:
-            # TODO: capture vertices table, geometry of vertices table
-            args['vertex_schema'] = sql.Identifier(str(self.dock.lineEditSchema.text()))
-            args['vertex_table'] = sql.Identifier(str(self.dock.lineEditTable.text()) + '_vertices_pgr')
-            args['geometry_vt'] = sql.Identifier(str(self.dock.lineEditGeometry.text()))
-            # QMessageBox.information(self.dock, self.dock.windowTitle(),
-            #    'TODO: capture vertices table, geometry of vertices table, label the edges')
-
         if 'lineEditX1' in controls:
             args['astarHeuristic'] = sql.Literal(str(self.dock.selectAstarHeuristic.currentIndex()))
             args['astarFactor'] = sql.Literal(str(self.dock.selectAstarFactor.text()))
             args['astarEpsilon'] = sql.Literal(str(self.dock.selectAstarEpsilon.value()))
-
-        # args['rule'] = self.dock.lineEditRule.text() if 'lineEditRule' in controls
-        # args['to_cost'] = self.dock.lineEditToCost.text() if 'lineEditToCost' in controls:
 
         if 'lineEditIds' in controls:
             args['ids'] = self.dock.lineEditIds.text()
 
         if 'lineEditPcts' in controls:
             args['pcts'] = self.dock.lineEditPcts.text()
-
-        # Used in pgr_KSP
-        if 'lineEditSourceId' in controls:
-            args['source_id'] = sql.Literal(self.dock.lineEditSourceId.text())
-            args['target_id'] = sql.Literal(self.dock.lineEditTargetId.text())
 
         # Used in pgr_KSP
         if 'lineEditPaths' in controls:
@@ -1085,13 +1068,6 @@ class PgRoutingLayer:
         if 'checkBoxHeapPaths' in controls:
             args['heap_paths'] = sql.SQL("heap_paths := {}::BOOLEAN").format(sql.Literal(str(self.dock.checkBoxHeapPaths.isChecked()).lower()))
 
-        # if 'labelDrivingSide' in controls:
-        #     args['driving_side'] = str('b')
-        #     if (self.dock.checkBoxLeft.isChecked() == True and self.dock.checkBoxRight.isChecked() == False):
-        #         args['driving_side'] = str('l')
-        #     elif (self.dock.checkBoxLeft.isChecked() == False and self.dock.checkBoxRight.isChecked() == True):
-        #         args['driving_side'] = str('r')
-
         return args
 
     # emulate "matching.sql" - "find_nearest_node_within_distance"
@@ -1113,13 +1089,25 @@ class PgRoutingLayer:
         args['SBBOX'] = self.getBBOX(args['srid'])[0]
         args['geom_t'] = Utils.getTransformedGeom(args['srid'], args['dbcanvas_srid'], args['geometry'])
 
-        db, cur = self._exec_sql(PgrQ.get_closestVertexInfo(args))
-        if cur:
-            row = cur.fetchone()
-            db.con.close()
-            return True, row[0], row[2]
-        else:
-            return False, None, None
+        try:
+            dbname = str(self.dock.comboConnections.currentText())
+            db = self.actionsDb[dbname].connect()
+            connection = db.con
+            cursor = connection.cursor()
+
+            #Utils.logMessage(PgrQ.get_closestVertexInfo(args).as_string(connection))
+            cursor.execute(PgrQ.get_closestVertexInfo(args))
+            if cursor:
+                data = cursor.fetchone()
+                return True, data[0], data[2]
+            else:
+                return False, None, None
+
+            db.connection.close()
+
+        except psycopg2.DatabaseError as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
 
     # emulate "matching.sql" - "find_nearest_link_within_distance"
     def findNearestLink(self, args, pt):
@@ -1181,9 +1169,6 @@ class PgRoutingLayer:
         self.dock.selectAstarHeuristic.setCurrentIndex(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/heuristic', '5')))
         self.dock.selectAstarFactor.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/factor', '1'))
         self.dock.selectAstarEpsilon.setTickPosition(int(Utils.getStringValue(settings, '/pgRoutingLayer/sql/epsilon', '100')))
-
-        # self.dock.lineEditRule.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/rule', 'rule'))
-        # self.dock.lineEditToCost.setText(Utils.getStringValue(settings, '/pgRoutingLayer/sql/to_cost', 'to_cost'))
 
         self.dock.lineEditIds.setText(Utils.getStringValue(settings, '/pgRoutingLayer/ids', ''))
         self.dock.lineEditPcts.setText(Utils.getStringValue(settings, '/pgRoutingLayer/pcts', ''))
