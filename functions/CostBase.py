@@ -63,24 +63,31 @@ class CostBase(FunctionBase):
             WITH
             result AS ( {result_query} ),
             departure AS (
-                SELECT start_vid, end_vid, ST_startPoint(geom) AS depart
-                FROM result JOIN {edge_table} ON ({edge_table}.{source} = start_vid)
-
-                UNION
-
-                SELECT start_vid, end_vid, ST_endPoint(geom)
-                FROM result JOIN {edge_table} ON ({edge_table}.{target} = start_vid)
-                ),
-
+                SELECT DISTINCT ON (start_vid, end_vid)
+                       start_vid, end_vid,
+                       CASE
+                           WHEN {edge_table}.{source} = start_vid
+                               THEN ST_StartPoint({edge_table}.{geometry})
+                           ELSE ST_EndPoint({edge_table}.{geometry})
+                       END AS depart
+                FROM result
+                JOIN {edge_schema}.{edge_table}
+                  ON ({edge_table}.{source} = start_vid OR {edge_table}.{target} = start_vid)
+                ORDER BY start_vid, end_vid, {edge_table}.{id}
+            ),
             destination AS (
-                SELECT start_vid, end_vid, ST_startPoint(geom) AS arrive
-                FROM result JOIN {edge_table} ON ({edge_table}.{source} = end_vid)
-
-                UNION
-
-                SELECT start_vid, end_vid, ST_endPoint(geom)
-                FROM result JOIN {edge_table} ON ({edge_table}.{target} = end_vid)
-                )
+                SELECT DISTINCT ON (start_vid, end_vid)
+                       start_vid, end_vid,
+                       CASE
+                           WHEN {edge_table}.{source} = end_vid
+                               THEN ST_StartPoint({edge_table}.{geometry})
+                           ELSE ST_EndPoint({edge_table}.{geometry})
+                       END AS arrive
+                FROM result
+                JOIN {edge_schema}.{edge_table}
+                  ON ({edge_table}.{source} = end_vid OR {edge_table}.{target} = end_vid)
+                ORDER BY start_vid, end_vid, {edge_table}.{id}
+            )
 
             SELECT result.*, ST_MakeLine(depart, arrive) AS path_geom
 

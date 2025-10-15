@@ -283,7 +283,6 @@ class FunctionBase(object):
 
                 # Label the edge
                 midPoint = PgrQ.getMidPoint()
-                midPointstr = midPoint.as_string(con)
                 midPointCursor.execute(midPoint,(line,))
                 pointRow = midPointCursor.fetchone()
                 # Utils.logMessage("The point:" + str(pointRow[0]))
