@@ -72,11 +72,14 @@ def getEdgesQueryXY(args):
         """.replace("\\n", r"\n")).format(**args)
 
 def getEndPoint(args, vertex_id):
+def getEndPoint(args, vertex_id):
+    # Prefer source endpoint when available; otherwise fallback to target endpoint
     return sql.SQL("""
-        SELECT ST_startPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {source} = {vid}
-        UNION
-        SELECT ST_endPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {target} = {vid}
-        """.replace("\\n", r"\n")).format(**args, vid=vertex_id)
+        SELECT COALESCE(
+            (SELECT ST_StartPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {source} = {vid} LIMIT 1),
+            (SELECT ST_EndPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {target} = {vid} LIMIT 1)
+        )
+    """.replace("\\n", r"\n")).format(**args, vid=vertex_id)
 
 def getCostLine(args, departure, arrival):
     return sql.Composed([

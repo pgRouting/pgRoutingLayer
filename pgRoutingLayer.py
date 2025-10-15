@@ -1089,6 +1089,7 @@ class PgRoutingLayer:
         args['SBBOX'] = self.getBBOX(args['srid'])[0]
         args['geom_t'] = Utils.getTransformedGeom(args['srid'], args['dbcanvas_srid'], args['geometry'])
 
+        db = None
         try:
             dbname = str(self.dock.comboConnections.currentText())
             db = self.actionsDb[dbname].connect()
@@ -1103,11 +1104,16 @@ class PgRoutingLayer:
             else:
                 return False, None, None
 
-            db.connection.close()
-
         except psycopg2.DatabaseError as e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
+
+        finally:
+            if db and db.con:
+                try:
+                    db.con.close()
+                except Exception:
+                    pass
 
     # emulate "matching.sql" - "find_nearest_link_within_distance"
     def findNearestLink(self, args, pt):
