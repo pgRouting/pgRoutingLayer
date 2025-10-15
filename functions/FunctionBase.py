@@ -33,11 +33,12 @@ from qgis.gui import QgsRubberBand, QgsMapCanvasAnnotationItem
 from psycopg2 import sql
 
 from pgRoutingLayer import pgRoutingLayer_utils as Utils
+from pgRoutingLayer.utilities import pgr_queries as PgrQ
 
 
 class FunctionBase(object):
 
-    minPGRversion = 2.1
+    minPGRversion = 3.0
 
     # the mayority of the functions have this values
     exportButton = True
@@ -240,46 +241,20 @@ class FunctionBase(object):
             rubberBand = None
 
     @classmethod
-    def drawOnePath(self, rows, con, args, geomType, canvasItemList, mapCanvas):
-        ''' draws  line string on the mapCanvas. '''
-        resultPathRubberBand = canvasItemList['path']
-        for row in rows:
-                cur2 = con.cursor()
-                args['result_node_id'] = sql.Literal(row[1])
-                args['result_edge_id'] = sql.Literal(row[2])
-                args['result_cost'] = row[3]
-                if row[2] != -1:
-                    query2 = sql.SQL("""
-                        SELECT ST_AsText({geom_t} FROM {edge_schema}.{edge_table}
-                            WHERE {source} = {result_node_id} AND {id} = {result_edge_id}
-                        UNION
-                        SELECT ST_AsText(ST_Reverse({geom_t}) FROM {edge_schema}.{edge_table}
-                            WHERE {target} = {result_node_id} AND {id} = {result_edge_id};
-                    """).format(**args)
-
-                    cur2.execute(query2)
-                    row2 = cur2.fetchone()
-
-                    geom = QgsGeometry().fromWkt(str(row2[0]))
-                    if geom.wkbType() == QgsWkbTypes.MultiLineString:
-                        for line in geom.asMultiPolyline():
-                            for pt in line:
-                                resultPathRubberBand.addPoint(pt)
-                    elif geom.wkbType() == QgsWkbTypes.LineString:
-                        for pt in geom.asPolyline():
-                            resultPathRubberBand.addPoint(pt)
-
-    @classmethod
     def drawCostPaths(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         resultPathsRubberBands = canvasItemList['paths']
         rubberBand = None
         cur_path_id = -1
+        resultNodesTextAnnotations = canvasItemList['annotations']
         for row in rows:
-            cur2 = con.cursor()
+            cursor = con.cursor()
+            midPointCursor = con.cursor()
             args['result_path_id'] = row[0]
             args['result_source_id'] = sql.Literal(row[1])
             args['result_target_id'] = sql.Literal(row[2])
             args['result_cost'] = row[3]
+            args['result_path_name'] = row[4]
+
             if args['result_path_id'] != cur_path_id:
                 cur_path_id = args['result_path_id']
                 if rubberBand:
@@ -289,19 +264,16 @@ class FunctionBase(object):
                 rubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
                 rubberBand.setColor(QColor(255, 0, 0, 128))
                 rubberBand.setWidth(4)
-            if args['result_cost'] != -1:
-                query2 = sql.SQL("""
-                    SELECT ST_AsText( ST_MakeLine(
-                        (SELECT {geometry_vt} FROM  {vertex_schema}.{vertex_table} WHERE id = {result_source_id}),
-                        (SELECT {geometry_vt} FROM  {vertex_schema}.{vertex_table} WHERE id = {result_target_id})
-                        ))
-                    """).format(**args)
-                # Utils.logMessage(query2)
-                cur2.execute(query2)
-                row2 = cur2.fetchone()
-                # Utils.logMessage(str(row2[0]))
 
-                geom = QgsGeometry().fromWkt(str(row2[0]))
+            if args['result_cost'] != -1:
+                costLine = PgrQ.getCostLine(args, sql.Literal(row[1]), sql.Literal(row[2]))
+                # Utils.logMessage(costLine.as_string(cursor))
+                cursor.execute(costLine)
+                row2 = cursor.fetchone()
+                line = str(row2[0])
+                # Utils.logMessage(line)
+
+                geom = QgsGeometry().fromWkt(line)
                 if geom.wkbType() == QgsWkbTypes.MultiLineString:
                     for line in geom.asMultiPolyline():
                         for pt in line:
@@ -310,36 +282,24 @@ class FunctionBase(object):
                     for pt in geom.asPolyline():
                         rubberBand.addPoint(pt)
 
-        # TODO label the edge instead of labeling the target points
+                # Label the edge
+                midPoint = PgrQ.getMidPoint()
+                midPointstr = midPoint.as_string(con)
+                midPointCursor.execute(midPoint,(line,))
+                pointRow = midPointCursor.fetchone()
+                # Utils.logMessage("The point:" + str(pointRow[0]))
+
+                ptgeom = QgsGeometry().fromWkt(str(pointRow[0]))
+                pt = ptgeom.asPoint()
+                textDocument = QTextDocument("{0!s}:{1}".format(args['result_path_name'], args['result_cost']))
+                textAnnotation = QgsTextAnnotation()
+                textAnnotation.setMapPosition(pt)
+                textAnnotation.setFrameSizeMm(QSizeF(20, 5))
+                textAnnotation.setFrameOffsetFromReferencePointMm(QPointF(5, -5))
+                textAnnotation.setDocument(textDocument)
+                QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
+                resultNodesTextAnnotations.append(textAnnotation)
+
         if rubberBand:
             resultPathsRubberBands.append(rubberBand)
             rubberBand = None
-        resultNodesTextAnnotations = canvasItemList['annotations']
-        for row in rows:
-            cur2 = con.cursor()
-            args['result_seq'] = row[0]
-            args['result_source_id'] = sql.Literal(row[1])
-            result_target_id = row[2]
-            args['result_target_id'] = sql.Literal(result_target_id)
-            result_cost = row[3]
-            query2 = sql.SQL("""
-                SELECT ST_AsText( ST_startPoint({geometry}) ) FROM {edge_schema}.{edge_table}
-                    WHERE {source} = {result_target_id}
-                UNION
-                SELECT ST_AsText( ST_endPoint( {geometry} ) ) FROM {edge_schema}.{edge_table}
-                    WHERE {target} = {result_target_id}
-                """).format(**args)
-            cur2.execute(query2)
-            row2 = cur2.fetchone()
-
-            geom = QgsGeometry().fromWkt(str(row2[0]))
-            pt = geom.asPoint()
-            textDocument = QTextDocument("{0!s}:{1}".format(result_target_id, result_cost))
-            textAnnotation = QgsTextAnnotation()
-            textAnnotation.setMapPosition(geom.asPoint())
-            textAnnotation.setFrameSize(QSizeF(textDocument.idealWidth(), 20))
-            textAnnotation.setFrameOffsetFromReferencePoint(QPointF(20, -40))
-            textAnnotation.setDocument(textDocument)
-
-            QgsMapCanvasAnnotationItem(textAnnotation, mapCanvas)
-            resultNodesTextAnnotations.append(textAnnotation)
