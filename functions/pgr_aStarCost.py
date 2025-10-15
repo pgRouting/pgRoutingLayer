@@ -30,8 +30,6 @@ from .CostBase import CostBase
 
 class Function(CostBase):
 
-    minPGRversion = 2.4
-
     def __init__(self, ui):
         CostBase.__init__(self, ui)
 

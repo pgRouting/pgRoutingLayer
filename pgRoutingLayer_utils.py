@@ -94,8 +94,7 @@ def getCanvasSrid(crs):
 
 def createFromSrid(crs, srid):
     ''' Creates Spatial reference system based of SRID. '''
-    return crs.createFromProj(str(srid))
-
+    return crs.createFromString(f"EPSG:{srid}")
 
 def getRubberBandType(isPolygon):
     ''' returns RubberBandType as polygon or lineString '''
