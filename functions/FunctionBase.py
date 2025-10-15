@@ -264,7 +264,6 @@ class FunctionBase(object):
                 rubberBand = QgsRubberBand(mapCanvas, Utils.getRubberBandType(False))
                 rubberBand.setColor(QColor(255, 0, 0, 128))
                 rubberBand.setWidth(4)
-
             if args['result_cost'] != -1:
                 costLine = PgrQ.getCostLine(args, sql.Literal(row[1]), sql.Literal(row[2]))
                 # Utils.logMessage(costLine.as_string(cursor))
