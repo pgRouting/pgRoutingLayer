@@ -56,16 +56,13 @@ class Function(FunctionBase):
 
     def getQuery(self, args):
         ''' returns the sql query in required signature format of pgr_KSP '''
-        return sql.SQL("""
-            SELECT seq,
-              '(' || start_vid || ',' ||  end_vid || ')-' || path_id AS path_name,
-              path_seq AS _path_seq,
-              start_vid AS _start_vid, end_vid AS _end_vid,
-              path_id AS _path_id,
-              node AS _node,
-              edge AS _edge,
-              cost AS _cost
-            FROM pgr_KSP(' {innerQuery} ',
+        return sql.SQL("""SELECT seq,
+               '(' || start_vid || ',' || end_vid || ')-' || path_id AS path_name,
+                path_seq AS _path_seq, start_vid AS _start_vid, end_vid AS _end_vid,
+                node AS _node, edge AS _edge,
+                path_id AS _path_id,
+                cost AS _cost, agg_cost AS _agg_cost
+            FROM pgr_KSP('{innerQuery}',
                 {source_ids}, {target_ids}, {Kpaths}, {directed}, {heap_paths})
             """).format(**args)
 
@@ -77,5 +74,5 @@ class Function(FunctionBase):
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
         ''' draw the result '''
-        columns = [2, 4, 5]
+        columns = [2, 5, 6]
         self.drawManyPaths(rows, columns, con, args, geomType, canvasItemList, mapCanvas)
