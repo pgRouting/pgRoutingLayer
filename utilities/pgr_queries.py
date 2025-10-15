@@ -71,6 +71,24 @@ def getEdgesQueryXY(args):
         FROM {edge_schema}.{edge_table} {where_clause}
         """.replace("\\n", r"\n")).format(**args)
 
+def getEndPoint(args, vertex_id):
+    return sql.SQL("""
+        SELECT ST_startPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {source} = {vid}
+        UNION
+        SELECT ST_endPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {target} = {vid}
+        """.replace("\\n", r"\n")).format(**args, vid=vertex_id)
+
+def getCostLine(args, departure, arrival):
+    return sql.Composed([
+            sql.SQL("SELECT ST_asText(ST_makeLine(("),
+            getEndPoint(args, departure),
+            sql.SQL("), ("),
+            getEndPoint(args, arrival),
+            sql.SQL("))) AS line")
+            ])
+
+def getMidPoint():
+    return sql.SQL("SELECT ST_asText(ST_LineInterpolatePoint(ST_GeomFromText(%s),0.5))")
 
 def get_closestVertexInfo(args):
     return sql.SQL("""
