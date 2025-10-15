@@ -35,12 +35,6 @@ class CostBase(FunctionBase):
         FunctionBase.__init__(self, ui)
 
     @classmethod
-    def isSupportedVersion(self, version):
-        ''' Checks supported version '''
-        # valid starting pgr v2.1
-        return version >= 2.1
-
-    @classmethod
     def canExportMerged(self):
         return False
 
@@ -67,12 +61,32 @@ class CostBase(FunctionBase):
 
         return sql.SQL("""
             WITH
-            result AS ( {result_query} )
-            SELECT result.*, ST_MakeLine(a.the_geom, b.the_geom) AS path_geom
+            result AS ( {result_query} ),
+            departure AS (
+                SELECT start_vid, end_vid, ST_startPoint(geom) AS depart
+                FROM result JOIN {edge_table} ON ({edge_table}.{source} = start_vid)
+
+                UNION
+
+                SELECT start_vid, end_vid, ST_endPoint(geom)
+                FROM result JOIN {edge_table} ON ({edge_table}.{target} = start_vid)
+                ),
+
+            destination AS (
+                SELECT start_vid, end_vid, ST_startPoint(geom) AS arrive
+                FROM result JOIN {edge_table} ON ({edge_table}.{source} = end_vid)
+
+                UNION
+
+                SELECT start_vid, end_vid, ST_endPoint(geom)
+                FROM result JOIN {edge_table} ON ({edge_table}.{target} = end_vid)
+                )
+
+            SELECT result.*, ST_MakeLine(depart, arrive) AS path_geom
 
             FROM result
-            JOIN  {vertex_schema}.{vertex_table} AS a ON (start_vid = a.id)
-            JOIN  {vertex_schema}.{vertex_table} AS b ON (end_vid = b.id)
+            JOIN departure USING (start_vid, end_vid)
+            JOIN destination USING (start_vid, end_vid)
             """).format(**args)
 
     def draw(self, rows, con, args, geomType, canvasItemList, mapCanvas):
