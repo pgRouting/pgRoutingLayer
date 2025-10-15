@@ -94,7 +94,7 @@ def getCanvasSrid(crs):
 
 def createFromSrid(crs, srid):
     ''' Creates Spatial reference system based of SRID. '''
-    return crs.createFromSrid(srid)
+    return crs.createFromProj(str(srid))
 
 
 def getRubberBandType(isPolygon):
