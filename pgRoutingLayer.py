@@ -1098,8 +1098,9 @@ class PgRoutingLayer:
 
             #Utils.logMessage(PgrQ.get_closestVertexInfo(args).as_string(connection))
             cursor.execute(PgrQ.get_closestVertexInfo(args))
-            if cursor:
-                data = cursor.fetchone()
+            data = cursor.fetchone()
+            db.con.close()
+            if data:
                 return True, data[0], data[2]
             else:
                 return False, None, None
@@ -1107,6 +1108,7 @@ class PgRoutingLayer:
         except psycopg2.DatabaseError as e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self.dock, self.dock.windowTitle(), '%s' % e)
+            return False, None, None
 
         finally:
             if db and db.con:
