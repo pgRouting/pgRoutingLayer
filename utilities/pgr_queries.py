@@ -72,23 +72,26 @@ def getEdgesQueryXY(args):
         """.replace("\\n", r"\n")).format(**args)
 
 def getEndPoint(args, vertex_id):
-def getEndPoint(args, vertex_id):
     # Prefer source endpoint when available; otherwise fallback to target endpoint
     return sql.SQL("""
         SELECT COALESCE(
-            (SELECT ST_StartPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {source} = {vid} LIMIT 1),
-            (SELECT ST_EndPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {target} = {vid} LIMIT 1)
+            (SELECT ST_StartPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {source} = {vid} ORDER BY {id} LIMIT 1),
+            (SELECT ST_EndPoint({geometry}) FROM {edge_schema}.{edge_table} WHERE {target} = {vid} ORDER BY {id} LIMIT 1)
         )
     """.replace("\\n", r"\n")).format(**args, vid=vertex_id)
 
 def getCostLine(args, departure, arrival):
     return sql.Composed([
-            sql.SQL("SELECT ST_asText(ST_makeLine(("),
-            getEndPoint(args, departure),
-            sql.SQL("), ("),
-            getEndPoint(args, arrival),
-            sql.SQL("))) AS line")
-            ])
+        sql.SQL("SELECT ST_AsText("),
+        args['transform_s'],
+        sql.SQL("ST_MakeLine(("),
+        getEndPoint(args, departure),
+        sql.SQL("), ("),
+        getEndPoint(args, arrival),
+        sql.SQL("))"),
+        args['transform_e'],
+        sql.SQL(") AS line"),
+    ])
 
 def getMidPoint():
     return sql.SQL("SELECT ST_asText(ST_LineInterpolatePoint(ST_GeomFromText(%s),0.5))")
